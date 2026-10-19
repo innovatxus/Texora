@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCESS_DENIED_PATH, decideAccess, SIGN_IN_PATH } from "@/lib/auth/access";
+import { requiredPermissionForPath } from "@/lib/auth/rbac";
 import { SESSION_COOKIE, verifySessionCookie } from "@/lib/auth/session";
+import { isKnownPath } from "@/config/routes";
 
 /**
  * Route access: the first of three enforcement points (proxy → Server Actions
@@ -9,6 +11,16 @@ import { SESSION_COOKIE, verifySessionCookie } from "@/lib/auth/session";
  */
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+
+  const permission = requiredPermissionForPath(pathname);
+  if (!permission) {
+    // Unknown top-level paths get a real 404 before any prerendered shell is sent.
+    if (!isKnownPath(pathname)) {
+      return NextResponse.rewrite(new URL("/_not-found", request.url), { status: 404 });
+    }
+    return NextResponse.next();
+  }
+
   const cookie = request.cookies.get(SESSION_COOKIE)?.value;
   // Revocation is checked on every mutation; skipping it here keeps navigation fast.
   const session = cookie ? await verifySessionCookie(cookie, { checkRevoked: false }) : null;
@@ -31,5 +43,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/admin/:path*"],
+  // Everything except framework assets, media and files with an extension.
+  matcher: ["/((?!_next/static|_next/image|media/|.*\\.[a-z0-9]+$).*)"],
 };

@@ -23,39 +23,39 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 | Feature                                             | Behaviour                                                       | Implementation              | Phase | Status  |
 | --------------------------------------------------- | --------------------------------------------------------------- | --------------------------- | ----- | ------- |
-| Module registry                                     | Typed blocks composed by merchandisers                          | `editorial/registry`        | 4     | Planned |
-| HeroBanner                                          | Image/video, overlay copy, 1–2 CTAs, focal point per breakpoint | `editorial/HeroBanner`      | 4     | Planned |
-| SplitFeature, CategoryTiles, StoryBlock, PromoStrip | Editorial blocks                                                | `editorial/*`               | 4     | Planned |
-| ProductCarousel                                     | Manual or rule-based                                            | `editorial/ProductCarousel` | 4     | Planned |
-| LookbookGrid / ShopTheLook                          | Shoppable hotspots                                              | `editorial/LookbookGrid`    | 4     | Planned |
-| Module scheduling & targeting                       | Start/end dates; guest/member/tier audience                     | Module schema + resolver    | 4     | Planned |
+| Module registry                                     | Typed blocks composed by merchandisers                          | `editorial/registry`        | 4     | Done    |
+| HeroBanner                                          | Image/video, overlay copy, 1–2 CTAs, focal point per breakpoint | `editorial/HeroBanner`      | 4     | Done    |
+| SplitFeature, CategoryTiles, StoryBlock, PromoStrip | Editorial blocks                                                | `editorial/*`               | 4     | Done    |
+| ProductCarousel                                     | Manual or rule-based                                            | `editorial/ProductCarousel` | 4     | Done    |
+| LookbookGrid / ShopTheLook                          | Shoppable hotspots                                              | `editorial/LookbookGrid`    | 4     | Done    |
+| Module scheduling & targeting                       | Start/end dates; guest/member/tier audience                     | Module schema + resolver    | 4     | Done    |
 | Module admin editor + preview                       | Form per Zod schema, live preview                               | `admin/content`             | 8     | Planned |
 
 ## 7.3 Product listing page
 
-| Feature                 | Behaviour                                                                                                       | Implementation                       | Phase | Status  |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ----- | ------- |
-| PLP header              | Breadcrumbs, title, editorial banner, product count                                                             | `plp/*`                              | 4     | Planned |
-| Facets                  | Category, size by type, fit family, colour family, price, material, category attributes, sale/new, availability | `plp/FacetGroup`                     | 4     | Planned |
-| Filter layout           | Desktop collapsible rail; mobile drawer with live "Show N results"                                              | `plp/FilterRail`, `plp/FilterDrawer` | 4     | Planned |
-| Filter logic            | OR within group, AND across groups; URL state, back-button safe                                                 | URL search params                    | 4     | Planned |
-| Active filters          | Chips with remove + Clear all                                                                                   | `plp/ActiveFilters`                  | 4     | Planned |
-| Sort                    | Featured, newest, price ↑/↓, best sellers, top rated                                                            | `plp/SortMenu`                       | 4     | Planned |
-| Grid density            | 2/3/4 desktop, 1/2 mobile, persisted                                                                            | `plp/GridDensityToggle`              | 4     | Planned |
-| Pagination              | Load more with count, SSR paginated URLs, scroll restore                                                        | `plp/PaginationLoadMore`             | 4     | Planned |
-| In-grid editorial tiles | Inserted at configured positions                                                                                | `plp/ProductGrid`                    | 4     | Planned |
+| Feature                 | Behaviour                                                                                                       | Implementation                       | Phase | Status                           |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ----- | -------------------------------- |
+| PLP header              | Breadcrumbs, title, editorial banner, product count                                                             | `plp/*`                              | 4     | Done                             |
+| Facets                  | Category, size by type, fit family, colour family, price, material, category attributes, sale/new, availability | `plp/FacetGroup`                     | 4     | Done (in-process; Algolia later) |
+| Filter layout           | Desktop collapsible rail; mobile drawer with live "Show N results"                                              | `plp/FilterRail`, `plp/FilterDrawer` | 4     | Done                             |
+| Filter logic            | OR within group, AND across groups; URL state, back-button safe                                                 | URL search params                    | 4     | Done                             |
+| Active filters          | Chips with remove + Clear all                                                                                   | `plp/ActiveFilters`                  | 4     | Done                             |
+| Sort                    | Featured, newest, price ↑/↓, best sellers, top rated                                                            | `plp/SortMenu`                       | 4     | Done                             |
+| Grid density            | 2/3/4 desktop, 1/2 mobile, persisted                                                                            | `plp/GridDensityToggle`              | 4     | Done                             |
+| Pagination              | Load more with count, SSR paginated URLs, scroll restore                                                        | `plp/PaginationLoadMore`             | 4     | Done                             |
+| In-grid editorial tiles | Inserted at configured positions                                                                                | `plp/ProductGrid`                    | 4     | Done                             |
 
 ## 7.4 Product card
 
-| Feature        | Behaviour                                              | Implementation                             | Phase | Status  |
-| -------------- | ------------------------------------------------------ | ------------------------------------------ | ----- | ------- |
-| Imagery        | 3:4, hover crossfade (desktop), mini-carousel (mobile) | `commerce/ProductCard`                     | 4     | Planned |
-| Swatches       | Max 5 + "+N"; swap image and link colour               | `commerce/SwatchPicker`                    | 4     | Planned |
-| Badges         | Priority-ordered, max 1 visible                        | `primitives/Badge` + resolver              | 4     | Planned |
-| Price & rating | Regular/sale/range, % off, stars + count               | `commerce/PriceDisplay`, `commerce/Rating` | 4     | Planned |
-| Quick add      | Size buttons on hover, adds and opens bag drawer       | `commerce/AddToBag`                        | 4     | Planned |
-| Quick view     | Modal behind feature flag                              | `features.ts` flag                         | 4     | Planned |
-| Wishlist heart | Optimistic, animated, accessible label                 | `commerce/WishlistButton`                  | 4     | Planned |
+| Feature        | Behaviour                                              | Implementation                             | Phase | Status                                |
+| -------------- | ------------------------------------------------------ | ------------------------------------------ | ----- | ------------------------------------- |
+| Imagery        | 3:4, hover crossfade (desktop), mini-carousel (mobile) | `commerce/ProductCard`                     | 4     | Done                                  |
+| Swatches       | Max 5 + "+N"; swap image and link colour               | `commerce/SwatchPicker`                    | 4     | Done                                  |
+| Badges         | Priority-ordered, max 1 visible                        | `primitives/Badge` + resolver              | 4     | Done                                  |
+| Price & rating | Regular/sale/range, % off, stars + count               | `commerce/PriceDisplay`, `commerce/Rating` | 4     | Done                                  |
+| Quick add      | Size buttons on hover, adds and opens bag drawer       | `commerce/AddToBag`                        | 4     | Done                                  |
+| Quick view     | Modal behind feature flag                              | `features.ts` flag                         | 4     | Planned (feature-flagged)             |
+| Wishlist heart | Optimistic, animated, accessible label                 | `commerce/WishlistButton`                  | 4     | Done (local; account sync in Phase 7) |
 
 ## 7.5 Product detail page
 

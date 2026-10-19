@@ -17,9 +17,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: cp .env.example .env.local
-      - run: npm run build
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e:visual:update
+      # The build prerenders catalog pages from Firestore, so it needs seeded emulators.
+      - run: >
+          npx firebase emulators:exec --only firestore,auth --project demo-texora
+          "npm run seed && npm run build && npm run e2e:visual:update"
       - uses: actions/upload-artifact@v7
         with:
           name: linux-visual-baselines

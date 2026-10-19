@@ -195,6 +195,222 @@ for (const [name, garment, color] of [
   writeFileSync(`${OUT}${name}.svg`, svg(garment, hex, "model"));
   count += 1;
 }
+// Editorial scenes: garments hanging from a rail (heroes) and outfits (lookbook).
+const hex = (code: string) => COLORS.find((c) => c.code === code)?.hex ?? "#c9b48f";
+
+function scene(
+  width: number,
+  height: number,
+  pieces: ReadonlyArray<readonly [garment: string, color: string]>,
+  options: { bg: string; rail: boolean; xStart?: number; heightFrac?: number },
+): string {
+  // Copy space: garments occupy [xStart, 1] horizontally and the top heightFrac vertically.
+  const x0 = width * (options.xStart ?? 0);
+  const span = width - x0;
+  const heightFrac = options.heightFrac ?? 0.82;
+  const n = pieces.length;
+  const railY = height * 0.12;
+  const groups = pieces
+    .map(([garmentKey, color], i) => {
+      const g = GARMENTS[garmentKey];
+      if (!g) throw new Error(`Unknown garment ${garmentKey}`);
+      if (options.rail) {
+        // Side by side on a rail; the hook top sits on the rail.
+        const scale = Math.min(span / n / 1000, (height * heightFrac) / 1500);
+        const cx = x0 + (span / n) * (i + 0.5);
+        const hookTop = g.shoulderY === null ? 110 : g.shoulderY - 190;
+        const ty = railY - hookTop * scale;
+        return `<g transform="translate(${cx - 600 * scale} ${ty}) scale(${scale})">${hanger(g)}${garmentGroup(g, hex(color))}</g>`;
+      }
+      // Outfit: pieces stacked top to bottom, overlapping slightly like a flat lay.
+      const row = height / n;
+      const scale = Math.min((width * 0.9) / 1000, (row * 1.15) / 1150);
+      const top = g.shoulderY === null ? 300 : g.shoulderY - 30;
+      const ty = row * i + height * 0.04 - top * scale;
+      return `<g transform="translate(${width / 2 - 600 * scale} ${ty}) scale(${scale})">${garmentGroup(g, hex(color))}</g>`;
+    })
+    .join("");
+  const defs = `<defs><linearGradient id="sheen" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.42" stop-color="#fff" stop-opacity="0.10"/><stop offset="0.6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.08"/></linearGradient><linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.18"/><stop offset="1" stop-color="#000" stop-opacity="0.05"/></linearGradient></defs>`;
+  const rail = options.rail
+    ? `<rect x="${Math.max(width * 0.03, x0 - width * 0.02)}" y="${railY - 8}" width="${width * 0.97 - Math.max(width * 0.03, x0 - width * 0.02)}" height="10" fill="#7d766b"/>`
+    : "";
+  const floor = `<rect y="${height * 0.93}" width="${width}" height="${height * 0.07}" fill="#000" opacity="0.035"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">${defs}<rect width="${width}" height="${height}" fill="${options.bg}"/><rect width="${width}" height="${height}" fill="url(#wall)"/>${floor}${rail}${groups}</svg>`;
+}
+
+const SCENES: Array<
+  [name: string, w: number, h: number, pieces: Array<[string, string]>, bg: string, rail: boolean]
+> = [
+  [
+    "hero-home",
+    2400,
+    1200,
+    [
+      ["coat", "camel"],
+      ["dress", "terracotta"],
+      ["shirt", "ivory"],
+      ["sweater", "forest"],
+      ["pants", "sand"],
+    ],
+    "#e6dfd4",
+    true,
+  ],
+  [
+    "hero-home-mobile",
+    1200,
+    1500,
+    [
+      ["coat", "camel"],
+      ["dress", "terracotta"],
+      ["sweater", "forest"],
+    ],
+    "#e6dfd4",
+    true,
+  ],
+  [
+    "hero-women",
+    2400,
+    1200,
+    [
+      ["dress", "oat"],
+      ["top", "blush"],
+      ["jeans", "light-wash"],
+      ["coat", "charcoal"],
+      ["sweater", "butter"],
+    ],
+    "#ebe4dc",
+    true,
+  ],
+  [
+    "hero-women-mobile",
+    1200,
+    1500,
+    [
+      ["dress", "oat"],
+      ["top", "blush"],
+      ["coat", "charcoal"],
+    ],
+    "#ebe4dc",
+    true,
+  ],
+  [
+    "hero-men",
+    2400,
+    1200,
+    [
+      ["coat", "navy"],
+      ["shirt", "chambray"],
+      ["sweater", "oat"],
+      ["jeans", "indigo"],
+      ["tee", "black"],
+    ],
+    "#e3e0d9",
+    true,
+  ],
+  [
+    "hero-men-mobile",
+    1200,
+    1500,
+    [
+      ["coat", "navy"],
+      ["shirt", "chambray"],
+      ["jeans", "indigo"],
+    ],
+    "#e3e0d9",
+    true,
+  ],
+  [
+    "hero-sale",
+    2400,
+    1000,
+    [
+      ["top", "terracotta"],
+      ["shirt", "sage"],
+      ["dress", "plum"],
+      ["tee", "butter"],
+    ],
+    "#efe6dc",
+    true,
+  ],
+  [
+    "hero-sale-mobile",
+    1200,
+    1500,
+    [
+      ["top", "terracotta"],
+      ["dress", "plum"],
+    ],
+    "#efe6dc",
+    true,
+  ],
+  [
+    "split-linen",
+    1200,
+    1500,
+    [
+      ["shirt", "oat"],
+      ["pants", "ivory"],
+    ],
+    "#ede7de",
+    true,
+  ],
+  [
+    "split-denim",
+    1200,
+    1500,
+    [
+      ["jeans", "indigo"],
+      ["jeans", "light-wash"],
+    ],
+    "#e7e4de",
+    true,
+  ],
+  [
+    "look-1",
+    1200,
+    1600,
+    [
+      ["top", "ivory"],
+      ["pants", "camel"],
+    ],
+    "#ece6dd",
+    false,
+  ],
+  [
+    "look-2",
+    1200,
+    1600,
+    [
+      ["sweater", "navy"],
+      ["jeans", "light-wash"],
+    ],
+    "#e8e4dd",
+    false,
+  ],
+  [
+    "look-3",
+    1200,
+    1600,
+    [
+      ["shirt", "chambray"],
+      ["pants", "olive"],
+    ],
+    "#eae5dc",
+    false,
+  ],
+];
+
+for (const [name, w, h, pieces, bg, rail] of SCENES) {
+  // Heroes carry overlay copy: left side clear on desktop, bottom clear on mobile.
+  const layout = name.startsWith("hero-")
+    ? name.endsWith("-mobile")
+      ? { heightFrac: 0.34 }
+      : { xStart: 0.42, heightFrac: 0.78 }
+    : {};
+  writeFileSync(`${OUT}${name}.svg`, scene(w, h, pieces, { bg, rail, ...layout }));
+  count += 1;
+}
+
 console.log(
   `Wrote ${count} placeholder images to public/media/placeholders (${readdirSync(OUT).length} files).`,
 );

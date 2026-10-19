@@ -92,6 +92,17 @@
       transform: none;
     }
   }
+  @keyframes wishlist-pop {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.25);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
   @keyframes sheet-out-top {
     from {
       opacity: 1;

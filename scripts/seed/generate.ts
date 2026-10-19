@@ -1,6 +1,7 @@
 // Deterministic seed generator. Pure: no I/O, so it is unit tested.
 // Every document is validated against its Zod schema before it is returned.
 import { createHash } from "node:crypto";
+import type { CmsPage } from "../../src/lib/cms/modules";
 import { ROLES, type Role } from "../../src/lib/auth/rbac";
 import {
   BADGE_PRIORITY,
@@ -42,6 +43,7 @@ import {
   STORES,
   type CategoryDefinition,
 } from "./catalog-definitions";
+import { buildPages } from "./pages";
 
 // ------------------------------------------------------------------ rng
 
@@ -108,6 +110,7 @@ export interface SeedData {
   promoCodes: PromoCode[];
   giftCards: GiftCard[];
   collections: Collection[];
+  pages: CmsPage[];
   settings: StoreSettings;
   /** Plain gift card code for local testing (only its hash is stored). */
   demoGiftCardCode: string;
@@ -648,7 +651,10 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
     updatedAt: now,
   });
 
+  const pages = buildPages(products, now);
+
   return {
+    pages,
     categories,
     products,
     variants,

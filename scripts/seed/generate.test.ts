@@ -1,5 +1,6 @@
 import { ROLES } from "../../src/lib/auth/rbac";
 import { FIT_FAMILIES } from "../../src/lib/validation";
+import { RESERVED_FILTER_KEYS } from "../../src/lib/catalog/listing";
 import { generateSeed } from "./generate";
 
 const NOW = new Date("2026-10-19T12:00:00Z");
@@ -64,5 +65,12 @@ describe("seed data", () => {
   it("stores only the hash of gift card codes", () => {
     for (const card of data.giftCards) expect(card.id).toMatch(/^[0-9a-f]{64}$/);
     expect(JSON.stringify(data.giftCards)).not.toContain(data.demoGiftCardCode);
+  });
+
+  it("never uses a reserved filter key as a product attribute", () => {
+    for (const p of data.products) {
+      for (const key of Object.keys(p.attributes))
+        expect(RESERVED_FILTER_KEYS.has(key)).toBe(false);
+    }
   });
 });

@@ -1,3 +1,4 @@
+import { BagDrawer } from "@/components/bag/BagDrawer";
 import { ConsentBanner } from "@/components/marketing/ConsentBanner";
 import { SignupModal } from "@/components/marketing/SignupModal";
 import { AnnouncementBar } from "@/components/navigation/AnnouncementBar";
@@ -21,6 +22,7 @@ export default function StorefrontLayout({ children }: LayoutProps<"/">) {
       <Footer />
       <MobileNav />
       <SearchOverlay />
+      <BagDrawer />
       <ConsentBanner />
       <SignupModal />
       <StoreHydration />

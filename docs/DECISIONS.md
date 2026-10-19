@@ -184,3 +184,38 @@ Values from localStorage, sessionStorage, cookies and the clock are read with `u
 
 **Date:** 2026-10-19 · **Phase:** 3
 Radix Dialog returns focus only to its own `Trigger`. Drawers and modals here are opened from anywhere through the UI store, so `Drawer` and `Modal` record the focused element on open and restore it on close (caught by the shell e2e suite).
+
+## D-036 — CMS module registry
+
+**Date:** 2026-10-19 · **Phase:** 4
+Pages (`pages/{slug}` in Firestore) are ordered lists of typed modules: hero, promo strip, category tiles, product carousel (manual or rule-based), split feature, story block, lookbook (shoppable hotspots) and shop-the-look. `src/lib/cms/modules.ts` holds one Zod schema per type in a discriminated union, so a malformed module never reaches a page. Pages are cached for minutes so schedule windows open and close without a deploy. Modules targeted at members or loyalty tiers render behind `<Suspense>` after a session check, so the rest of the page stays static. Heroes are art-directed: separate mobile and desktop crops positioned by focal point.
+
+## D-037 — Listing engine and URL state
+
+**Date:** 2026-10-19 · **Phase:** 4
+`src/lib/catalog/listing.ts` (pure, unit-tested) owns filter parsing, faceting, sorting and paging. Filters are OR within a group and AND across groups; each facet counts results with every other active filter applied. All state is in the URL (shareable, back-button safe); filtered URLs canonicalise to the unfiltered listing. "Load more" links to `?page=N`, which renders the first N pages, so it is crawlable and the browser restores scroll on back. It runs over a cached index of live products joined with variant stock (a projection read, not full documents). The Algolia adapter replaces the index without UI changes.
+
+## D-038 — Builds need seeded data
+
+**Date:** 2026-10-19 · **Phase:** 4
+Catalog pages are partially prerendered from Firestore, so `npm run build` (and `npm run verify`) need the emulators running and seeded locally (`npm run emulators`, `npm run seed`). CI and the baseline workflow wrap seed + build + e2e in `firebase emulators:exec`. Production builds read the real project.
+
+## D-039 — HTTP status with Partial Prerendering
+
+**Date:** 2026-10-19 · **Phase:** 4
+With PPR, a dynamic route's prerendered fallback shell is sent with status 200 before page code runs, so `notFound()` cannot change the status. Two measures:
+
+1. The proxy answers 404 for any unknown first path segment, using an allow-list (`src/config/routes.ts`) that a unit test keeps in sync with the folders in `src/app`.
+2. Listing routes validate their params before streaming (`instant = false`), so every known URL is prerendered and errors surface early.
+
+**Known limitation:** an unknown category inside a valid department (e.g. `/women/xyz`) returns 200 in production with the branded not-found page and `noindex`. Revisit in the Phase 9 SEO pass (for example by teaching the proxy the category list).
+
+## D-040 — Reserved filter keys
+
+**Date:** 2026-10-19 · **Phase:** 4
+A product attribute named `fit` (slim/standard) collided with the fit-family filter in both facets and URLs. The attribute is now `cut`, and `RESERVED_FILTER_KEYS` plus a seed test stop any attribute from reusing a built-in filter key.
+
+## D-041 — Touch targets in dense filters
+
+**Date:** 2026-10-19 · **Phase:** 4
+Axe (WCAG 2.2, SC 2.5.8) flagged 18px filter checkboxes and their spacing to the accordion headers. Checkboxes are now 20px with 12px row gaps and top padding, so every target has a clear 24px zone. Quick-add panels are height-capped so they never cover the wishlist button.

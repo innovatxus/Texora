@@ -88,3 +88,33 @@ export async function listAllLiveProducts(): Promise<Product[]> {
     .map((s) => parseSnapshot(productSchema, s))
     .filter((p): p is Product => p !== null);
 }
+
+export interface VariantStockRow {
+  sku: string;
+  productId: string;
+  color: string;
+  fitFamily: string;
+  size: string;
+  stockByLocation: Record<string, number>;
+}
+
+/**
+ * Stock fields for every variant, for listing facets and quick add. Reads a
+ * projection only, so the full documents never leave Firestore.
+ */
+export async function listVariantStockRows(): Promise<VariantStockRow[]> {
+  const snapshot = await variants()
+    .select("productId", "color", "fitFamily", "size", "stockByLocation")
+    .get();
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      sku: doc.id,
+      productId: String(data.productId),
+      color: String(data.color),
+      fitFamily: String(data.fitFamily),
+      size: String(data.size),
+      stockByLocation: (data.stockByLocation ?? {}) as Record<string, number>,
+    };
+  });
+}

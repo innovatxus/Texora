@@ -311,22 +311,3 @@ export const storeSettingsSchema = z.object({
   updatedAt: timestampSchema,
 });
 export type StoreSettings = z.infer<typeof storeSettingsSchema>;
-
-/** CMS page envelope; module payloads are typed by the module registry (Phase 4). */
-export const pageSchema = z.object({
-  id: idSchema,
-  slug: z.string().min(1).max(120),
-  title: z.string().min(1).max(120),
-  modules: z.array(
-    z.object({
-      id: idSchema,
-      type: z.string().min(1),
-      data: z.record(z.string(), z.unknown()),
-      schedule: scheduleSchema,
-      audience: z.array(audienceSchema).min(1),
-    }),
-  ),
-  status: z.enum(["draft", "scheduled", "live", "archived"]),
-  updatedAt: timestampSchema,
-});
-export type Page = z.infer<typeof pageSchema>;

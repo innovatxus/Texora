@@ -44,6 +44,8 @@ Every role has an account `<role>@texora.test` (underscores become hyphens), all
 
 A Husky pre-commit hook runs ESLint and Prettier on staged files.
 
+`build`, `verify` and `e2e` need the emulators running and seeded: catalog pages prerender from Firestore.
+
 ## Styleguide
 
 With `ENABLE_STYLEGUIDE=true` (the `.env.example` default), every token and primitive is catalogued at [http://localhost:3000/styleguide](http://localhost:3000/styleguide). It returns 404 when the flag is off; never enable it on a public deployment.
