@@ -31,7 +31,20 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run contrast:check
+      - run: npm run rules:check
       - run: npm run test
+
+      # Firestore rules matrix and server integration tests run on the emulators.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('package-lock.json') }}
+      - run: npm run test:rules
+      - run: npm run test:integration
 
       - uses: actions/cache@v6
         with:

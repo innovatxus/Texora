@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   experimental: {
     agentFeedback: true,
+    // Enables forbidden() / unauthorized() and their 403/401 pages.
+    authInterrupts: true,
   },
   cacheComponents: true,
   partialPrefetching: true,

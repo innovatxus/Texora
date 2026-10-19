@@ -116,3 +116,46 @@ Durations are declared as `--transition-duration-{fast,base,drawer,slow}` so Tai
 
 **Date:** 2026-10-19 · **Phase:** 1
 The first CI run failed in `npm ci` on the day `ubuntu-latest` began moving to Ubuntu 26. CI now pins `ubuntu-24.04` and reads Node from `.nvmrc` (24, the version used locally, whose bundled npm 11 wrote the lockfile). Actions moved to their current majors (checkout/setup-node/upload-artifact v7, cache v6) after GitHub's Node 20 runtime deprecation. Move to a newer image deliberately, in its own PR.
+
+## D-024 — Custom claims carry only `role`; permissions are derived
+
+**Date:** 2026-10-19 · **Phase:** 2
+The brief suggests claims with `role` and `permissions[]`. Firebase caps custom claims at 1000 bytes, and the admin bundle alone exceeds that as a string array. Claims therefore carry `role` (plus `vendorId` for vendors). Every enforcement point derives permissions from `src/lib/auth/rbac.ts`: the proxy and Server Actions import it, and `npm run rules:generate` writes the role → permission map into `firestore.rules`. Changing a role's bundle is one edit, and CI fails if the generated rules are stale.
+
+## D-025 — Three enforcement points, permission-based everywhere
+
+**Date:** 2026-10-19 · **Phase:** 2
+
+1. **Proxy** (`src/proxy.ts`): optimistic route gate for `/account` and `/admin/*` from `ROUTE_PERMISSIONS`; redirects signed-out users to sign-in with a safe `next`, rewrites to a 403 page otherwise. Skips the revocation round trip for speed.
+2. **Server Actions**: every mutation goes through `runAction()` (Zod → `requirePermission()` with revocation check → handler → typed result). Pages use `requirePagePermission()`, which renders `forbidden()` / `unauthorized()` (`experimental.authInterrupts`).
+3. **Firestore rules**: check permissions, never role names. Own-data rules also require the matching permission, so an unrecognised role claim gets no access at all (found by the rules matrix).
+
+## D-026 — Merchandiser price changes go through approval requests
+
+**Date:** 2026-10-19 · **Phase:** 2
+"Merchandisers cannot change prices on live products without pricing_manager approval" is modelled as a `priceChangeRequests` collection: merchandisers create pending requests, pricing managers approve or reject them, and only `pricing.write` may change variant prices or the denormalised `priceRange`. Stock, price and catalog fields on a variant are separate permission scopes, and a single update cannot mix them.
+
+## D-027 — Money in minor units; Firestore-safe shapes
+
+**Date:** 2026-10-19 · **Phase:** 2
+All prices are integers in cents. Products denormalise `categoryKeys` (`["women", "women/jeans"]`) so category listings are exact `array-contains` queries; this also avoids nested arrays, which Firestore rejects (the seed caught a `string[][]` promotion condition). Gift cards store a SHA-256 of the code, never the code.
+
+## D-028 — Session cookies
+
+**Date:** 2026-10-19 · **Phase:** 2
+Firebase session cookies named `__session` (the only cookie Firebase Hosting forwards), HTTP-only, `SameSite=Lax`, `Secure` in production, 5-day lifetime, minted only from a sign-in under 5 minutes old. Anonymous auth is used for guest carts but never gets a session cookie. A user profile with role `customer` is created on first sign-in.
+
+## D-029 — Test layers
+
+**Date:** 2026-10-19 · **Phase:** 2
+
+- `npm test`: unit tests (Vitest, jsdom), no emulators.
+- `npm run test:rules`: the Firestore rules matrix, every case × 13 personas (950 checks), expected outcomes derived from `rbac.ts`.
+- `npm run test:integration`: repositories, sessions, role assignment and audit logging against seeded emulators (seeded with the same writer as `npm run seed`).
+- `npm run e2e`: Playwright against a production build.
+  All four run in CI.
+
+## D-030 — Placeholder imagery paths
+
+**Date:** 2026-10-19 · **Phase:** 2
+Seeded products reference `/media/placeholders/{garment}-{colour}-{view}.svg`. Phase 4 generates those self-drawn SVGs into `public/media` (no third-party imagery), so the data contract is fixed now.

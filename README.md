@@ -15,23 +15,32 @@ The full build brief is in [`STOREFRONT_BUILD_PROMPT.md`](STOREFRONT_BUILD_PROMP
 npm install
 cp .env.example .env.local   # emulator defaults, no credentials needed
 npm run emulators            # terminal 1: Auth, Firestore, Storage + UI at http://127.0.0.1:4000
+npm run seed                 # terminal 2: 132 products, 3 stores, reviews, promotions, demo accounts
 npm run dev                  # terminal 2: http://localhost:3000
 ```
 
+### Demo accounts (emulators only)
+
+Every role has an account `<role>@texora.test` (underscores become hyphens), all with the password `Texora-demo-1`: `customer`, `loyalty-member`, `customer-service`, `merchandiser`, `pricing-manager`, `inventory-manager`, `fulfillment`, `vendor`, `admin`, `super-admin`. Promo codes: `WELCOME15`, `SPEND200`. Demo gift card: `TXGC-DEMO-2026-0001`.
+
 ## Scripts
 
-| Script                                  | What it does                                                       |
-| --------------------------------------- | ------------------------------------------------------------------ |
-| `dev` / `build` / `start`               | Next.js dev server, production build, production server            |
-| `typecheck`                             | Generates route types, then `tsc --noEmit`                         |
-| `lint` / `lint:fix`                     | ESLint, zero warnings allowed                                      |
-| `format` / `format:check`               | Prettier (with Tailwind class sorting)                             |
-| `test` / `test:watch` / `test:coverage` | Vitest unit and component tests                                    |
-| `e2e`                                   | Playwright against a production build (`npm run build` first)      |
-| `e2e:visual` / `e2e:visual:update`      | Visual regression against (or refreshing) the styleguide baselines |
-| `emulators`                             | Firebase emulators for the offline `demo-texora` project           |
-| `contrast` / `contrast:check`           | Regenerates or verifies `docs/CONTRAST.md` from the design tokens  |
-| `verify`                                | Everything CI checks, in order                                     |
+| Script                                  | What it does                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
+| `dev` / `build` / `start`               | Next.js dev server, production build, production server                      |
+| `typecheck`                             | Generates route types, then `tsc --noEmit`                                   |
+| `lint` / `lint:fix`                     | ESLint, zero warnings allowed                                                |
+| `format` / `format:check`               | Prettier (with Tailwind class sorting)                                       |
+| `test` / `test:watch` / `test:coverage` | Vitest unit and component tests                                              |
+| `test:rules`                            | Firestore rules matrix on the emulator (every role × collection × operation) |
+| `test:integration`                      | Repositories, sessions, roles and audit logging on seeded emulators          |
+| `seed`                                  | Reset and seed the running emulators                                         |
+| `rules:generate` / `rules:check`        | Build `firestore.rules` from `firestore/rules.template` and `rbac.ts`        |
+| `e2e`                                   | Playwright against a production build (`npm run build` first)                |
+| `e2e:visual` / `e2e:visual:update`      | Visual regression against (or refreshing) the styleguide baselines           |
+| `emulators`                             | Firebase emulators for the offline `demo-texora` project                     |
+| `contrast` / `contrast:check`           | Regenerates or verifies `docs/CONTRAST.md` from the design tokens            |
+| `verify`                                | Everything CI checks, in order                                               |
 
 A Husky pre-commit hook runs ESLint and Prettier on staged files.
 

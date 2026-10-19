@@ -1,0 +1,103 @@
+import { z } from "zod";
+
+/** Money in minor units (cents). Never use floats for prices. */
+export const moneySchema = z.number().int().nonnegative();
+
+export const idSchema = z.string().min(1).max(128);
+
+export const slugSchema = z
+  .string()
+  .min(1)
+  .max(120)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers and single hyphens");
+
+export const hexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/i, "Use a #RRGGBB colour");
+
+export const timestampSchema = z.date();
+
+export const CURRENCIES = ["USD"] as const;
+export const currencySchema = z.enum(CURRENCIES);
+
+export const DEPARTMENTS = ["women", "men"] as const;
+export const departmentSchema = z.enum(DEPARTMENTS);
+export type Department = z.infer<typeof departmentSchema>;
+
+export const FIT_FAMILIES = ["regular", "petite", "tall"] as const;
+export const fitFamilySchema = z.enum(FIT_FAMILIES);
+export type FitFamily = z.infer<typeof fitFamilySchema>;
+
+export const SIZE_TYPES = ["alpha", "numeric", "waist_inseam", "shoe"] as const;
+export const sizeTypeSchema = z.enum(SIZE_TYPES);
+export type SizeType = z.infer<typeof sizeTypeSchema>;
+
+export const COLOR_FAMILIES = [
+  "black",
+  "white",
+  "neutral",
+  "brown",
+  "grey",
+  "blue",
+  "green",
+  "red",
+  "pink",
+  "yellow",
+  "orange",
+  "purple",
+  "multi",
+] as const;
+export const colorFamilySchema = z.enum(COLOR_FAMILIES);
+export type ColorFamily = z.infer<typeof colorFamilySchema>;
+
+/** Publication lifecycle shared by catalog and CMS documents. */
+export const PUBLISH_STATUSES = ["draft", "scheduled", "live", "archived"] as const;
+export const publishStatusSchema = z.enum(PUBLISH_STATUSES);
+export type PublishStatus = z.infer<typeof publishStatusSchema>;
+
+export const seoSchema = z.object({
+  title: z.string().max(70).optional(),
+  description: z.string().max(160).optional(),
+  canonicalPath: z.string().startsWith("/").optional(),
+});
+
+export const imageSchema = z.object({
+  url: z.string().min(1),
+  alt: z.string().max(200),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  /** Focal point (0–1) used for responsive cropping. */
+  focal: z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) }).optional(),
+});
+export type Image = z.infer<typeof imageSchema>;
+
+export const addressSchema = z.object({
+  firstName: z.string().trim().min(1, "Enter a first name").max(60),
+  lastName: z.string().trim().min(1, "Enter a last name").max(60),
+  company: z.string().trim().max(100).optional(),
+  line1: z.string().trim().min(1, "Enter an address").max(120),
+  line2: z.string().trim().max(120).optional(),
+  city: z.string().trim().min(1, "Enter a city").max(80),
+  region: z.string().trim().min(1, "Enter a state or region").max(80),
+  postalCode: z.string().trim().min(3, "Enter a postcode").max(12),
+  country: z.string().length(2, "Use a 2-letter country code").toUpperCase(),
+  phone: z.string().trim().max(30).optional(),
+});
+export type Address = z.infer<typeof addressSchema>;
+
+export const geoSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+});
+
+/** Audience targeting for CMS modules and promotions. */
+export const AUDIENCES = ["everyone", "guest", "member", "core", "enthusiast", "icon"] as const;
+export const audienceSchema = z.enum(AUDIENCES);
+
+export const scheduleSchema = z
+  .object({
+    startsAt: timestampSchema.optional(),
+    endsAt: timestampSchema.optional(),
+  })
+  .refine((s) => !s.startsAt || !s.endsAt || s.startsAt < s.endsAt, {
+    message: "End must be after start",
+    path: ["endsAt"],
+  });

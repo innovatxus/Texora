@@ -1,0 +1,259 @@
+rules_version = '2';
+
+// Firestore Security Rules for Texora.
+// Edit firestore/rules.template, then run `npm run rules:generate`.
+// The role → permission map below is generated from src/lib/auth/rbac.ts.
+//
+// Principles:
+// - Deny by default; every collection is listed explicitly.
+// - Checks name permissions, never roles, so role bundles change in one place.
+// - Server Actions use the Admin SDK and re-check permissions themselves;
+//   these rules are the data-layer enforcement for any client SDK access.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- auth
+
+    function rolePermissions() {
+      return {{ROLE_PERMISSIONS}};
+    }
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAnonymous() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    // Anonymous sessions are guests; signed-in users without a role claim are customers.
+    function role() {
+      return !signedIn() || isAnonymous() ? 'guest' : request.auth.token.get('role', 'customer');
+    }
+
+    function can(permission) {
+      return permission in rolePermissions().get(role(), []);
+    }
+
+    function isUser(uid) {
+      return signedIn() && !isAnonymous() && request.auth.uid == uid;
+    }
+
+    function isAuthUid(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function vendorId() {
+      return request.auth.token.get('vendorId', '');
+    }
+
+    // ------------------------------------------------------------- helpers
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function isLive() {
+      return resource.data.status == 'live';
+    }
+
+    // Setting a document live for the first time requires publish rights.
+    function publishAllowed() {
+      return incoming().status != 'live'
+        || (resource != null && resource.data.status == 'live')
+        || can('catalog.publish');
+    }
+
+    function vendorOwnsIncoming() {
+      return can('vendor.catalog.write')
+        && vendorId() != ''
+        && incoming().get('vendorId', '') == vendorId()
+        && (resource == null || resource.data.get('vendorId', '') == vendorId());
+    }
+
+    // -------------------------------------------------------------- catalog
+
+    match /products/{productId} {
+      allow get, list: if isLive() || can('catalog.read_drafts')
+        || (can('vendor.catalog.write') && vendorId() != '' && resource.data.get('vendorId', '') == vendorId());
+      allow create: if (can('catalog.write') || vendorOwnsIncoming()) && publishAllowed();
+      // Display prices are denormalised from variants; only pricing may change them.
+      allow update: if (can('catalog.write') || vendorOwnsIncoming())
+        && publishAllowed()
+        && (!changedKeys().hasAny(['priceRange']) || can('pricing.write'));
+      allow delete: if can('catalog.write');
+    }
+
+    match /variants/{sku} {
+      allow get, list: if true;
+      allow create: if can('catalog.write') || vendorOwnsIncoming();
+      allow update: if
+        (changedKeys().hasOnly(['stockByLocation', 'availableOnline', 'backorder', 'lowStockThreshold', 'updatedAt'])
+          && can('inventory.write'))
+        || (changedKeys().hasOnly(['price', 'compareAtPrice', 'updatedAt']) && can('pricing.write'))
+        || (!changedKeys().hasAny(['price', 'compareAtPrice', 'stockByLocation'])
+          && (can('catalog.write') || vendorOwnsIncoming()));
+      allow delete: if can('catalog.write');
+    }
+
+    match /priceChangeRequests/{requestId} {
+      allow get, list: if can('catalog.write') || can('pricing.approve');
+      allow create: if can('catalog.write')
+        && incoming().requestedBy == request.auth.uid
+        && incoming().status == 'pending';
+      allow update: if can('pricing.approve')
+        && resource.data.status == 'pending'
+        && changedKeys().hasOnly(['status', 'decidedBy', 'decidedAt'])
+        && incoming().status in ['approved', 'rejected']
+        && incoming().decidedBy == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /categories/{categoryId} {
+      allow get, list: if isLive() || can('catalog.read_drafts');
+      allow create, update, delete: if can('merch.write');
+    }
+
+    match /collections/{collectionId} {
+      allow get, list: if isLive() || can('catalog.read_drafts');
+      allow create, update, delete: if can('merch.write');
+    }
+
+    match /pages/{pageId} {
+      allow get, list: if isLive() || can('content.write');
+      allow create, update, delete: if can('content.write');
+    }
+
+    match /stores/{storeId} {
+      allow get, list: if true;
+      allow create, update, delete: if can('settings.write');
+    }
+
+    match /reviews/{reviewId} {
+      allow get, list: if resource.data.status == 'approved'
+        || isUser(resource.data.userId)
+        || can('reviews.moderate');
+      // Server fields (verification, votes, moderation) cannot be set by the author.
+      allow create: if can('reviews.write')
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pending'
+        && incoming().verifiedPurchase == false
+        && incoming().helpfulCount == 0
+        && incoming().rating is int && incoming().rating >= 1 && incoming().rating <= 5
+        && !('moderatedBy' in incoming());
+      allow update: if can('reviews.moderate')
+        && changedKeys().hasOnly(['status', 'moderatedBy'])
+        && incoming().moderatedBy == request.auth.uid;
+      allow delete: if can('reviews.moderate');
+    }
+
+    // ------------------------------------------------------------ customers
+
+    match /users/{uid} {
+      allow get: if isUser(uid) || can('customers.read');
+      allow list: if can('customers.read');
+      // Profiles are created by the server at sign-up, with role 'customer'.
+      allow create: if false;
+      // Role, loyalty and status changes happen only through audited Server Actions.
+      allow update: if ((isUser(uid) && can('account.manage')) || can('customers.write'))
+        && changedKeys().hasOnly(['firstName', 'lastName', 'phone', 'preferences', 'savedSizes', 'updatedAt']);
+      allow delete: if false;
+
+      match /addresses/{addressId} {
+        allow get, list: if (isUser(uid) && can('addresses.manage')) || can('customers.read');
+        allow create, update, delete: if isUser(uid) && can('addresses.manage');
+      }
+
+      match /wishlist/{itemId} {
+        allow get, list: if (isUser(uid) && can('wishlist.sync')) || can('customers.read');
+        allow create, update, delete: if isUser(uid) && can('wishlist.sync');
+      }
+
+      // Provider tokens are attached and detached by the server only.
+      match /paymentMethods/{methodId} {
+        allow get, list: if isUser(uid) && can('payment_methods.manage');
+        allow create, update, delete: if false;
+      }
+    }
+
+    // ------------------------------------------------------------- commerce
+
+    match /carts/{cartId} {
+      allow get: if isAuthUid(resource.data.ownerUid) && can('checkout.guest');
+      allow list: if false;
+      allow create: if isAuthUid(incoming().ownerUid) && can('checkout.guest');
+      allow update: if isAuthUid(resource.data.ownerUid) && can('checkout.guest')
+        && incoming().ownerUid == resource.data.ownerUid;
+      allow delete: if isAuthUid(resource.data.ownerUid) && can('checkout.guest');
+    }
+
+    // Orders, returns, payments and stock are written only by the server.
+    match /orders/{orderId} {
+      allow get, list: if isUser(resource.data.userId)
+        || can('orders.read')
+        || (can('vendor.orders.read') && vendorId() != '' && vendorId() in resource.data.get('vendorIds', []));
+      allow create, update, delete: if false;
+    }
+
+    match /returns/{returnId} {
+      allow get, list: if isUser(resource.data.userId) || can('returns.read');
+      allow create, update, delete: if false;
+    }
+
+    match /inventoryReservations/{reservationId} {
+      allow get, list: if can('inventory.read');
+      allow create, update, delete: if false;
+    }
+
+    // ----------------------------------------------------------- promotions
+
+    // Codes are never readable by shoppers; the server validates them.
+    match /promotions/{promotionId} {
+      allow get, list: if can('promotions.write');
+      allow create, update, delete: if can('promotions.write');
+    }
+
+    match /promoCodes/{code} {
+      allow get, list: if can('promotions.write');
+      allow create, update, delete: if can('promotions.write');
+    }
+
+    // Balances change only through server-side redemption.
+    match /giftCards/{cardId} {
+      allow get, list: if can('giftcards.issue') || can('orders.read');
+      allow create: if can('giftcards.issue') && incoming().balance == incoming().initialBalance;
+      allow update, delete: if false;
+    }
+
+    // ------------------------------------------------------- notifications
+
+    match /notifications/{notificationId} {
+      allow get, list: if isUser(resource.data.get('userId', ''));
+      allow create: if signedIn() && !isAnonymous() && can('account.manage')
+        && incoming().userId == request.auth.uid
+        && !('sentAt' in incoming());
+      allow delete: if isUser(resource.data.get('userId', ''));
+      allow update: if false;
+    }
+
+    // ------------------------------------------------------- administration
+
+    match /auditLogs/{logId} {
+      allow get, list: if can('audit.read');
+      allow create, update, delete: if false;
+    }
+
+    match /settings/{settingsId} {
+      allow get, list: if can('settings.read');
+      allow create, update: if can('settings.write');
+      allow delete: if false;
+    }
+
+    // Everything not matched above is denied.
+  }
+}
