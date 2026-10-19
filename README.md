@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Texora storefront
 
-## Getting Started
+Specialty-apparel e-commerce platform built with Next.js 16 (App Router, Cache Components), React 19, TypeScript (strict), Tailwind CSS v4 and Firebase.
 
-First, run the development server:
+The full build brief is in [`STOREFRONT_BUILD_PROMPT.md`](STOREFRONT_BUILD_PROMPT.md). Decisions are logged in [`docs/DECISIONS.md`](docs/DECISIONS.md).
+
+## Requirements
+
+- **Node.js 22.12 or newer** (22 LTS latest patch recommended; the test toolchain needs it)
+- **Java 21+** for the Firebase emulators
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # emulator defaults, no credentials needed
+npm run emulators            # terminal 1: Auth, Firestore, Storage + UI at http://127.0.0.1:4000
+npm run dev                  # terminal 2: http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script                                  | What it does                                                      |
+| --------------------------------------- | ----------------------------------------------------------------- |
+| `dev` / `build` / `start`               | Next.js dev server, production build, production server           |
+| `typecheck`                             | Generates route types, then `tsc --noEmit`                        |
+| `lint` / `lint:fix`                     | ESLint, zero warnings allowed                                     |
+| `format` / `format:check`               | Prettier (with Tailwind class sorting)                            |
+| `test` / `test:watch` / `test:coverage` | Vitest unit and component tests                                   |
+| `e2e`                                   | Playwright against a production build (`npm run build` first)     |
+| `emulators`                             | Firebase emulators for the offline `demo-texora` project          |
+| `contrast` / `contrast:check`           | Regenerates or verifies `docs/CONTRAST.md` from the design tokens |
+| `verify`                                | Everything CI checks, in order                                    |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+A Husky pre-commit hook runs ESLint and Prettier on staged files.
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/          routes ((storefront), (admin), api)
+  components/   primitives, commerce, navigation, plp, pdp, bag, checkout, editorial, ...
+  config/       brand.ts, navigation, feature flags
+  lib/          env, firebase, auth, data repositories, payments, search, email, ...
+  stores/       client state (Zustand)
+  styles/       tokens.css (ATELIER design tokens), globals.css, fonts.ts
+e2e/            Playwright specs
+docs/           decisions, feature parity, contrast ratios
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All variables are validated with Zod at startup (`src/lib/env`). See [`.env.example`](.env.example) for the full list. `NEXT_PUBLIC_*` values are visible in the browser; never put secrets in them. In production with emulators off, `FIREBASE_SERVICE_ACCOUNT` (base64-encoded service-account JSON) is required.

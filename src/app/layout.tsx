@@ -1,0 +1,33 @@
+import type { Metadata, Viewport } from "next";
+import { brand } from "@/config/brand";
+import { clientEnv } from "@/lib/env/client";
+import { cn } from "@/lib/utils/cn";
+import { fontDisplay, fontSans } from "@/styles/fonts";
+import "@/styles/globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(clientEnv.NEXT_PUBLIC_SITE_URL),
+  title: {
+    default: brand.name,
+    template: `%s | ${brand.name}`,
+  },
+  description: brand.description,
+  applicationName: brand.name,
+  openGraph: {
+    siteName: brand.name,
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: brand.themeColor,
+  colorScheme: "light",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang={brand.locale} className={cn(fontSans.variable, fontDisplay.variable, "h-full")}>
+      <body className="flex min-h-full flex-col">{children}</body>
+    </html>
+  );
+}

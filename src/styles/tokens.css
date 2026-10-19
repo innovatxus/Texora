@@ -1,0 +1,77 @@
+/*
+ * ATELIER design tokens.
+ * Declared in @theme so Tailwind generates utilities (bg-canvas, text-ink, ...)
+ * and emits each token as a CSS variable on :root.
+ * Default Tailwind colours are cleared so only these tokens can be used.
+ */
+@theme {
+  --color-*: initial;
+
+  --color-canvas: #faf8f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1ede7;
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #4a4744;
+  --color-ink-subtle: #6e6963;
+  --color-line: #ddd7cf;
+  --color-line-strong: #1a1a1a;
+  --color-accent: #6b5b45;
+  --color-sale: #9a2a1f;
+  --color-success: #2f5d3a;
+  --color-warning: #8a6100;
+  --color-focus: #2b5cd6;
+  --color-scrim: rgb(26 26 26 / 0.4);
+
+  /* Typography scale: fixed for UI sizes, fluid for editorial sizes. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.55;
+  --text-xl: clamp(1.25rem, 1.2rem + 0.25vw, 1.375rem);
+  --text-xl--line-height: 1.4;
+  --text-2xl: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem);
+  --text-2xl--line-height: 1.3;
+  --text-3xl: clamp(1.875rem, 1.6rem + 1vw, 2.25rem);
+  --text-3xl--line-height: 1.2;
+  --text-4xl: clamp(2.25rem, 1.8rem + 2vw, 3rem);
+  --text-4xl--line-height: 1.1;
+  --text-5xl: clamp(2.75rem, 2rem + 3.5vw, 4rem);
+  --text-5xl--line-height: 1.05;
+
+  --tracking-label: 0.08em;
+
+  /* Breakpoints (Section 4.5). */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  /* Layout. */
+  --container-page: 100rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-gutter-tablet: 1.5rem;
+  --spacing-gutter-desktop: 2.5rem;
+  --spacing-section-mobile: 4rem;
+  --spacing-section-desktop: 6rem;
+
+  /* Radius: sharp everywhere except chips. */
+  --radius-*: initial;
+  --radius-none: 0;
+  --radius-chip: 2px;
+
+  /* Elevation: overlays only. */
+  --shadow-*: initial;
+  --shadow-overlay: 0 8px 32px rgb(26 26 26 / 0.12);
+
+  /* Motion. */
+  --ease-atelier: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-drawer: 300ms;
+}

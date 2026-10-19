@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Font families resolve from the next/font CSS variables set on <html>. */
+@theme inline {
+  --font-*: initial;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: var(--spacing-gutter-mobile);
+
+  @media (width >= theme(--breakpoint-md)) {
+    padding-inline: var(--spacing-gutter-tablet);
+  }
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-inline: var(--spacing-gutter-desktop);
+  }
+}
+
+@utility section-y {
+  padding-block: var(--spacing-section-mobile);
+
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-block: var(--spacing-section-desktop);
+  }
+}
+
+/* Uppercase label style for nav items and buttons (Section 4.2). */
+@utility text-label {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-canvas);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      translate: none !important;
+      scale: none !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}

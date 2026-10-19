@@ -1,0 +1,10 @@
+rules_version = '2';
+
+// Deny-by-default baseline until media upload rules land with the data layer.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
