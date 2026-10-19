@@ -125,7 +125,7 @@ function sizesFor(def: CategoryDefinition, fit: FitFamily): string[] {
 function imagesFor(garment: string, colorCode: string, alt: string) {
   return (["model", "flat", "detail"] as const).map((view) => ({
     url: `/media/placeholders/${garment}-${colorCode}-${view}.svg`,
-    alt: `${alt}, ${view === "model" ? "on model" : view === "flat" ? "flat lay" : "fabric detail"}`,
+    alt: `${alt}, ${view === "model" ? "front view" : view === "flat" ? "flat lay" : "fabric detail"}`,
     width: 1200,
     height: 1600,
   }));

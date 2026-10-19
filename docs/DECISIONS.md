@@ -159,3 +159,28 @@ Firebase session cookies named `__session` (the only cookie Firebase Hosting for
 
 **Date:** 2026-10-19 · **Phase:** 2
 Seeded products reference `/media/placeholders/{garment}-{colour}-{view}.svg`. Phase 4 generates those self-drawn SVGs into `public/media` (no third-party imagery), so the data contract is fixed now.
+
+## D-031 — UI first, functionality second
+
+**Date:** 2026-10-19 · **Phase:** 3
+At the owner's request the remaining phases are reordered: every screen is built first (shell, catalog, PDP, bag/checkout, account, back office) against the real seeded data, then the functional integrations follow (Algolia, promotions engine, payments, order placement, email, returns, loyalty, admin mutations). Phase numbers in this log keep the brief's numbering; the build order is the owner's.
+
+## D-032 — In-process search until Algolia is connected
+
+**Date:** 2026-10-19 · **Phase:** 3
+The search overlay calls a `suggest` Server Action backed by a pure, unit-tested matcher (`src/lib/search/match.ts`): AND matching, prefix on the last word, one-typo tolerance on 4+ letter words, plural stemming and retail synonyms, over a cached index of live products. It is real search over real data, sized for the current catalogue; the Algolia adapter replaces the action without UI changes.
+
+## D-033 — Generated placeholder imagery
+
+**Date:** 2026-10-19 · **Phase:** 3
+`npm run placeholders` (run automatically before `dev` and `build`) draws 532 original SVG illustrations (8 garments × 22 colours × 3 views, plus editorial tiles) into `public/media/placeholders`, which is git-ignored. No third-party imagery. Product alt text describes the view honestly ("front view", "flat lay", "fabric detail").
+
+## D-034 — Browser state through useSyncExternalStore
+
+**Date:** 2026-10-19 · **Phase:** 3
+Values from localStorage, sessionStorage, cookies and the clock are read with `useSyncExternalStore` (`src/lib/browser/hooks.ts`) instead of set in effects: no hydration mismatch, no extra render, and same-tab writes notify subscribers. Persisted Zustand stores (bag, recently viewed) hydrate after mount via `StoreHydration`.
+
+## D-035 — Focus restoration for store-driven panels
+
+**Date:** 2026-10-19 · **Phase:** 3
+Radix Dialog returns focus only to its own `Trigger`. Drawers and modals here are opened from anywhere through the UI store, so `Drawer` and `Modal` record the focused element on open and restore it on close (caught by the shell e2e suite).

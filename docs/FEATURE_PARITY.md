@@ -6,18 +6,18 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.1 Global shell
 
-| Feature          | Behaviour                                                                               | Implementation                       | Phase | Status  |
-| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------ | ----- | ------- |
-| Announcement bar | Rotating CMS messages, dismissible, link, optional countdown                            | `navigation/AnnouncementBar`         | 3     | Planned |
-| Header           | Logo, department nav, search, stores, account, wishlist, live bag count                 | `navigation/Header`                  | 3     | Planned |
-| Sticky header    | Shows on scroll-up, hides on scroll-down, compact after 80px                            | `navigation/Header`                  | 3     | Planned |
-| Mega menu        | 150ms hover intent, keyboard, category/fit columns, featured tile, Esc/outside close    | `navigation/MegaMenu`                | 3     | Planned |
-| Mobile nav       | Full-height drawer, drill-down panels, recently viewed, account shortcuts               | `navigation/MobileNav`               | 3     | Planned |
-| Search overlay   | 150ms debounced instant results, suggestions, top 4 hits, recents, no-results fallback  | `navigation/SearchOverlay` + Algolia | 3     | Planned |
-| Search relevance | Typo tolerance and synonyms                                                             | Algolia index settings               | 3     | Planned |
-| Footer           | Link columns, email signup with consent, social, country/currency, legal, payment icons | `navigation/Footer`                  | 3     | Planned |
-| Signup modal     | Time/scroll trigger, frequency cap, suppressed in checkout                              | `feedback/SignupModal`               | 3     | Planned |
-| Cookie consent   | Category toggles; analytics only after consent                                          | `feedback/ConsentBanner`             | 3     | Planned |
+| Feature          | Behaviour                                                                               | Implementation                       | Phase | Status                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------ | ----- | ----------------------------------------------------------------------- |
+| Announcement bar | Rotating CMS messages, dismissible, link, optional countdown                            | `navigation/AnnouncementBar`         | 3     | Done (UI); CMS-driven messages in Phase 8                               |
+| Header           | Logo, department nav, search, stores, account, wishlist, live bag count                 | `navigation/Header`                  | 3     | Done                                                                    |
+| Sticky header    | Shows on scroll-up, hides on scroll-down, compact after 80px                            | `navigation/Header`                  | 3     | Done                                                                    |
+| Mega menu        | 150ms hover intent, keyboard, category/fit columns, featured tile, Esc/outside close    | `navigation/MegaMenu`                | 3     | Done                                                                    |
+| Mobile nav       | Full-height drawer, drill-down panels, recently viewed, account shortcuts               | `navigation/MobileNav`               | 3     | Done                                                                    |
+| Search overlay   | 150ms debounced instant results, suggestions, top 4 hits, recents, no-results fallback  | `navigation/SearchOverlay` + Algolia | 3     | Done (in-process index; Algolia later)                                  |
+| Search relevance | Typo tolerance and synonyms                                                             | Algolia index settings               | 3     | In progress (typos, plurals, synonyms in-process; Algolia config later) |
+| Footer           | Link columns, email signup with consent, social, country/currency, legal, payment icons | `navigation/Footer`                  | 3     | Done                                                                    |
+| Signup modal     | Time/scroll trigger, frequency cap, suppressed in checkout                              | `feedback/SignupModal`               | 3     | Done                                                                    |
+| Cookie consent   | Category toggles; analytics only after consent                                          | `feedback/ConsentBanner`             | 3     | Done (analytics gating applies once analytics lands)                    |
 
 ## 7.2 Home & editorial
 
@@ -125,7 +125,7 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 | Help centre        | FAQ search, shipping, returns, size guides | `help/[[...slug]]`                     | 7     | Planned |
 | Notifications      | Back in stock, price drop                  | `notifications` collection + Functions | 7     | Planned |
 | Recently viewed    | Local + synced                             | `stores/recentlyViewed`                | 5     | Planned |
-| Error pages        | Branded 404 / 500                          | `not-found.tsx`, `error.tsx`           | 3     | Planned |
+| Error pages        | Branded 404 / 500                          | `not-found.tsx`, `error.tsx`           | 3     | Done    |
 
 ## Exclusions
 

@@ -57,7 +57,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Visual baselines are per-OS; linux ones come from visual-baselines.yml.
       # Once e2e/__screenshots__/linux exists, the visual suite runs here too.
-      - run: npm run e2e -- --grep-invert @visual
+      # The storefront reads live data, so e2e runs against seeded emulators.
+      - run: >
+          npx firebase emulators:exec --only firestore,auth --project demo-texora
+          "npm run seed && npm run e2e -- --grep-invert @visual"
       - if: hashFiles('e2e/__screenshots__/linux/**') != ''
         run: npm run e2e:visual
 

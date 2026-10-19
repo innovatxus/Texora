@@ -10,7 +10,13 @@ export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { Chip, chipVariants, type ChipProps } from "./Chip";
 export { Divider, type DividerProps } from "./Divider";
 export { Field, FieldError, FieldHint, useFieldIds, type FieldProps } from "./Field";
-export { IconButton, iconButtonVariants, type IconButtonProps } from "./IconButton";
+export {
+  IconButton,
+  iconButtonVariants,
+  IconLink,
+  type IconButtonProps,
+  type IconLinkProps,
+} from "./IconButton";
 export { controlVariants, Input, type InputProps } from "./Input";
 export { Link, linkVariants, type LinkProps } from "./Link";
 export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./Radio";

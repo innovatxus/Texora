@@ -80,3 +80,11 @@ export async function getVariantsBySkus(skus: readonly string[]): Promise<Varian
     .map((s) => parseSnapshot(variantSchema, s, "sku"))
     .filter((v): v is Variant => v !== null);
 }
+
+/** Every live product. Used to build the in-process search index (132 docs today). */
+export async function listAllLiveProducts(): Promise<Product[]> {
+  const snapshot = await products().where("status", "==", "live").get();
+  return snapshot.docs
+    .map((s) => parseSnapshot(productSchema, s))
+    .filter((p): p is Product => p !== null);
+}

@@ -54,3 +54,6 @@ firestore-debug.log
 ui-debug.log
 storage-debug.log
 /.emulator-data
+
+# generated placeholder imagery (npm run placeholders)
+/public/media/placeholders

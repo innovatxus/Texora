@@ -8,6 +8,162 @@
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
 }
 
+/* Motion (Section 4.4): drawers 300ms slide, menus 150ms fade + 4px, overlays fade. */
+@theme {
+  --animate-fade-in: fade-in var(--transition-duration-base) var(--ease-atelier) both;
+  --animate-fade-out: fade-out var(--transition-duration-fast) var(--ease-atelier) both;
+  --animate-menu-in: menu-in var(--transition-duration-fast) var(--ease-atelier) both;
+  --animate-drawer-in-right: drawer-in-right var(--transition-duration-drawer) var(--ease-atelier)
+    both;
+  --animate-drawer-out-right: drawer-out-right var(--transition-duration-drawer) var(--ease-atelier)
+    both;
+  --animate-drawer-in-left: drawer-in-left var(--transition-duration-drawer) var(--ease-atelier)
+    both;
+  --animate-drawer-out-left: drawer-out-left var(--transition-duration-drawer) var(--ease-atelier)
+    both;
+  --animate-sheet-in-top: sheet-in-top var(--transition-duration-drawer) var(--ease-atelier) both;
+  --animate-sheet-out-top: sheet-out-top var(--transition-duration-base) var(--ease-atelier) both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes drawer-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes drawer-out-right {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes drawer-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes drawer-out-left {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes sheet-in-top {
+    from {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes sheet-out-top {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+  }
+}
+
+/* Reduced motion: movement becomes a plain fade. */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes drawer-in-right {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes drawer-out-right {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes drawer-in-left {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes drawer-out-left {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes sheet-in-top {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes sheet-out-top {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}
+
 @utility container-page {
   margin-inline: auto;
   width: 100%;
@@ -68,14 +224,15 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* Positioning transforms stay intact; animated movement is swapped for fades above. */
     *,
     *::before,
     *::after {
       scroll-behavior: auto !important;
-      translate: none !important;
-      scale: none !important;
-      animation-duration: 1ms !important;
-      animation-iteration-count: 1 !important;
+      transition-property: color, background-color, border-color, opacity !important;
+    }
+    .animate-spin {
+      animation-duration: 3s;
     }
   }
 }
