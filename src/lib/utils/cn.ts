@@ -9,6 +9,10 @@ const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
       "font-size": [{ text: ["label"] }],
+      duration: [{ duration: ["fast", "base", "drawer", "slow"] }],
+      ease: [{ ease: ["atelier"] }],
+      rounded: [{ rounded: ["chip"] }],
+      shadow: [{ shadow: ["overlay"] }],
     },
   },
 });

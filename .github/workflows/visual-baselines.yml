@@ -1,0 +1,27 @@
+name: Visual baselines (linux)
+
+# Run manually after an approved visual change. Download the artifact and
+# commit it under e2e/__screenshots__/linux so CI compares against it.
+on:
+  workflow_dispatch:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: cp .env.example .env.local
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e:visual:update
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-visual-baselines
+          path: e2e/__screenshots__/linux
+          retention-days: 14

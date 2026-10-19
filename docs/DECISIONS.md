@@ -71,3 +71,43 @@ Vitest 5 / Vite 8 and jsdom 30 depend on loading ES modules through `require()`,
 
 **Date:** 2026-10-19 · **Phase:** 0
 `next-intl` (i18n), Sentry and Web Vitals reporting are part of the stack but are installed when first needed (shell in Phase 3, observability in Phase 9), keeping Phase 0 limited to tooling the later phases build on.
+
+## D-015 — lint-staged pinned to v16 (local Git 2.31)
+
+**Date:** 2026-10-19 · **Phase:** 0
+lint-staged 17 refuses to run on Git older than 2.32, and this machine has 2.31 (the in-place Git upgrade needs every Git Bash process closed). v16 has no version gate and works. Upgrade Git, then lift the pin.
+
+## D-016 — React 19 `ref` as a prop instead of `forwardRef`
+
+**Date:** 2026-10-19 · **Phase:** 1
+The brief asks for `forwardRef` on focusable components. React 19 passes `ref` as an ordinary prop and is phasing `forwardRef` out. Primitives extend `ComponentProps<"element">`, which includes `ref`, and spread it onto the DOM node, so the brief's intent (consumers can focus the element) is met without the deprecated API.
+
+## D-017 — Native `<select>` for form selects
+
+**Date:** 2026-10-19 · **Phase:** 1
+`Select` wraps the native element: it keeps the platform picker on mobile, needs no JavaScript, and has full keyboard and screen-reader support. Radix Select stays allowed for custom listboxes that need rich option content (for example the PLP sort menu) and is added when one is built.
+
+## D-018 — Control borders use `ink-subtle`, not `line`
+
+**Date:** 2026-10-19 · **Phase:** 1
+WCAG 1.4.11 requires 3:1 for the boundary of a control. `line` (#DDD7CF) is about 1.3:1 on canvas, so inputs, selects, checkboxes, radios and outline icon buttons use `ink-subtle` (5.13:1) and darken to `ink` on hover/focus. `line` remains for decorative hairlines and disabled controls.
+
+## D-019 — Radios are circular; `sale` doubles as the error colour
+
+**Date:** 2026-10-19 · **Phase:** 1
+The sharp-corner rule has one exception: radios stay round, because shape is how people tell single from multiple choice. The token set has no separate error colour, so error text and invalid borders use `sale` (7.27:1 on canvas).
+
+## D-020 — Styleguide gated by `ENABLE_STYLEGUIDE`
+
+**Date:** 2026-10-19 · **Phase:** 1
+The brief says the styleguide is dev-only, but Playwright must test a production build. `/styleguide` therefore renders only when the server env flag `ENABLE_STYLEGUIDE=true` (set in `.env.example` for local and CI); otherwise it returns 404. It is also `noindex, nofollow`. Production deployments leave the flag unset.
+
+## D-021 — Visual baselines are stored per OS
+
+**Date:** 2026-10-19 · **Phase:** 1
+Font rasterisation differs between Windows, macOS and Linux, so one set of PNGs cannot serve every machine. Snapshots live under `e2e/__screenshots__/{platform}/{viewport}/`. Windows baselines are committed from local runs. Linux baselines for CI are produced by the manual `visual-baselines.yml` workflow and committed after review; until they exist, CI runs every e2e test except `@visual`.
+
+## D-022 — Motion tokens use Tailwind's duration namespace
+
+**Date:** 2026-10-19 · **Phase:** 1
+Durations are declared as `--transition-duration-{fast,base,drawer,slow}` so Tailwind generates `duration-fast` etc. directly from the tokens; the default transition duration and easing are set to the ATELIER values.

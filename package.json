@@ -15,6 +15,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
+    "e2e:visual": "playwright test --grep @visual",
+    "e2e:visual:update": "playwright test --grep @visual --update-snapshots",
     "emulators": "firebase emulators:start --project demo-texora",
     "contrast": "node scripts/contrast.mjs",
     "contrast:check": "node scripts/contrast.mjs --check",
@@ -34,6 +36,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "^10.4.2",

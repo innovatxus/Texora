@@ -52,6 +52,8 @@ export const serverEnvSchema = z
     FIRESTORE_EMULATOR_HOST: z.string().min(1).optional(),
     FIREBASE_AUTH_EMULATOR_HOST: z.string().min(1).optional(),
     FIREBASE_STORAGE_EMULATOR_HOST: z.string().min(1).optional(),
+    /** Serves the internal /styleguide route. Never enable on a public deployment. */
+    ENABLE_STYLEGUIDE: z.stringbool().default(false),
   })
   .superRefine((env, ctx) => {
     if (env.USE_FIREBASE_EMULATORS) {

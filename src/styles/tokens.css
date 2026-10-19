@@ -59,19 +59,21 @@
   --spacing-section-mobile: 4rem;
   --spacing-section-desktop: 6rem;
 
-  /* Radius: sharp everywhere except chips. */
+  /* Radius: sharp everywhere except chips (rounded-none/full are built in). */
   --radius-*: initial;
-  --radius-none: 0;
   --radius-chip: 2px;
 
   /* Elevation: overlays only. */
   --shadow-*: initial;
   --shadow-overlay: 0 8px 32px rgb(26 26 26 / 0.12);
 
-  /* Motion. */
+  /* Motion: generates ease-atelier and duration-fast/base/drawer/slow. */
+  --ease-*: initial;
   --ease-atelier: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 400ms;
-  --duration-drawer: 300ms;
+  --transition-duration-fast: 150ms;
+  --transition-duration-base: 250ms;
+  --transition-duration-drawer: 300ms;
+  --transition-duration-slow: 400ms;
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
 }

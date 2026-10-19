@@ -13,6 +13,9 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
   },
+  // Baselines differ by OS font rendering, so each platform keeps its own set.
+  snapshotPathTemplate:
+    "{testDir}/__screenshots__/{platform}/{projectName}/{testFilePath}/{arg}{ext}",
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.001, animations: "disabled" },
   },

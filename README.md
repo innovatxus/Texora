@@ -20,19 +20,24 @@ npm run dev                  # terminal 2: http://localhost:3000
 
 ## Scripts
 
-| Script                                  | What it does                                                      |
-| --------------------------------------- | ----------------------------------------------------------------- |
-| `dev` / `build` / `start`               | Next.js dev server, production build, production server           |
-| `typecheck`                             | Generates route types, then `tsc --noEmit`                        |
-| `lint` / `lint:fix`                     | ESLint, zero warnings allowed                                     |
-| `format` / `format:check`               | Prettier (with Tailwind class sorting)                            |
-| `test` / `test:watch` / `test:coverage` | Vitest unit and component tests                                   |
-| `e2e`                                   | Playwright against a production build (`npm run build` first)     |
-| `emulators`                             | Firebase emulators for the offline `demo-texora` project          |
-| `contrast` / `contrast:check`           | Regenerates or verifies `docs/CONTRAST.md` from the design tokens |
-| `verify`                                | Everything CI checks, in order                                    |
+| Script                                  | What it does                                                       |
+| --------------------------------------- | ------------------------------------------------------------------ |
+| `dev` / `build` / `start`               | Next.js dev server, production build, production server            |
+| `typecheck`                             | Generates route types, then `tsc --noEmit`                         |
+| `lint` / `lint:fix`                     | ESLint, zero warnings allowed                                      |
+| `format` / `format:check`               | Prettier (with Tailwind class sorting)                             |
+| `test` / `test:watch` / `test:coverage` | Vitest unit and component tests                                    |
+| `e2e`                                   | Playwright against a production build (`npm run build` first)      |
+| `e2e:visual` / `e2e:visual:update`      | Visual regression against (or refreshing) the styleguide baselines |
+| `emulators`                             | Firebase emulators for the offline `demo-texora` project           |
+| `contrast` / `contrast:check`           | Regenerates or verifies `docs/CONTRAST.md` from the design tokens  |
+| `verify`                                | Everything CI checks, in order                                     |
 
 A Husky pre-commit hook runs ESLint and Prettier on staged files.
+
+## Styleguide
+
+With `ENABLE_STYLEGUIDE=true` (the `.env.example` default), every token and primitive is catalogued at [http://localhost:3000/styleguide](http://localhost:3000/styleguide). It returns 404 when the flag is off; never enable it on a public deployment.
 
 ## Project layout
 

@@ -42,7 +42,11 @@ jobs:
       - run: npm run build
 
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e
+      # Visual baselines are per-OS; linux ones come from visual-baselines.yml.
+      # Once e2e/__screenshots__/linux exists, the visual suite runs here too.
+      - run: npm run e2e -- --grep-invert @visual
+      - if: hashFiles('e2e/__screenshots__/linux/**') != ''
+        run: npm run e2e:visual
 
       - uses: actions/upload-artifact@v4
         if: failure()
