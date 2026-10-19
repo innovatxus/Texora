@@ -12,14 +12,14 @@ concurrency:
 jobs:
   verify:
     name: Typecheck, lint, test, build, e2e
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
@@ -33,7 +33,7 @@ jobs:
       - run: npm run contrast:check
       - run: npm run test
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .next/cache
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
@@ -48,7 +48,7 @@ jobs:
       - if: hashFiles('e2e/__screenshots__/linux/**') != ''
         run: npm run e2e:visual
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report

@@ -60,7 +60,7 @@ The `create-next-app` favicon is a third-party mark, which the brief forbids. Re
 ## D-012 — Node.js ≥ 22.12 required for the test toolchain
 
 **Date:** 2026-10-19 · **Phase:** 0
-Vitest 5 / Vite 8 and jsdom 30 depend on loading ES modules through `require()`, which Node only supports without a flag from 22.12. `package.json` `engines` and CI pin Node 22 LTS (latest patch).
+Vitest 5 / Vite 8 and jsdom 30 depend on loading ES modules through `require()`, which Node only supports without a flag from 22.12. `package.json` `engines` requires it; CI uses `.nvmrc` (see D-023).
 
 ## D-013 — `firebase-tools` audit warnings accepted (dev only)
 
@@ -111,3 +111,8 @@ Font rasterisation differs between Windows, macOS and Linux, so one set of PNGs 
 
 **Date:** 2026-10-19 · **Phase:** 1
 Durations are declared as `--transition-duration-{fast,base,drawer,slow}` so Tailwind generates `duration-fast` etc. directly from the tokens; the default transition duration and easing are set to the ATELIER values.
+
+## D-023 — CI pinned to ubuntu-24.04 and the local Node version
+
+**Date:** 2026-10-19 · **Phase:** 1
+The first CI run failed in `npm ci` on the day `ubuntu-latest` began moving to Ubuntu 26. CI now pins `ubuntu-24.04` and reads Node from `.nvmrc` (24, the version used locally, whose bundled npm 11 wrote the lockfile). Actions moved to their current majors (checkout/setup-node/upload-artifact v7, cache v6) after GitHub's Node 20 runtime deprecation. Move to a newer image deliberately, in its own PR.
