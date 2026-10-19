@@ -39,3 +39,14 @@ export function useNow(intervalMs: number): number | null {
     () => null,
   );
 }
+
+const noopSubscribe = () => () => {};
+
+/** False during server render and hydration, true once this tree runs on the client. */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+}

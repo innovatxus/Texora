@@ -59,24 +59,24 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.5 Product detail page
 
-| Feature              | Behaviour                                                                                 | Implementation                   | Phase | Status  |
-| -------------------- | ----------------------------------------------------------------------------------------- | -------------------------------- | ----- | ------- |
-| Gallery              | Desktop 2-col stack + sticky info; mobile swipe with dots/counter; video                  | `pdp/Gallery`                    | 5     | Planned |
-| Zoom viewer          | Full-screen, pinch/scroll zoom, pan, thumbnails, arrow keys                               | `pdp/ZoomViewer`                 | 5     | Planned |
-| Colour selector      | Swatch + name, updates gallery and `?color=`                                              | `commerce/SwatchPicker`          | 5     | Planned |
-| Fit tabs             | Regular/Petite/Tall with own size runs                                                    | `commerce/FitTabs`               | 5     | Planned |
-| Size selector        | Unavailable crossed out, clickable for back-in-stock                                      | `commerce/SizePicker`            | 5     | Planned |
-| Size guide           | Tables per category + how-to-measure                                                      | `pdp/SizeGuideModal`             | 5     | Planned |
-| Fit feedback summary | "Runs true to size" from reviews                                                          | `pdp/FitFeedback`                | 5     | Planned |
-| Add to bag           | Inline validation, quantity, low-stock message                                            | `commerce/AddToBag`              | 5     | Planned |
-| Fulfilment           | Delivery estimate by postcode; BOPIS store picker; free-shipping message                  | `pdp/StoreAvailability`          | 5     | Planned |
-| Details accordions   | Description, fit, fabric & care, shipping & returns                                       | `pdp/DetailsAccordion`           | 5     | Planned |
-| Complete the look    | Curated items with quick add                                                              | `pdp/CompleteTheLook`            | 5     | Planned |
-| Recommendations      | You may also like, recently viewed                                                        | `editorial/ProductCarousel`      | 5     | Planned |
-| Reviews              | Aggregate, distribution, fit slider, filters, sort, photos, helpful votes, verified badge | `pdp/Reviews`                    | 5     | Planned |
-| Write a review       | Customer only, moderated                                                                  | Server Action + moderation queue | 5     | Planned |
-| Sticky mobile bar    | Appears when main button leaves viewport                                                  | `pdp/StickyAddToBag`             | 5     | Planned |
-| Structured data      | Product, Offer, AggregateRating, BreadcrumbList                                           | JSON-LD                          | 5     | Planned |
+| Feature              | Behaviour                                                                                 | Implementation                   | Phase | Status                                |
+| -------------------- | ----------------------------------------------------------------------------------------- | -------------------------------- | ----- | ------------------------------------- |
+| Gallery              | Desktop 2-col stack + sticky info; mobile swipe with dots/counter; video                  | `pdp/Gallery`                    | 5     | Done                                  |
+| Zoom viewer          | Full-screen, pinch/scroll zoom, pan, thumbnails, arrow keys                               | `pdp/ZoomViewer`                 | 5     | Done                                  |
+| Colour selector      | Swatch + name, updates gallery and `?color=`                                              | `commerce/SwatchPicker`          | 5     | Done                                  |
+| Fit tabs             | Regular/Petite/Tall with own size runs                                                    | `commerce/FitTabs`               | 5     | Done                                  |
+| Size selector        | Unavailable crossed out, clickable for back-in-stock                                      | `commerce/SizePicker`            | 5     | Done                                  |
+| Size guide           | Tables per category + how-to-measure                                                      | `pdp/SizeGuideModal`             | 5     | Done                                  |
+| Fit feedback summary | "Runs true to size" from reviews                                                          | `pdp/FitFeedback`                | 5     | Done                                  |
+| Add to bag           | Inline validation, quantity, low-stock message                                            | `commerce/AddToBag`              | 5     | Done                                  |
+| Fulfilment           | Delivery estimate by postcode; BOPIS store picker; free-shipping message                  | `pdp/StoreAvailability`          | 5     | Done                                  |
+| Details accordions   | Description, fit, fabric & care, shipping & returns                                       | `pdp/DetailsAccordion`           | 5     | Done                                  |
+| Complete the look    | Curated items with quick add                                                              | `pdp/CompleteTheLook`            | 5     | Done                                  |
+| Recommendations      | You may also like, recently viewed                                                        | `editorial/ProductCarousel`      | 5     | Done                                  |
+| Reviews              | Aggregate, distribution, fit slider, filters, sort, photos, helpful votes, verified badge | `pdp/Reviews`                    | 5     | Done                                  |
+| Write a review       | Customer only, moderated                                                                  | Server Action + moderation queue | 5     | Done (moderation queue UI in Phase 8) |
+| Sticky mobile bar    | Appears when main button leaves viewport                                                  | `pdp/StickyAddToBag`             | 5     | Done                                  |
+| Structured data      | Product, Offer, AggregateRating, BreadcrumbList                                           | JSON-LD                          | 5     | Done                                  |
 
 ## 7.6 Bag
 
@@ -117,15 +117,15 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.9 Other
 
-| Feature            | Behaviour                                  | Implementation                         | Phase | Status  |
-| ------------------ | ------------------------------------------ | -------------------------------------- | ----- | ------- |
-| Guest order lookup | Email + order number                       | `account/lookup`                       | 7     | Planned |
-| Store locator      | Map, list, filters, hours, store services  | `stores/`                              | 7     | Planned |
-| Gift cards         | Buy e-gift card, check balance             | `gift-cards/`                          | 7     | Planned |
-| Help centre        | FAQ search, shipping, returns, size guides | `help/[[...slug]]`                     | 7     | Planned |
-| Notifications      | Back in stock, price drop                  | `notifications` collection + Functions | 7     | Planned |
-| Recently viewed    | Local + synced                             | `stores/recentlyViewed`                | 5     | Planned |
-| Error pages        | Branded 404 / 500                          | `not-found.tsx`, `error.tsx`           | 3     | Done    |
+| Feature            | Behaviour                                  | Implementation                         | Phase | Status                                |
+| ------------------ | ------------------------------------------ | -------------------------------------- | ----- | ------------------------------------- |
+| Guest order lookup | Email + order number                       | `account/lookup`                       | 7     | Planned                               |
+| Store locator      | Map, list, filters, hours, store services  | `stores/`                              | 7     | Planned                               |
+| Gift cards         | Buy e-gift card, check balance             | `gift-cards/`                          | 7     | Planned                               |
+| Help centre        | FAQ search, shipping, returns, size guides | `help/[[...slug]]`                     | 7     | Planned                               |
+| Notifications      | Back in stock, price drop                  | `notifications` collection + Functions | 7     | Planned                               |
+| Recently viewed    | Local + synced                             | `stores/recentlyViewed`                | 5     | Done (local; account sync in Phase 7) |
+| Error pages        | Branded 404 / 500                          | `not-found.tsx`, `error.tsx`           | 3     | Done                                  |
 
 ## Exclusions
 

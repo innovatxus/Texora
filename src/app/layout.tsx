@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { HydrationMarker } from "@/components/HydrationMarker";
 import { brand } from "@/config/brand";
 import { clientEnv } from "@/lib/env/client";
 import { cn } from "@/lib/utils/cn";
@@ -27,7 +28,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang={brand.locale} className={cn(fontSans.variable, fontDisplay.variable, "h-full")}>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        <HydrationMarker />
+      </body>
     </html>
   );
 }

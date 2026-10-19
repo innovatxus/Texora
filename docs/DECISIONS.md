@@ -219,3 +219,13 @@ A product attribute named `fit` (slim/standard) collided with the fit-family fil
 
 **Date:** 2026-10-19 · **Phase:** 4
 Axe (WCAG 2.2, SC 2.5.8) flagged 18px filter checkboxes and their spacing to the accordion headers. Checkboxes are now 20px with 12px row gaps and top padding, so every target has a clear 24px zone. Quick-add panels are height-capped so they never cover the wishlist button.
+
+## D-042 — Product page rendering
+
+**Date:** 2026-10-19 · **Phase:** 5
+Every live product page (132) is fully prerendered for its default colour. `?color=` is URL data, so the buy box reads it on the client inside a Suspense boundary whose fallback is the same component in the default colour. Choosing a colour updates the URL with `history.replaceState`: shareable, no server round trip. Variant, stock, delivery-estimate and review-summary logic is pure and unit-tested (`variant-selection.ts`). Pickers are native radio groups, so arrow-key navigation and group semantics come from the platform. Unknown product slugs share the PPR soft-404 limitation in D-039 (branded not-found page with `noindex`).
+
+## D-043 — Hydration readiness in tests
+
+**Date:** 2026-10-19 · **Phase:** 5
+Static HTML is visible before React hydrates, and Suspense boundaries hydrate separately from the root. End-to-end tests therefore wait for `html[data-hydrated]` (root) and, on product pages, for the buy box's own `data-interactive` marker (set via `useHydrated()`, no effect). Playwright uses half the CPU cores locally so the server and hydration aren't starved.
