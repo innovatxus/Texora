@@ -120,7 +120,7 @@ export const instant = false;
 export default async function ProductPage({ params }: PageProps<"/product/[slug]">) {
   const data = await getPdpData((await params).slug);
   if (!data) notFound();
-  const { product, variants, reviews, summary, stores, categoryName } = data;
+  const { product, variants, reviews, summary, categoryName } = data;
   const departmentLabel = product.department === "women" ? "Women" : "Men";
   const categoryHref = `/${product.categoryPath.join("/")}`;
   const defaultColor = product.colors[0]?.code ?? "";
@@ -147,7 +147,6 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const shared = {
     product: view,
     variants,
-    stores,
     sizeGuide: sizeGuideFor(product.department, product.sizeType),
     breadcrumbs: (
       <Breadcrumbs

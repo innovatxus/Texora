@@ -1,70 +1,77 @@
 "use client";
 
-import NextLink from "next/link";
-import { PriceDisplay } from "@/components/commerce/PriceDisplay";
-import { ProductImage } from "@/components/commerce/ProductImage";
 import { Drawer } from "@/components/feedback/Drawer";
 import { CheckIcon } from "@/components/icons";
-import { Button, ButtonLink } from "@/components/primitives";
+import { Button, ButtonLink, Skeleton } from "@/components/primitives";
+import { isAvailableLine } from "@/lib/bag/types";
+import { formatMoney } from "@/lib/format/money";
 import { selectBagCount, useBagStore } from "@/stores/bag";
 import { useUiStore } from "@/stores/ui";
+import { BagLineItem, FreeShippingProgress } from "./BagParts";
+import { useBagPricing } from "./useBagPricing";
 
-/**
- * Slides in when something is added: confirms the item and offers the next
- * step. Line items, subtotal and free-shipping progress arrive with the bag
- * pages (Phase 6).
- */
+/** Slides in on add: confirmation, line items, free-shipping progress, subtotal and next steps. */
 export function BagDrawer() {
   const isOpen = useUiStore((s) => s.panel === "bag");
   const setOpen = useUiStore((s) => s.setOpen);
   const close = useUiStore((s) => s.close);
-  const item = useUiStore((s) => s.lastAdded);
+  const lastAdded = useUiStore((s) => s.lastAdded);
   const count = useBagStore(selectBagCount);
+  const { bag, empty } = useBagPricing({ enabled: isOpen });
+  const lines = bag?.lines.filter(isAvailableLine) ?? [];
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => setOpen("bag", open)} title={`Bag (${count})`}>
-      <div className="flex flex-1 flex-col overflow-y-auto p-4 md:p-6">
-        {item ? (
-          <>
-            <p role="status" className="flex items-center gap-2 text-sm text-success">
-              <CheckIcon /> Added to your bag
-            </p>
-            <div className="mt-5 flex gap-4">
-              <NextLink
-                href={`/product/${item.slug}`}
-                onClick={close}
-                className="relative aspect-3/4 w-24 shrink-0"
-              >
-                <ProductImage src={item.image} alt={item.name} fill sizes="96px" />
-              </NextLink>
-              <div className="flex flex-col gap-1 text-sm">
-                <NextLink
-                  href={`/product/${item.slug}`}
-                  onClick={close}
-                  className="font-medium hover:underline"
-                >
-                  {item.name}
-                </NextLink>
-                <span className="text-ink-soft">
-                  {item.colorName} · Size {item.size.replace("x", " × ")}
-                </span>
-                <PriceDisplay
-                  size="sm"
-                  price={item.price}
-                  compareAtPrice={item.compareAtPrice}
-                  showPercent={false}
-                />
+      <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4 md:p-6">
+        {lastAdded && (
+          <p role="status" className="flex items-center gap-2 text-sm text-success">
+            <CheckIcon /> {lastAdded.name} added to your bag
+          </p>
+        )}
+        {empty ? (
+          <p className="text-ink-soft">Your bag is empty.</p>
+        ) : !bag ? (
+          <div className="flex flex-col gap-4" aria-busy="true">
+            {[0, 1].map((i) => (
+              <div key={i} className="flex gap-4">
+                <Skeleton shape="product" className="w-20" />
+                <div className="flex flex-1 flex-col gap-2">
+                  <Skeleton shape="text" className="w-3/4" />
+                  <Skeleton shape="text" className="w-1/2" />
+                </div>
               </div>
-            </div>
-          </>
+            ))}
+          </div>
         ) : (
-          <p className="text-ink-soft">Your bag is ready when you are.</p>
+          <>
+            <FreeShippingProgress
+              remaining={bag.freeShippingRemaining}
+              threshold={bag.freeShippingThreshold}
+            />
+            <ul className="flex flex-col gap-5">
+              {lines.map((line) => (
+                <li key={line.sku}>
+                  <BagLineItem line={line} compact onNavigate={close} />
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
       <div className="flex flex-col gap-3 border-t border-line p-4 md:p-6">
-        <ButtonLink href="/checkout" onClick={close} fullWidth>
-          Checkout
-        </ButtonLink>
+        {bag && !empty && (
+          <p className="flex justify-between text-sm">
+            <span>Subtotal</span>
+            <span className="tabular-nums">
+              {formatMoney(bag.totals.subtotal - bag.totals.discount)}
+            </span>
+          </p>
+        )}
+        {!empty && (
+          <ButtonLink href="/checkout" onClick={close} fullWidth>
+            Checkout
+          </ButtonLink>
+        )}
         <ButtonLink href="/bag" onClick={close} variant="secondary" fullWidth>
           View bag ({count})
         </ButtonLink>

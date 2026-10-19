@@ -7,7 +7,7 @@ import {
 } from "@/lib/data/products";
 import { listApprovedReviews } from "@/lib/data/reviews";
 import { ONLINE_LOCATION, type Product } from "@/lib/validation";
-import { getCategory, getStores } from "./queries";
+import { getCategory } from "./queries";
 import { summariseReviews, type PdpVariant, type ReviewSummary } from "./variant-selection";
 
 export interface ReviewView {
@@ -30,7 +30,6 @@ export interface PdpData {
   variants: PdpVariant[];
   reviews: ReviewView[];
   summary: ReviewSummary;
-  stores: Array<{ id: string; name: string; city: string; services: string[] }>;
 }
 
 /** Everything the product page needs, cached per product and retagged on catalog saves. */
@@ -42,10 +41,9 @@ export async function getPdpData(slug: string): Promise<PdpData | null> {
   const product = await getLiveProductBySlug(slug);
   if (!product) return null;
 
-  const [variants, reviewPage, stores, category] = await Promise.all([
+  const [variants, reviewPage, category] = await Promise.all([
     getVariantsForProduct(product.id),
     listApprovedReviews(product.id, { sort: "newest", limit: 200 }),
-    getStores(),
     getCategory(product.categoryPath),
   ]);
 
@@ -82,12 +80,6 @@ export async function getPdpData(slug: string): Promise<PdpData | null> {
     }),
     reviews,
     summary: summariseReviews(reviews),
-    stores: stores.map((s) => ({
-      id: s.id,
-      name: s.name,
-      city: s.address.city,
-      services: s.services,
-    })),
   };
 }
 

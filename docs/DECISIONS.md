@@ -229,3 +229,13 @@ Every live product page (132) is fully prerendered for its default colour. `?col
 
 **Date:** 2026-10-19 · **Phase:** 5
 Static HTML is visible before React hydrates, and Suspense boundaries hydrate separately from the root. End-to-end tests therefore wait for `html[data-hydrated]` (root) and, on product pages, for the buy box's own `data-interactive` marker (set via `useHydrated()`, no effect). Playwright uses half the CPU cores locally so the server and hydration aren't starved.
+
+## D-044 — Delivery only, no store pickup
+
+**Date:** 2026-10-19 · **Phase:** 6
+At the owner's request, Texora does not offer buy-online-pick-up-in-store. Delivery methods are `standard` and `express` only, across the PDP, the pricing engine, the bag and order schemas, checkout and confirmation. A shipping address is therefore always required, and online orders reserve only `online` stock. Stores keep their per-location stock and services (returns, alterations, styling) for the store locator.
+
+## D-045 — Bag clearing after an order
+
+**Date:** 2026-10-19 · **Phase:** 6
+The bag is cleared by the confirmation page (`ClearAfterOrder`), not before navigating away from review: clearing first tripped the checkout's empty-bag guard and redirected to `/bag` mid-navigation.

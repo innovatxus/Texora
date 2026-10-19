@@ -321,7 +321,7 @@ export default function StyleguidePage() {
               defaultChecked
             />
             <Radio name="sg-delivery" value="express" label="Express · 1–2 business days" />
-            <Radio name="sg-delivery" value="pickup" label="Pick up in store" />
+            <Radio name="sg-delivery" value="nextday" label="Next day · order by 2pm" />
             <Radio name="sg-delivery" value="sameday" label="Same day (not available)" disabled />
           </RadioGroup>
           <RadioGroup legend="Fit family" orientation="horizontal" error="Choose a fit.">

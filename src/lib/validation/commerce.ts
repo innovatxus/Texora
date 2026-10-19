@@ -65,7 +65,6 @@ export const ORDER_STATUSES = [
   "processing",
   "partially_shipped",
   "shipped",
-  "ready_for_pickup",
   "delivered",
   "cancelled",
   "partially_refunded",
@@ -88,14 +87,13 @@ export const orderSchema = z.object({
   currency: currencySchema,
   lines: z.array(orderLineSchema).min(1),
   totals: orderTotalsSchema,
-  shippingAddress: addressSchema.optional(),
+  shippingAddress: addressSchema,
   billingAddress: addressSchema,
   delivery: z.object({
-    method: z.enum(["standard", "express", "pickup"]),
+    method: z.enum(["standard", "express"]),
     cost: moneySchema,
     estimatedFrom: timestampSchema,
     estimatedTo: timestampSchema,
-    storeId: idSchema.optional(),
   }),
   promoCodes: z.array(z.string()),
   payments: z.array(
@@ -259,7 +257,7 @@ export const storeSchema = z.object({
       close: z.string().regex(/^\d{2}:\d{2}$/),
     }),
   ),
-  services: z.array(z.enum(["pickup", "returns", "alterations", "styling"])),
+  services: z.array(z.enum(["returns", "alterations", "styling"])),
   status: z.enum(["open", "temporarily_closed", "closed"]),
 });
 export type Store = z.infer<typeof storeSchema>;

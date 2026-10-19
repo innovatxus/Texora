@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useBagStore } from "./bag";
+import { useCheckoutStore } from "./checkout";
 import { useRecentlyViewedStore } from "./recentlyViewed";
 import { useWishlistStore } from "./wishlist";
 
@@ -11,6 +12,7 @@ export function StoreHydration() {
     void useBagStore.persist.rehydrate();
     void useRecentlyViewedStore.persist.rehydrate();
     void useWishlistStore.persist.rehydrate();
+    void useCheckoutStore.persist.rehydrate();
   }, []);
   return null;
 }

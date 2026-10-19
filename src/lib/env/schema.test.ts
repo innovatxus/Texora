@@ -6,6 +6,7 @@ const validClient = {
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "demo-texora.firebaseapp.com",
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: "demo-texora",
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "demo-texora.appspot.com",
+  ORDER_TOKEN_SECRET: "x".repeat(32),
   NEXT_PUBLIC_FIREBASE_APP_ID: "demo-app-id",
 };
 
@@ -46,6 +47,7 @@ describe("serverEnvSchema", () => {
         {
           FIREBASE_PROJECT_ID: "demo-texora",
           FIREBASE_STORAGE_BUCKET: "demo-texora.appspot.com",
+          ORDER_TOKEN_SECRET: "x".repeat(32),
           USE_FIREBASE_EMULATORS: "true",
         },
         "server",
@@ -60,6 +62,8 @@ describe("serverEnvSchema", () => {
         {
           FIREBASE_PROJECT_ID: "texora",
           FIREBASE_STORAGE_BUCKET: "texora.appspot.com",
+          ORDER_TOKEN_SECRET: "x".repeat(32),
+          RESEND_API_KEY: "re_test",
           NODE_ENV: "production",
         },
         "server",
@@ -73,6 +77,8 @@ describe("serverEnvSchema", () => {
       {
         FIREBASE_PROJECT_ID: "texora",
         FIREBASE_STORAGE_BUCKET: "texora.appspot.com",
+        ORDER_TOKEN_SECRET: "x".repeat(32),
+        RESEND_API_KEY: "re_test",
         NODE_ENV: "production",
         FIREBASE_SERVICE_ACCOUNT: encode({
           project_id: "texora",
@@ -92,6 +98,8 @@ describe("serverEnvSchema", () => {
         {
           FIREBASE_PROJECT_ID: "texora",
           FIREBASE_STORAGE_BUCKET: "texora.appspot.com",
+          ORDER_TOKEN_SECRET: "x".repeat(32),
+          RESEND_API_KEY: "re_test",
           FIREBASE_SERVICE_ACCOUNT: "not-base64-json",
         },
         "server",

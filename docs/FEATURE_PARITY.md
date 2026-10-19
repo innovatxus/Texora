@@ -69,7 +69,7 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 | Size guide           | Tables per category + how-to-measure                                                      | `pdp/SizeGuideModal`             | 5     | Done                                  |
 | Fit feedback summary | "Runs true to size" from reviews                                                          | `pdp/FitFeedback`                | 5     | Done                                  |
 | Add to bag           | Inline validation, quantity, low-stock message                                            | `commerce/AddToBag`              | 5     | Done                                  |
-| Fulfilment           | Delivery estimate by postcode; BOPIS store picker; free-shipping message                  | `pdp/StoreAvailability`          | 5     | Done                                  |
+| Fulfilment           | Delivery estimate by ZIP; free-shipping message (no store pickup, see D-044)              | `pdp/Fulfilment`                 | 5     | Done                                  |
 | Details accordions   | Description, fit, fabric & care, shipping & returns                                       | `pdp/DetailsAccordion`           | 5     | Done                                  |
 | Complete the look    | Curated items with quick add                                                              | `pdp/CompleteTheLook`            | 5     | Done                                  |
 | Recommendations      | You may also like, recently viewed                                                        | `editorial/ProductCarousel`      | 5     | Done                                  |
@@ -80,27 +80,27 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.6 Bag
 
-| Feature             | Behaviour                                                        | Implementation                        | Phase | Status  |
-| ------------------- | ---------------------------------------------------------------- | ------------------------------------- | ----- | ------- |
-| Bag drawer          | Confirmation, lines, subtotal, free-shipping progress, CTAs      | `bag/BagDrawer`                       | 6     | Planned |
-| Bag page edits      | Size/colour/qty inline, remove, move to wishlist, save for later | `bag/BagLineItem`                     | 6     | Planned |
-| Promo codes         | Error/success states, stacking rules                             | `bag/PromoCodeField` + pricing engine | 6     | Planned |
-| Gift card / rewards | Redemption in bag                                                | Pricing engine                        | 6     | Planned |
-| Order summary       | Subtotal, discounts, shipping, tax, total                        | `bag/OrderSummary`                    | 6     | Planned |
-| Cross-device bag    | Server sync; guest bag merged on sign-in                         | Bag repository                        | 6     | Planned |
-| Server revalidation | Price and stock rechecked on every load                          | Bag Server Action                     | 6     | Planned |
+| Feature             | Behaviour                                                        | Implementation                        | Phase | Status                                |
+| ------------------- | ---------------------------------------------------------------- | ------------------------------------- | ----- | ------------------------------------- |
+| Bag drawer          | Confirmation, lines, subtotal, free-shipping progress, CTAs      | `bag/BagDrawer`                       | 6     | Done                                  |
+| Bag page edits      | Size/colour/qty inline, remove, move to wishlist, save for later | `bag/BagLineItem`                     | 6     | Done                                  |
+| Promo codes         | Error/success states, stacking rules                             | `bag/PromoCodeField` + pricing engine | 6     | Done                                  |
+| Gift card / rewards | Redemption in bag                                                | Pricing engine                        | 6     | Done                                  |
+| Order summary       | Subtotal, discounts, shipping, tax, total                        | `bag/OrderSummary`                    | 6     | Done                                  |
+| Cross-device bag    | Server sync; guest bag merged on sign-in                         | Bag repository                        | 7     | Planned (local persistence done in 6) |
+| Server revalidation | Price and stock rechecked on every load                          | Bag Server Action                     | 6     | Done                                  |
 
 ## 7.7 Checkout
 
-| Feature         | Behaviour                                                    | Implementation                         | Phase | Status  |
-| --------------- | ------------------------------------------------------------ | -------------------------------------- | ----- | ------- |
-| Minimal layout  | No mega menu or footer                                       | `checkout/layout`                      | 6     | Planned |
-| Entry           | Sign in, guest, express pay (Apple/Google Pay via Stripe)    | `checkout/*`                           | 6     | Planned |
-| Steps           | Shipping → delivery → payment → review                       | `checkout/Stepper`                     | 6     | Planned |
-| Layout          | Desktop sticky summary; mobile collapsible summary           | `checkout/*`                           | 6     | Planned |
-| Resilience      | Inline Zod errors, step state survives refresh               | Persisted step store                   | 6     | Planned |
-| Order placement | Idempotency key, inventory transaction, webhook confirmation | Server Action + `api/webhooks`         | 6     | Planned |
-| Confirmation    | Page + email                                                 | `order-confirmation/[id]`, React Email | 6     | Planned |
+| Feature         | Behaviour                                                    | Implementation                         | Phase | Status                                                                      |
+| --------------- | ------------------------------------------------------------ | -------------------------------------- | ----- | --------------------------------------------------------------------------- |
+| Minimal layout  | No mega menu or footer                                       | `checkout/layout`                      | 6     | Done                                                                        |
+| Entry           | Sign in, guest, express pay (Apple/Google Pay via Stripe)    | `checkout/*`                           | 6     | In progress (guest + sign-in link done; express pay needs live Stripe keys) |
+| Steps           | Shipping → delivery → payment → review                       | `checkout/Stepper`                     | 6     | Done                                                                        |
+| Layout          | Desktop sticky summary; mobile collapsible summary           | `checkout/*`                           | 6     | Done                                                                        |
+| Resilience      | Inline Zod errors, step state survives refresh               | Persisted step store                   | 6     | Done                                                                        |
+| Order placement | Idempotency key, inventory transaction, webhook confirmation | Server Action + `api/webhooks`         | 6     | Done                                                                        |
+| Confirmation    | Page + email                                                 | `order-confirmation/[id]`, React Email | 6     | Done                                                                        |
 
 ## 7.8 Account
 
@@ -130,3 +130,9 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 ## Exclusions
 
 None yet.
+
+## Excluded
+
+| Feature                              | Reason                                                                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Buy online, pick up in store (BOPIS) | Owner request: delivery only (D-044). Store stock per location stays in the data model for the store locator. |

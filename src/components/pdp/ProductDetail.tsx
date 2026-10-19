@@ -49,7 +49,6 @@ export interface PdpProductView {
 interface ProductDetailProps {
   product: PdpProductView;
   variants: PdpVariant[];
-  stores: Array<{ id: string; name: string; city: string; services: string[] }>;
   sizeGuide: SizeGuide;
   initialColor: string;
   /** Server-rendered breadcrumbs and the details accordion. */
@@ -60,7 +59,6 @@ interface ProductDetailProps {
 export function ProductDetail({
   product,
   variants,
-  stores,
   sizeGuide,
   initialColor,
   breadcrumbs,
@@ -73,8 +71,6 @@ export function ProductDetail({
   const [size, setSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [sizeError, setSizeError] = useState<string | undefined>();
-  const [mode, setMode] = useState<"ship" | "pickup">("ship");
-  const [pickupStore, setPickupStore] = useState<string | null>(null);
   const [showSticky, setShowSticky] = useState(false);
   // True once this boundary has hydrated (it hydrates separately from the root).
   const interactive = useHydrated();
@@ -259,11 +255,7 @@ export function ProductDetail({
               onClick={onAdd}
               className="flex-1"
             >
-              {outOfStock
-                ? "Out of stock"
-                : mode === "pickup" && pickupStore
-                  ? "Add to bag for pickup"
-                  : "Add to bag"}
+              {outOfStock ? "Out of stock" : "Add to bag"}
             </Button>
             <WishlistButton
               variant="inline"
@@ -275,14 +267,7 @@ export function ProductDetail({
             />
           </div>
 
-          <Fulfilment
-            variant={variant}
-            stores={stores}
-            mode={mode}
-            onModeChange={setMode}
-            pickupStoreId={pickupStore}
-            onPickupStoreChange={setPickupStore}
-          />
+          <Fulfilment />
 
           {details}
         </div>

@@ -169,9 +169,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
         close: day === 0 ? "18:00" : day === 5 || day === 6 ? "21:00" : "20:00",
       })),
       services:
-        s.id === "soho"
-          ? ["pickup", "returns", "alterations", "styling"]
-          : ["pickup", "returns", "alterations"],
+        s.id === "soho" ? ["returns", "alterations", "styling"] : ["returns", "alterations"],
       status: "open",
     }),
   );

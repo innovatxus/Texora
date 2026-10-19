@@ -1,0 +1,65 @@
+import "server-only";
+import Stripe from "stripe";
+import { serverEnv } from "@/lib/env/server";
+
+export type PaymentMethodKind = "card" | "cod" | "none";
+
+export interface PaymentIntentResult {
+  provider: "stripe";
+  ref: string;
+  clientSecret: string;
+}
+
+/** Card payments behind one interface; Cash on Delivery needs no provider call. */
+export interface PaymentProvider {
+  createPayment(input: {
+    orderId: string;
+    orderNumber: string;
+    amount: number;
+    currency: string;
+    email: string;
+  }): Promise<PaymentIntentResult>;
+  refund(input: { ref: string; amount: number }): Promise<{ ref: string }>;
+}
+
+let stripe: Stripe | null = null;
+
+function stripeClient(): Stripe {
+  if (!serverEnv.STRIPE_SECRET_KEY) throw new Error("Card payments are not configured");
+  stripe ??= new Stripe(serverEnv.STRIPE_SECRET_KEY);
+  return stripe;
+}
+
+export const cardPaymentsEnabled = () => Boolean(serverEnv.STRIPE_SECRET_KEY);
+
+export const stripeProvider: PaymentProvider = {
+  async createPayment({ orderId, orderNumber, amount, currency, email }) {
+    const intent = await stripeClient().paymentIntents.create(
+      {
+        amount,
+        currency: currency.toLowerCase(),
+        receipt_email: email,
+        automatic_payment_methods: { enabled: true },
+        metadata: { orderId, orderNumber },
+      },
+      // The order id makes retries of the same order return the same intent.
+      { idempotencyKey: `order-${orderId}` },
+    );
+    if (!intent.client_secret) throw new Error("Payment provider returned no client secret");
+    return { provider: "stripe", ref: intent.id, clientSecret: intent.client_secret };
+  },
+  async refund({ ref, amount }) {
+    const refund = await stripeClient().refunds.create({ payment_intent: ref, amount });
+    return { ref: refund.id };
+  },
+};
+
+/** Verifies a webhook signature and returns the event, or throws. */
+export function verifyStripeWebhook(rawBody: string, signature: string): Stripe.Event {
+  if (!serverEnv.STRIPE_WEBHOOK_SECRET) throw new Error("Stripe webhook secret is not configured");
+  return stripeClient().webhooks.constructEvent(
+    rawBody,
+    signature,
+    serverEnv.STRIPE_WEBHOOK_SECRET,
+  );
+}

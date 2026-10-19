@@ -14,6 +14,8 @@ export const clientEnvSchema = z.object({
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
   NEXT_PUBLIC_USE_FIREBASE_EMULATORS: z.stringbool().default(false),
   NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: z.string().min(1).default("127.0.0.1"),
+  /** Enables card payments (Stripe Elements). Omit to offer only Cash on Delivery. */
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
@@ -54,6 +56,15 @@ export const serverEnvSchema = z
     FIREBASE_STORAGE_EMULATOR_HOST: z.string().min(1).optional(),
     /** Serves the internal /styleguide route. Never enable on a public deployment. */
     ENABLE_STYLEGUIDE: z.stringbool().default(false),
+    /** Signs guest order-confirmation links. At least 32 random characters. */
+    ORDER_TOKEN_SECRET: z.string().min(32),
+    STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+    /** Transactional email via Resend; without it, mail goes to the Firestore outbox (dev only). */
+    RESEND_API_KEY: z.string().startsWith("re_").optional(),
+    EMAIL_FROM: z.string().min(3).default("Texora <orders@texora.test>"),
+    /** Shared secret for scheduled maintenance calls (reservation release). */
+    CRON_SECRET: z.string().min(32).optional(),
   })
   .superRefine((env, ctx) => {
     if (env.USE_FIREBASE_EMULATORS) {
@@ -67,6 +78,20 @@ export const serverEnvSchema = z
         }
       }
       return;
+    }
+    if (env.NODE_ENV === "production" && !env.RESEND_API_KEY) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["RESEND_API_KEY"],
+        message: "RESEND_API_KEY is required in production when emulators are off",
+      });
+    }
+    if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["STRIPE_WEBHOOK_SECRET"],
+        message: "STRIPE_WEBHOOK_SECRET is required when Stripe is enabled",
+      });
     }
     if (env.NODE_ENV === "production" && !env.FIREBASE_SERVICE_ACCOUNT) {
       ctx.addIssue({
