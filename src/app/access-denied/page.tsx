@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import Forbidden from "../forbidden";
+import { forbidden } from "next/navigation";
 
-/** Access-denied page is never indexed. */
-export const metadata: Metadata = {
-  title: "Access denied",
-  robots: { index: false, follow: false },
-};
+/** Title only: Next.js marks 403 responses noindex itself. */
+export const metadata: Metadata = { title: "Access denied" };
 
-/** Target of the proxy's 403 rewrite; shares the forbidden() page UI. */
+/**
+ * Target of the proxy's rewrite for signed-in users without permission.
+ * forbidden() renders forbidden.tsx with a real 403 status; a rewrite's own
+ * status isn't kept once the target page renders.
+ */
 export default function AccessDeniedPage() {
-  return <Forbidden />;
+  forbidden();
 }

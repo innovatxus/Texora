@@ -108,7 +108,12 @@ export function ProductBulkTable({
           )}
         </div>
       )}
-      <div className="overflow-x-auto border border-line bg-surface">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Products"
+        className="overflow-x-auto border border-line bg-surface focus-visible:outline-2 focus-visible:outline-ink"
+      >
         <table className="w-full text-sm">
           <caption className="sr-only">Products</caption>
           <thead>

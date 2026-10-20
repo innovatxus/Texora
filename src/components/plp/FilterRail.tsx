@@ -12,11 +12,20 @@ interface FilterRailProps {
   sort: SortKey;
   basePath: string;
   extraParams?: Record<string, string>;
+  /** The listing's default sort, omitted from URLs. */
+  defaultSort?: SortKey;
 }
 
 /** Desktop filter rail: collapsible groups; each change updates the URL. */
-export function FilterRail({ facets, filters, sort, basePath, extraParams }: FilterRailProps) {
-  const { navigate, pending } = useListingNavigation(basePath, extraParams);
+export function FilterRail({
+  facets,
+  filters,
+  sort,
+  basePath,
+  extraParams,
+  defaultSort,
+}: FilterRailProps) {
+  const { navigate, pending } = useListingNavigation(basePath, extraParams, defaultSort);
   const visible = facets.filter((f) => f.options.length > 0);
   const defaultOpen = visible
     .filter((f, i) => i < 4 || f.options.some((o) => o.selected))

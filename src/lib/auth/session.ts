@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { isRole, type Role } from "./rbac";
 
@@ -53,6 +54,9 @@ export async function verifySessionCookie(
 
 /** The current session, or null for guests and expired/revoked cookies. */
 export async function getSession({ checkRevoked = false } = {}): Promise<Session | null> {
+  // A session is per request by definition. Marking it keeps prefetch and
+  // prerender passes out of cookie verification, which reads the clock.
+  await connection();
   const value = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!value) return null;
   return verifySessionCookie(value, { checkRevoked });
@@ -74,6 +78,8 @@ export class SessionError extends Error {
  * makes sure the user has a profile document.
  */
 export async function createSession(idToken: string): Promise<Session> {
+  // Request-time work: token checks read the clock before any cookie is touched.
+  await connection();
   const { auth, db } = getFirebaseAdmin();
 
   let decoded;

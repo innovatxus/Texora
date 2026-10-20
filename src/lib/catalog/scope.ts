@@ -2,7 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { buildIndex, search } from "@/lib/search/match";
 import { getSearchDocuments } from "@/lib/search/index-data";
-import { ATTRIBUTE_LABELS, type FacetContext } from "./listing";
+import { ATTRIBUTE_LABELS, type FacetContext, type SortKey } from "./listing";
 import type { ListingProduct } from "./listing-types";
 import {
   getCategory,
@@ -30,6 +30,8 @@ export interface ResolvedScope {
   /** Category merchandising: shown after pins / at the end of the featured sort. */
   boosted: string[];
   buried: string[];
+  /** Sort used when the URL doesn't choose one (category setting, else featured). */
+  defaultSort: SortKey;
   context: FacetContext;
 }
 
@@ -40,6 +42,7 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
   let pinned: string[] = [];
 
   if (scope.department) products = products.filter((p) => p.department === scope.department);
+  let defaultSort: SortKey = "featured";
   let boosted: string[] = [];
   let buried: string[] = [];
   if (scope.categoryKey) {
@@ -49,6 +52,7 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
       pinned = rules.pinned;
       boosted = rules.boosted;
       buried = rules.buried;
+      defaultSort = rules.defaultSort;
     }
     products = products.filter((p) => {
       const own = p.categoryPath.join("/");
@@ -90,6 +94,7 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
     pinned,
     boosted,
     buried,
+    defaultSort,
     context: {
       ...(categories ? { categories } : {}),
       attributeKeys,

@@ -245,6 +245,19 @@ describe("sorting and paging", () => {
     expect(sortProducts(catalog, "price_asc", [], { buried: ["a"] })[0]?.id).toBe("a");
   });
 
+  it("uses and omits the listing's own default sort", () => {
+    expect(parseListingQuery({}, [], "newest").sort).toBe("newest");
+    expect(parseListingQuery({ sort: "price_asc" }, [], "newest").sort).toBe("price_asc");
+    expect(
+      toSearchParams({ filters: EMPTY_FILTERS, sort: "newest", defaultSort: "newest" }).has("sort"),
+    ).toBe(false);
+    expect(
+      toSearchParams({ filters: EMPTY_FILTERS, sort: "featured", defaultSort: "newest" }).get(
+        "sort",
+      ),
+    ).toBe("featured");
+  });
+
   it("pages cumulatively for load more", () => {
     const items = Array.from({ length: 50 }, (_, i) => i);
     expect(pageOf(items, 1)).toMatchObject({ shown: 24, total: 50, hasMore: true });

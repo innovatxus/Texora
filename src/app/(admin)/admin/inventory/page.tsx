@@ -65,7 +65,12 @@ async function Inventory({ searchParams }: PageProps<"/admin/inventory">) {
       </FilterBar>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
-        <div className="overflow-x-auto border border-line bg-surface">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Stock by SKU"
+          className="overflow-x-auto border border-line bg-surface focus-visible:outline-2 focus-visible:outline-ink"
+        >
           <table className="w-full text-sm tabular-nums">
             <caption className="sr-only">Stock by SKU and location</caption>
             <thead>

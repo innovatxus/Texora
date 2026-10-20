@@ -19,16 +19,19 @@ export function SortMenu({
   sort,
   basePath,
   extraParams,
+  defaultSort,
   relevanceLabel,
 }: {
   filters: ListingFilters;
   sort: SortKey;
   basePath: string;
   extraParams?: Record<string, string>;
+  /** The listing's default sort, omitted from URLs. */
+  defaultSort?: SortKey;
   /** On search, "featured" means relevance. */
   relevanceLabel?: string;
 }) {
-  const { navigate } = useListingNavigation(basePath, extraParams);
+  const { navigate } = useListingNavigation(basePath, extraParams, defaultSort);
   const options = Object.entries(SORTS).map(([value, label]) => ({
     value,
     label: value === "featured" && relevanceLabel ? relevanceLabel : label,

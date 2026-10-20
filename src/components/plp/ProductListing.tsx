@@ -44,7 +44,12 @@ export async function ProductListing({
 }: ProductListingProps) {
   const params = await searchParams;
   const resolved = await resolveScope(scope);
-  const { filters, sort, page } = parseListingQuery(params, resolved.context.attributeKeys);
+  const defaultSort = resolved.defaultSort;
+  const { filters, sort, page } = parseListingQuery(
+    params,
+    resolved.context.attributeKeys,
+    defaultSort,
+  );
   // Results depend on the request (filters, "new" window), never the prerender.
   await connection();
   const now = requestTime();
@@ -62,9 +67,11 @@ export async function ProductListing({
 
   const hrefFor = (query: URLSearchParams) => (query.size > 0 ? `${basePath}?${query}` : basePath);
   const clearAll = hrefFor(
-    toSearchParams({ filters: parseListingQuery({}).filters, sort }, extraParams),
+    toSearchParams({ filters: parseListingQuery({}).filters, sort, defaultSort }, extraParams),
   );
-  const nextPage = hrefFor(toSearchParams({ filters, sort, page: page + 1 }, extraParams));
+  const nextPage = hrefFor(
+    toSearchParams({ filters, sort, page: page + 1, defaultSort }, extraParams),
+  );
   const tileAt = new Map(tiles.map((t) => [t.position, t]));
 
   return (
@@ -75,6 +82,7 @@ export async function ProductListing({
         sort={sort}
         basePath={basePath}
         extraParams={extraParams}
+        defaultSort={defaultSort}
       />
 
       <div>
@@ -91,12 +99,14 @@ export async function ProductListing({
               total={total}
               basePath={basePath}
               extraParams={extraParams}
+              defaultSort={defaultSort}
             />
             <SortMenu
               filters={filters}
               sort={sort}
               basePath={basePath}
               extraParams={extraParams}
+              defaultSort={defaultSort}
               {...(scope.query ? { relevanceLabel: "Relevance" } : {})}
             />
             <div className="hidden sm:block">
@@ -113,7 +123,7 @@ export async function ProductListing({
                 key={`${chip.key}:${chip.value}`}
                 href={hrefFor(
                   toSearchParams(
-                    { filters: toggleFilter(filters, chip.key, chip.value), sort },
+                    { filters: toggleFilter(filters, chip.key, chip.value), sort, defaultSort },
                     extraParams,
                   ),
                 )}

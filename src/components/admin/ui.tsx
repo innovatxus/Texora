@@ -113,7 +113,13 @@ export function DataTable<T>({
     return <p className="border border-dashed border-line p-6 text-sm text-ink-soft">{empty}</p>;
   }
   return (
-    <div className="overflow-x-auto border border-line bg-surface">
+    <div
+      // Focusable so keyboard users can scroll wide tables on small screens.
+      tabIndex={0}
+      role="region"
+      aria-label={caption}
+      className="overflow-x-auto border border-line bg-surface focus-visible:outline-2 focus-visible:outline-ink"
+    >
       <table className="w-full text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>

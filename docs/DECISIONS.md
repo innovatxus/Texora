@@ -269,3 +269,43 @@ At the owner's request, sign-in, registration and all account pages are built in
 
 **Date:** 2026-10-19 · **Phase:** 7
 Back-in-stock and price-drop alerts are `pending` until their condition is met (online stock above zero; lowest price below the price when subscribing, read on the server), then sent once and marked `sent`. The hourly `api/cron/notifications` job processes them. "Stop these emails" links are signed per email address and require a button press, so mail scanners can't unsubscribe people.
+
+## D-052 — Staff sign-in ahead of customer accounts
+
+**Date:** 2026-10-20 · **Phase:** 8
+The back office needs signed-in staff, so the sign-in page is built now: Firebase checks the password in the browser, the ID token becomes an HTTP-only session cookie, and the browser's Firebase session is dropped. Staff land in `/admin`; anyone else goes to the home page until account pages arrive in the final phase (D-050). Registration, password reset and account pages stay deferred.
+
+## D-053 — How refunds move money
+
+**Date:** 2026-10-20 · **Phase:** 8
+A refund is checked (amount left, agent limit), then paid back in a fixed order: card (through the payment provider, with an idempotency key, before anything is written), then gift card balance, then rewards points; anything left (pay on delivery) is recorded as a manual refund for the team to pay back. The transaction then re-checks the amount, restores balances, reverses loyalty points earned on the refunded share and writes the audit log. The customer service limit counts every refund on the order, not just the current one. Cancelling an unshipped order refunds what was collected and returns the stock.
+
+## D-054 — No line-item edits after ordering
+
+**Date:** 2026-10-20 · **Phase:** 8
+Orders are snapshots: changing items after payment would need re-authorising the card and re-pricing promotions. Instead, staff cancel (before shipping) or refund (partially or fully) and the customer places a new order. This keeps every total traceable to what was charged.
+
+## D-055 — Product creation lives in the merchant portal
+
+**Date:** 2026-10-20 · **Phase:** 8
+The back office edits existing products (content, SEO, schedule, status, prices, image order). Creating products with a variant builder and uploading images is the core of the merchant portal build (`MERCHANT_PORTAL_BUILD_PROMPT.md`), which also needs the media pipeline; it is queued next and will serve platform staff too, so it isn't built twice.
+
+## D-056 — Content is edited as validated JSON; no draft preview
+
+**Date:** 2026-10-20 · **Phase:** 8
+Each module's content is edited as JSON in the page builder and validated against its Zod schema on save, so a bad edit can never break the storefront. Order, schedule and audience have proper controls. Previewing unpublished pages and products needs draft mode in every cached storefront query; until then, schedule changes in the future or keep a page in draft.
+
+## D-057 — Tax and integration keys stay in configuration
+
+**Date:** 2026-10-20 · **Phase:** 8
+Sales tax uses the state rate table in code, and payment, email and search keys come from environment variables. Editing either in the back office would put secrets in Firestore and let a settings mistake change tax charged; both move with the integrations hardening in Phase 9.
+
+## D-058 — Back office lists read small collections whole
+
+**Date:** 2026-10-20 · **Phase:** 8
+Products (about 130), variants (a few thousand), users and categories are read in one query with only the needed fields, then filtered and paged in memory. That keeps search flexible (substring matches Firestore can't do) and fast at this size. Beyond roughly 10,000 documents these screens should query the search index instead. Orders, returns and the audit log use cursor pagination from the start.
+
+## D-059 — Session reads are request-time; access denied uses forbidden()
+
+**Date:** 2026-10-20 · **Phase:** 8
+Two production-only issues surfaced once the back office was tested against a build. First, the proxy's rewrite to `/access-denied` with `status: 403` was served as 200, because the prerendered target page set its own status; the page now calls `forbidden()`, which renders `forbidden.tsx` with a real 403 (and Next.js adds `noindex`). Second, a signed-in visitor's prefetch of a static page prerendered the member-targeted CMS modules, and verifying the session cookie read the clock during that pass. `getSession()` (and `createSession()`) now call `connection()`, so any session read is request-time by definition and every caller is covered.

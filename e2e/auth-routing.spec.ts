@@ -34,5 +34,8 @@ test("the access-denied page is a branded 403 template", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "You don't have access to this page",
   );
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
+  const response = await page.goto("/access-denied");
+  expect(response?.status()).toBe(403);
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(1);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });

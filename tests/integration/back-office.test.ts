@@ -178,7 +178,8 @@ describe("returns in the back office", () => {
 });
 
 describe("catalog and pricing", () => {
-  const variant = seed.variants.find((v) => v.compareAtPrice === undefined);
+  // The last full-price SKU: other suites pick from the start of the list.
+  const variant = [...seed.variants].reverse().find((v) => v.compareAtPrice === undefined);
   if (!variant) throw new Error("no full-price variant");
 
   it("markdowns update the product's price range and sale badge", async () => {
@@ -224,6 +225,8 @@ describe("catalog and pricing", () => {
     expect(Number((await db.collection("variants").doc(variant.sku).get()).get("price"))).toBe(
       variant.price + 500,
     );
+    // Leave the catalog as other suites expect it.
+    await catalog.setVariantPrice(as("pricing_manager"), variant.sku, variant.price, null, "Reset");
   });
 
   it("imports CSV row by row", async () => {
@@ -269,13 +272,33 @@ describe("inventory", () => {
 
 describe("reviews, loyalty and promotions", () => {
   it("approving a review updates the product's rating count", async () => {
-    const pending = seed.reviews.find((r) => r.status === "pending");
-    if (!pending) throw new Error("no pending review");
-    const count = (await db.collection("products").doc(pending.productId).get()).get("ratingCount");
-    await merch.moderateReview(as("merchandiser"), pending.id, "approved");
-    expect((await db.collection("products").doc(pending.productId).get()).get("ratingCount")).toBe(
+    const product = seed.products.find((p) => p.status === "live");
+    if (!product) throw new Error("no product");
+    // Its own review, so the seeded moderation queue stays as other suites expect.
+    const ref = await db.collection("reviews").add({
+      productId: product.id,
+      userId: "seed-customer",
+      displayName: "Test R.",
+      rating: 5,
+      title: "Lovely",
+      body: "Fits well and the fabric is great after washing.",
+      photos: [],
+      verifiedPurchase: false,
+      helpfulCount: 0,
+      status: "pending",
+      createdAt: new Date(),
+    });
+    const count = (await db.collection("products").doc(product.id).get()).get("ratingCount");
+    await merch.moderateReview(as("merchandiser"), ref.id, "approved");
+    expect((await db.collection("products").doc(product.id).get()).get("ratingCount")).toBe(
       count + 1,
     );
+    // Leave the product as other suites expect it.
+    await ref.delete();
+    await db
+      .collection("products")
+      .doc(product.id)
+      .update({ ratingAvg: product.ratingAvg, ratingCount: product.ratingCount });
   });
 
   it("adjusts member points and refuses non-members", async () => {

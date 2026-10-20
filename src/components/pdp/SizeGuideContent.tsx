@@ -27,7 +27,12 @@ function MeasureFigure() {
 export function SizeGuideTable({ guide }: { guide: SizeGuide }) {
   return (
     <>
-      <div className="overflow-x-auto">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label={guide.title}
+        className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-ink"
+      >
         <table className="w-full text-sm tabular-nums">
           <caption className="sr-only">{guide.title}, measurements in inches</caption>
           <thead>

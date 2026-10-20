@@ -8,12 +8,16 @@ import { toSearchParams, type ListingFilters, type SortKey } from "@/lib/catalog
  * Pushes a new filter/sort state into the URL (shareable, back-button safe)
  * without jumping the scroll position. Any filter change resets to page 1.
  */
-export function useListingNavigation(basePath: string, extra: Record<string, string> = {}) {
+export function useListingNavigation(
+  basePath: string,
+  extra: Record<string, string> = {},
+  defaultSort: SortKey = "featured",
+) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
   const navigate = (filters: ListingFilters, sort: SortKey) => {
-    const query = toSearchParams({ filters, sort }, extra).toString();
+    const query = toSearchParams({ filters, sort, defaultSort }, extra).toString();
     startTransition(() => {
       router.push(query ? `${basePath}?${query}` : basePath, { scroll: false });
     });

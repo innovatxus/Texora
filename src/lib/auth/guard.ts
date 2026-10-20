@@ -1,6 +1,5 @@
 import "server-only";
 import { forbidden, unauthorized } from "next/navigation";
-import { connection } from "next/server";
 import { hasPermission, type Permission } from "./rbac";
 import { getSession, type Session } from "./session";
 
@@ -39,8 +38,6 @@ export async function requirePermission(permission: Permission): Promise<Session
  * catchable error. Call it inside a Suspense boundary (it reads cookies).
  */
 export async function requirePagePermission(permission: Permission): Promise<Session> {
-  // Always request-time: token verification reads the clock, which must not run while prerendering.
-  await connection();
   const session = await getSession();
   if (!session || session.role === "guest") unauthorized();
   if (!hasPermission(session.role, permission)) forbidden();

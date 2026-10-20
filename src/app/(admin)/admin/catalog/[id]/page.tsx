@@ -43,7 +43,12 @@ function VariantMatrix({ variants, color }: { variants: Variant[]; color: string
   const fits = [...new Set(inColor.map((v) => v.fitFamily))];
   const sizes = [...new Set(inColor.map((v) => v.size))].sort(compareSizes);
   return (
-    <div className="overflow-x-auto">
+    <div
+      tabIndex={0}
+      role="region"
+      aria-label={`Variants in ${color}`}
+      className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-ink"
+    >
       <table className="text-xs tabular-nums">
         <caption className="sr-only">Price and online stock for {color}, by fit and size</caption>
         <thead>

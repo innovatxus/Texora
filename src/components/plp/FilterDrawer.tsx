@@ -28,6 +28,8 @@ interface FilterDrawerProps {
   total: number;
   basePath: string;
   extraParams?: Record<string, string>;
+  /** The listing's default sort, omitted from URLs. */
+  defaultSort?: SortKey;
 }
 
 /**
@@ -42,11 +44,12 @@ export function FilterDrawer({
   total,
   basePath,
   extraParams,
+  defaultSort,
 }: FilterDrawerProps) {
   const [open, setOpen] = useState(false);
   const [staged, setStaged] = useState<ListingFilters>(filters);
   const [count, setCount] = useState<{ query: string; total: number } | null>(null);
-  const { navigate } = useListingNavigation(basePath, extraParams);
+  const { navigate } = useListingNavigation(basePath, extraParams, defaultSort);
 
   const stagedQuery = toSearchParams({ filters: staged }).toString();
 

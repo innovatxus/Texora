@@ -21,15 +21,15 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.2 Home & editorial
 
-| Feature                                             | Behaviour                                                       | Implementation              | Phase | Status  |
-| --------------------------------------------------- | --------------------------------------------------------------- | --------------------------- | ----- | ------- |
-| Module registry                                     | Typed blocks composed by merchandisers                          | `editorial/registry`        | 4     | Done    |
-| HeroBanner                                          | Image/video, overlay copy, 1–2 CTAs, focal point per breakpoint | `editorial/HeroBanner`      | 4     | Done    |
-| SplitFeature, CategoryTiles, StoryBlock, PromoStrip | Editorial blocks                                                | `editorial/*`               | 4     | Done    |
-| ProductCarousel                                     | Manual or rule-based                                            | `editorial/ProductCarousel` | 4     | Done    |
-| LookbookGrid / ShopTheLook                          | Shoppable hotspots                                              | `editorial/LookbookGrid`    | 4     | Done    |
-| Module scheduling & targeting                       | Start/end dates; guest/member/tier audience                     | Module schema + resolver    | 4     | Done    |
-| Module admin editor + preview                       | Form per Zod schema, live preview                               | `admin/content`             | 8     | Planned |
+| Feature                                             | Behaviour                                                       | Implementation              | Phase | Status                         |
+| --------------------------------------------------- | --------------------------------------------------------------- | --------------------------- | ----- | ------------------------------ |
+| Module registry                                     | Typed blocks composed by merchandisers                          | `editorial/registry`        | 4     | Done                           |
+| HeroBanner                                          | Image/video, overlay copy, 1–2 CTAs, focal point per breakpoint | `editorial/HeroBanner`      | 4     | Done                           |
+| SplitFeature, CategoryTiles, StoryBlock, PromoStrip | Editorial blocks                                                | `editorial/*`               | 4     | Done                           |
+| ProductCarousel                                     | Manual or rule-based                                            | `editorial/ProductCarousel` | 4     | Done                           |
+| LookbookGrid / ShopTheLook                          | Shoppable hotspots                                              | `editorial/LookbookGrid`    | 4     | Done                           |
+| Module scheduling & targeting                       | Start/end dates; guest/member/tier audience                     | Module schema + resolver    | 4     | Done                           |
+| Module admin editor + preview                       | Reorder, schedule, audience; content validated per Zod schema   | `admin/content/[slug]`      | 8     | Done (no draft preview, D-056) |
 
 ## 7.3 Product listing page
 
@@ -132,6 +132,28 @@ Account creation, sign-in and every `account/*` page move to the final phase at 
 | Notifications      | Back in stock, price drop, one-click stop                        | `notifications` collection + `api/cron/notifications` | 7     | Done                                            |
 | Recently viewed    | Local + synced                                                   | `stores/recentlyViewed`                               | 5     | Done (local; account sync in final phase)       |
 | Error pages        | Branded 404 / 500                                                | `not-found.tsx`, `error.tsx`                          | 3     | Done                                            |
+
+## 9. Back office
+
+| Module               | Behaviour                                                                                     | Implementation                         | Phase | Status                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------- | ----- | --------------------------------------------------------------------- |
+| Staff sign-in        | Email + password, session cookie, staff land in `/admin`                                      | `auth/signin`                          | 8     | Done (customer accounts in final phase, D-052)                        |
+| Shell                | Role-filtered navigation, request-time guard on every page                                    | `(admin)/admin/layout.tsx`             | 8     | Done                                                                  |
+| Dashboard            | Revenue, orders, AOV, daily revenue chart, top products, low stock, work queues               | `admin/page.tsx`, `lib/admin/metrics`  | 8     | Done (conversion needs analytics, Phase 9)                            |
+| Orders               | Search/filter, detail and timeline, notes, cancel, limit-checked refunds, resend email        | `admin/orders`, `order-service`        | 8     | Done (editing line items before fulfilment: no, D-054)                |
+| Fulfilment           | Queue, start preparing, parcels with carrier and tracking, delivered                          | `admin/fulfillment`                    | 8     | Done                                                                  |
+| Returns              | Queue, approve/deny, receive and inspect, restock, refund or store credit                     | `admin/returns`, `return-service`      | 8     | Done                                                                  |
+| Customers            | Profile, orders, rewards and history, audited points adjustments, notes                       | `admin/customers`, `people-service`    | 8     | Done                                                                  |
+| Catalog              | List, bulk status, CSV import/export, editor (content, SEO, schedule, variant matrix, images) | `admin/catalog`, `catalog-service`     | 8     | Done (creating products and uploading images: merchant portal, D-055) |
+| Categories & merch   | Tree, details, pin (ordered) / boost / bury, default sort, applied on the storefront          | `admin/categories`                     | 8     | Done                                                                  |
+| Content              | Page builder: modules, order, schedule, audience, validated content                           | `admin/content`, `site-service`        | 8     | Done (draft preview: no, D-056)                                       |
+| Pricing & promotions | Price change approval, markdowns, five promotion types, conditions, codes, limits, stacking   | `admin/pricing`, `admin/promotions`    | 8     | Done                                                                  |
+| Inventory            | Stock per location, adjustments with reason codes, history, low-stock view                    | `admin/inventory`, `inventory-service` | 8     | Done                                                                  |
+| Reviews              | Moderation queue; approval recalculates rating and fit                                        | `admin/reviews`                        | 8     | Done                                                                  |
+| Users & roles        | Invite staff, assign roles (policy-checked), sign out everywhere                              | `admin/users`, `people-service`        | 8     | Done                                                                  |
+| Settings             | Shipping rates, refund limit, reservations, loyalty rules, feature flags, store details       | `admin/settings`, `site-service`       | 8     | Done (tax rules and integration keys: env, D-057)                     |
+| Audit log            | Filters, pagination, CSV export (`audit.export`)                                              | `admin/audit`                          | 8     | Done                                                                  |
+| Marketplace vendor   | Vendor catalog, orders, payouts                                                               | `admin/vendor`                         | 8     | Replaced by the merchant portal build (queued)                        |
 
 ## Exclusions
 

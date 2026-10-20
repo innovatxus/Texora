@@ -166,7 +166,12 @@ export function CategoryEditor({
         </section>
       )}
 
-      <div className="overflow-x-auto border border-line">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Products and rules"
+        className="overflow-x-auto border border-line focus-visible:outline-2 focus-visible:outline-ink"
+      >
         <table className="w-full text-sm">
           <caption className="sr-only">
             Products in this category and their merchandising rule

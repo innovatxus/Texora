@@ -111,6 +111,8 @@ export const EMPTY_FILTERS: ListingFilters = {
 export function parseListingQuery(
   params: Params,
   attributeKeys: readonly string[] = Object.keys(ATTRIBUTE_LABELS),
+  /** The listing's own default (a category can set one); used when the URL has no sort. */
+  defaultSort: SortKey = "featured",
 ): ListingQuery {
   const attrs: Record<string, string[]> = {};
   for (const key of attributeKeys) {
@@ -132,14 +134,14 @@ export function parseListingQuery(
       new: list(params.new)[0] === "1",
       availability: list(params.availability),
     },
-    sort: sortParam && sortParam in SORTS ? (sortParam as SortKey) : "featured",
+    sort: sortParam && sortParam in SORTS ? (sortParam as SortKey) : defaultSort,
     page: Number.isFinite(page) && page > 0 ? Math.min(page, 50) : 1,
   };
 }
 
 /** Serialises filters back to a query string (stable order, defaults omitted). */
 export function toSearchParams(
-  query: Partial<ListingQuery> & { filters: ListingFilters },
+  query: Partial<ListingQuery> & { filters: ListingFilters; defaultSort?: SortKey | undefined },
   extra: Record<string, string> = {},
 ): URLSearchParams {
   const params = new URLSearchParams(extra);
@@ -154,7 +156,10 @@ export function toSearchParams(
   }
   if (filters.sale) params.set("sale", "1");
   if (filters.new) params.set("new", "1");
-  if (query.sort && query.sort !== "featured") params.set("sort", query.sort);
+  // The listing's default sort is implied by an absent parameter, so it is omitted.
+  if (query.sort && query.sort !== (query.defaultSort ?? "featured")) {
+    params.set("sort", query.sort);
+  }
   if (query.page && query.page > 1) params.set("page", String(query.page));
   return params;
 }
