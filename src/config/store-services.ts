@@ -2,6 +2,7 @@ import type { Store } from "@/lib/validation";
 
 type Service = Store["services"][number];
 
+/** Display name and description of each in-store service. */
 export const STORE_SERVICES: Record<Service, { label: string; description: string }> = {
   returns: {
     label: "Returns",
@@ -17,4 +18,5 @@ export const STORE_SERVICES: Record<Service, { label: string; description: strin
   },
 };
 
+/** Order in which store services are listed and filtered. */
 export const SERVICE_ORDER: readonly Service[] = ["returns", "alterations", "styling"];

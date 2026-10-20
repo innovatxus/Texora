@@ -13,6 +13,7 @@ export function fromFirestore(value: unknown): unknown {
   return value;
 }
 
+/** A Firestore document failed its schema; carries the path and issues. */
 export class InvalidDocumentError extends Error {
   constructor(
     public readonly path: string,
@@ -66,6 +67,7 @@ export function encodeCursor(values: readonly unknown[], id: string): string {
   return Buffer.from(JSON.stringify([...values.map(encodeValue), id])).toString("base64url");
 }
 
+/** Decodes a pagination cursor; null if it is malformed or doesn't match the sort. */
 export function decodeCursor(cursor: string, expectedValues: number): unknown[] | null {
   try {
     const parsed: unknown = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));

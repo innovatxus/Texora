@@ -31,6 +31,7 @@ interface Selection {
 const unitsRefund = (line: ReturnFormLine, quantity: number) =>
   Math.floor((line.lineTotal * quantity) / line.quantity);
 
+/** Return request form: items, quantities and reasons, return method, refund method and estimate. */
 export function ReturnForm({
   orderId,
   token,

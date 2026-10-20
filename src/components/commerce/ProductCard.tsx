@@ -27,6 +27,7 @@ export interface ProductCardProps {
   className?: string;
 }
 
+/** Product tile for listings: image, swatches, price, badge, quick add and wishlist. */
 export function ProductCard({
   product,
   priority = false,

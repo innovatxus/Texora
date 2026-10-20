@@ -14,6 +14,7 @@ import {
   timestampSchema,
 } from "./common";
 
+/** Badges a product can carry. */
 export const PRODUCT_BADGES = [
   "sale",
   "final_sale",
@@ -22,12 +23,14 @@ export const PRODUCT_BADGES = [
   "online_exclusive",
   "new",
 ] as const;
+/** One product badge. */
 export const productBadgeSchema = z.enum(PRODUCT_BADGES);
 export type ProductBadge = z.infer<typeof productBadgeSchema>;
 
 /** Display priority: the first applicable badge is the one shown on a card. */
 export const BADGE_PRIORITY: readonly ProductBadge[] = PRODUCT_BADGES;
 
+/** A product colour: code, name, swatch and images. */
 export const productColorSchema = z.object({
   code: slugSchema,
   name: z.string().min(1).max(60),
@@ -38,6 +41,7 @@ export const productColorSchema = z.object({
 });
 export type ProductColor = z.infer<typeof productColorSchema>;
 
+/** Lowest and highest prices across a product's variants (cents). */
 export const priceRangeSchema = z
   .object({
     min: moneySchema,
@@ -49,6 +53,7 @@ export const priceRangeSchema = z
   .refine((r) => r.min <= r.max, { message: "min must be ≤ max", path: ["max"] });
 export type PriceRange = z.infer<typeof priceRangeSchema>;
 
+/** A product (style): content, categories, fits, colours, prices and status. */
 export const productSchema = z.object({
   id: idSchema,
   styleId: z.string().min(1).max(40),
@@ -96,6 +101,7 @@ export function categoryKeysFor(path: readonly string[]): string[] {
 /** Inventory locations: the online DC plus each store id. */
 export const ONLINE_LOCATION = "online";
 
+/** A sellable SKU: colour, fit, size, price and stock per location. */
 export const variantSchema = z.object({
   sku: z.string().min(1).max(64),
   productId: idSchema,
@@ -135,6 +141,7 @@ export const priceChangeRequestSchema = z.object({
 });
 export type PriceChangeRequest = z.infer<typeof priceChangeRequestSchema>;
 
+/** Merchandising rules for a category: pinned, boosted and buried products. */
 export const merchRulesSchema = z.object({
   pinned: z.array(idSchema),
   boosted: z.array(idSchema),
@@ -149,6 +156,7 @@ export const merchRulesSchema = z.object({
   ]),
 });
 
+/** A category in the department tree. */
 export const categorySchema = z.object({
   id: idSchema,
   slug: slugSchema,
@@ -174,6 +182,7 @@ export const categorySchema = z.object({
 });
 export type Category = z.infer<typeof categorySchema>;
 
+/** A curated collection of products. */
 export const collectionSchema = z.object({
   id: idSchema,
   slug: slugSchema,

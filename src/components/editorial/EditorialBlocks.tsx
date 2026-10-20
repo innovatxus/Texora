@@ -10,6 +10,7 @@ import type {
 } from "@/lib/cms/modules";
 import { cn } from "@/lib/utils/cn";
 
+/** Full-width message band with an optional link. */
 export function PromoStrip({ message, link, tone }: z.infer<typeof promoStripSchema>) {
   return (
     <section
@@ -27,6 +28,7 @@ export function PromoStrip({ message, link, tone }: z.infer<typeof promoStripSch
   );
 }
 
+/** Grid of image tiles linking to categories. */
 export function CategoryTiles({ heading, tiles }: z.infer<typeof categoryTilesSchema>) {
   return (
     <section className="container-page section-y">
@@ -61,6 +63,7 @@ export function CategoryTiles({ heading, tiles }: z.infer<typeof categoryTilesSc
   );
 }
 
+/** Image and copy side by side, with a call to action. */
 export function SplitFeature({
   eyebrow,
   headline,
@@ -93,6 +96,7 @@ export function SplitFeature({
   );
 }
 
+/** Centred editorial text block with an optional call to action. */
 export function StoryBlock({ eyebrow, headline, body, cta }: z.infer<typeof storyBlockSchema>) {
   return (
     <section className="container-page section-y text-center">

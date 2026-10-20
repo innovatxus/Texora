@@ -23,10 +23,12 @@ async function resolve(params: Params): Promise<{ topic: HelpTopic | null } | nu
   return topic ? { topic } : null;
 }
 
+/** Prerenders the help centre home and every topic. */
 export function generateStaticParams() {
   return [{ slug: [] }, ...HELP_TOPICS.map((t) => ({ slug: [t.slug] }))];
 }
 
+/** Title, description and canonical URL for the help home or a topic. */
 export async function generateMetadata({
   params,
 }: PageProps<"/help/[[...slug]]">): Promise<Metadata> {
@@ -248,6 +250,7 @@ function TopicBody({ topic }: { topic: HelpTopic }) {
 /** Unknown topics answer 404 before streaming; every topic is prerendered. */
 export const instant = false;
 
+/** Help centre: search and quick links on the home page, topic content otherwise. */
 export default async function Page({ params }: PageProps<"/help/[[...slug]]">) {
   const resolved = await resolve(params);
   if (!resolved) notFound();

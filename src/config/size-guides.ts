@@ -76,11 +76,13 @@ export const ALL_SIZE_GUIDES: readonly SizeGuide[] = [
   MEN_WAIST,
 ];
 
+/** The size guide for a product's department and size type. */
 export function sizeGuideFor(department: string, sizeType: string): SizeGuide {
   if (department === "men") return sizeType === "waist_inseam" ? MEN_WAIST : MEN_ALPHA;
   return sizeType === "numeric" ? WOMEN_NUMERIC : WOMEN_ALPHA;
 }
 
+/** How to take each body measurement used in the size guides. */
 export const HOW_TO_MEASURE = [
   {
     label: "Bust / chest",

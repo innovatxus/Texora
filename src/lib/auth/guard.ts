@@ -3,6 +3,7 @@ import { forbidden, unauthorized } from "next/navigation";
 import { hasPermission, type Permission } from "./rbac";
 import { getSession, type Session } from "./session";
 
+/** Thrown by guards: no session (unauthenticated) or missing permission (forbidden). */
 export class AuthorizationError extends Error {
   constructor(
     public readonly code: "unauthenticated" | "forbidden",
@@ -23,6 +24,7 @@ export async function requireSession(): Promise<Session> {
   return session;
 }
 
+/** Returns the session if its role has the permission; throws otherwise. */
 export async function requirePermission(permission: Permission): Promise<Session> {
   const session = await requireSession();
   if (!hasPermission(session.role, permission)) {

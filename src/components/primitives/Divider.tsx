@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
+/** Divider styles: horizontal or vertical, subtle or strong. */
 export const dividerVariants = cva("shrink-0 border-0", {
   variants: {
     orientation: {
@@ -22,6 +23,7 @@ export interface DividerProps
   decorative?: boolean;
 }
 
+/** Visual separator line; decorative, so hidden from assistive technology. */
 export function Divider({
   orientation,
   tone,

@@ -13,6 +13,7 @@ import { DEPARTMENTS, type Department } from "@/lib/validation";
 
 const LABELS: Record<Department, string> = { women: "Women's sale", men: "Men's sale" };
 
+/** Prerenders the sale page for everything and for each department. */
 export function generateStaticParams() {
   return [{ category: [] }, ...DEPARTMENTS.map((d) => ({ category: [d] }))];
 }
@@ -25,6 +26,7 @@ function parse(category: string[] | undefined): { department?: Department; valid
   return { department: first as Department, valid: true };
 }
 
+/** Title and canonical URL for a sale listing. */
 export async function generateMetadata({
   params,
 }: PageProps<"/sale/[[...category]]">): Promise<Metadata> {
@@ -79,6 +81,7 @@ async function SaleContent({ params, searchParams }: PageProps<"/sale/[[...categ
  */
 export const instant = false;
 
+/** Sale listing, optionally limited to a department. */
 export default async function Page(props: PageProps<"/sale/[[...category]]">) {
   if (!parse((await props.params).category).valid) notFound();
   return (

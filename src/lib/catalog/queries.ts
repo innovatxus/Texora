@@ -16,6 +16,7 @@ import type { ListingProduct } from "./listing-types";
  * revalidate: "products", "inventory", "categories", "collections", "stores".
  */
 
+/** Compact data for every live product, cached and used by all listings. */
 export async function getListingIndex(): Promise<ListingProduct[]> {
   "use cache";
   cacheTag("products", "inventory");
@@ -24,6 +25,7 @@ export async function getListingIndex(): Promise<ListingProduct[]> {
   return buildListingProducts(products, stock);
 }
 
+/** Live categories in a department, cached. */
 export async function getDepartmentCategories(department: Department): Promise<Category[]> {
   "use cache";
   cacheTag("categories");
@@ -31,6 +33,7 @@ export async function getDepartmentCategories(department: Department): Promise<C
   return listLiveCategories(department);
 }
 
+/** A live category by its path, cached. */
 export async function getCategory(path: readonly string[]): Promise<Category | null> {
   "use cache";
   cacheTag("categories");
@@ -38,6 +41,7 @@ export async function getCategory(path: readonly string[]): Promise<Category | n
   return getLiveCategoryByPath(path);
 }
 
+/** A live collection by slug, cached. */
 export async function getCollection(slug: string): Promise<Collection | null> {
   "use cache";
   cacheTag("collections", `collection:${slug}`);
@@ -45,6 +49,7 @@ export async function getCollection(slug: string): Promise<Collection | null> {
   return getLiveCollectionBySlug(slug);
 }
 
+/** Every store, cached. */
 export async function getStores(): Promise<Store[]> {
   "use cache";
   cacheTag("stores");
@@ -52,6 +57,7 @@ export async function getStores(): Promise<Store[]> {
   return listStores();
 }
 
+/** Listing data for the given product IDs, in the same order, skipping missing ones. */
 export async function getProductsForIds(ids: readonly string[]): Promise<ListingProduct[]> {
   const index = await getListingIndex();
   const byId = new Map(index.map((p) => [p.id, p]));

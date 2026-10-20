@@ -16,6 +16,7 @@ export const checkoutAddressSchema = addressSchema.extend({
 });
 export type CheckoutAddress = z.infer<typeof checkoutAddressSchema>;
 
+/** Everything checkout sends to place an order; prices are recalculated on the server. */
 export const placeOrderSchema = z.object({
   idempotencyKey: z.string().min(16).max(128),
   email: z.email("Enter a valid email address").max(254).toLowerCase(),

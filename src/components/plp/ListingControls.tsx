@@ -13,6 +13,7 @@ const MOBILE_KEY = "texora-grid-mobile";
 const DESKTOP_OPTIONS = ["2", "3", "4"] as const;
 const MOBILE_OPTIONS = ["1", "2"] as const;
 
+/** Sort order selector for product listings. */
 export function SortMenu({
   filters,
   sort,

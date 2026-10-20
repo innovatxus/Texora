@@ -11,6 +11,7 @@ import { SearchOverlay } from "@/components/navigation/SearchOverlay";
 import { ANNOUNCEMENTS } from "@/config/announcements";
 import { StoreHydration } from "@/stores/StoreHydration";
 
+/** Shopping chrome: announcement bar, header, footer and the global overlays (search, bag, consent, signup). */
 export default function StorefrontLayout({ children }: LayoutProps<"/">) {
   return (
     <>

@@ -66,6 +66,7 @@ export const useCheckoutStore = create<CheckoutState>()(
 
 const subscribe = (onChange: () => void) => useCheckoutStore.persist.onFinishHydration(onChange);
 
+/** True once the checkout store has loaded from sessionStorage. */
 export function useCheckoutHydrated(): boolean {
   return useSyncExternalStore(
     subscribe,

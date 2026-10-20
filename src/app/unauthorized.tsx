@@ -2,6 +2,7 @@ import { ErrorState } from "@/components/feedback/ErrorState";
 import { ButtonLink } from "@/components/primitives";
 import { SIGN_IN_PATH } from "@/lib/auth/access";
 
+/** Shown when a page needs a signed-in user (401). */
 export default function Unauthorized() {
   return (
     <main className="flex flex-1 flex-col">

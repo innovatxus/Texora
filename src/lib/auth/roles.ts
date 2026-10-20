@@ -4,6 +4,7 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { canAssignRole, isRole, type Role } from "./rbac";
 import type { Session } from "./session";
 
+/** Thrown when a role change is refused, with the reason. */
 export class RoleAssignmentError extends Error {
   constructor(
     public readonly reason: string,

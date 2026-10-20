@@ -32,6 +32,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
+/** Signed link to a return's page. */
 export function returnPageUrl(orderId: string, returnId: string): string {
   const url = new URL(`/orders/${orderId}/returns/${returnId}`, clientEnv.NEXT_PUBLIC_SITE_URL);
   url.searchParams.set("t", orderAccessToken(orderId));
@@ -147,6 +148,7 @@ export async function requestReturn(
   return result;
 }
 
+/** Emails (or re-sends) the return instructions with the QR code. */
 export async function sendReturnInstructions(returnId: string): Promise<void> {
   const record = await getReturn(returnId);
   if (!record) throw new Error(`Return ${returnId} not found`);

@@ -26,6 +26,7 @@ export interface SizeOption {
   online: number;
 }
 
+/** Sizes for a colour and fit, with availability, in size order. */
 export function sizeOptions(
   variants: readonly PdpVariant[],
   color: string,
@@ -37,6 +38,7 @@ export function sizeOptions(
     .sort((a, b) => compareSizes(a.size, b.size));
 }
 
+/** The variant for a colour, fit and size, if it exists. */
 export function findVariant(
   variants: readonly PdpVariant[],
   color: string,
@@ -60,6 +62,7 @@ export function fitsForColor(
 export type StockMessage =
   { kind: "in_stock" } | { kind: "low"; remaining: number } | { kind: "out_of_stock" };
 
+/** Out of stock / low stock / in stock message for a variant. */
 export function stockMessage(variant: PdpVariant | undefined): StockMessage | null {
   if (!variant) return null;
   if (variant.online <= 0) return { kind: "out_of_stock" };
@@ -85,6 +88,7 @@ export function storeAvailability(
 
 // ------------------------------------------------------------- delivery
 
+/** Delivery options and their business-day ranges. */
 export const DELIVERY_METHODS = {
   standard: { label: "Standard", minDays: 3, maxDays: 5 },
   express: { label: "Express", minDays: 1, maxDays: 2 },
@@ -132,6 +136,7 @@ export interface ReviewSummary {
   recommendPercent: number;
 }
 
+/** Average rating, star distribution, fit tendency and recommend rate from reviews. */
 export function summariseReviews(
   reviews: ReadonlyArray<{ rating: number; fit?: number | undefined }>,
 ): ReviewSummary {
@@ -158,6 +163,7 @@ export function summariseReviews(
   };
 }
 
+/** "Runs small", "True to size" or "Runs large" from the fit score. */
 export function fitLabel(fit: number | null): string | null {
   if (fit === null) return null;
   if (fit <= -0.35) return "Runs small";

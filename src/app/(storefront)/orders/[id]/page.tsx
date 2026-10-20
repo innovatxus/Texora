@@ -17,6 +17,7 @@ import { orderAccessToken } from "@/lib/orders/token";
 import { isTrackable, STATUS_LABELS, trackingTimeline } from "@/lib/orders/tracking";
 import { INELIGIBLE_MESSAGES, RETURN_STATUS_LABELS, returnEligibility } from "@/lib/returns/policy";
 
+/** Order pages are private: never indexed. */
 export const metadata: Metadata = {
   title: "Your order",
   robots: { index: false, follow: false },
@@ -174,6 +175,7 @@ async function OrderStatus({ params, searchParams }: PageProps<"/orders/[id]">) 
   );
 }
 
+/** Order tracking page, streamed because access depends on the signed link or session. */
 export default function Page(props: PageProps<"/orders/[id]">) {
   return (
     <Suspense

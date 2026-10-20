@@ -11,6 +11,7 @@ import { getAuthorisedOrder } from "@/lib/orders/access";
 import { orderAccessToken } from "@/lib/orders/token";
 import { INELIGIBLE_MESSAGES, returnEligibility } from "@/lib/returns/policy";
 
+/** Return pages are private: never indexed. */
 export const metadata: Metadata = {
   title: "Start a return",
   robots: { index: false, follow: false },
@@ -81,6 +82,7 @@ async function StartReturn({ params, searchParams }: PageProps<"/orders/[id]/ret
   );
 }
 
+/** Start a return for an order, streamed because access depends on the signed link. */
 export default function Page(props: PageProps<"/orders/[id]/return">) {
   return (
     <Suspense

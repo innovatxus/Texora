@@ -21,6 +21,7 @@ export const EMAIL_COLORS = {
   surface: "#ffffff",
 } as const;
 
+/** Shared email frame: brand header, content, footer and optional unsubscribe link. */
 export function EmailLayout({
   brandName,
   preview,
@@ -76,6 +77,7 @@ export function EmailLayout({
   );
 }
 
+/** Email headline in the display serif. */
 export function EmailHeading({ children }: { children: ReactNode }) {
   return (
     <Heading
@@ -86,12 +88,14 @@ export function EmailHeading({ children }: { children: ReactNode }) {
   );
 }
 
+/** Email body paragraph. */
 export function EmailText({ children }: { children: ReactNode }) {
   return (
     <Text style={{ color: EMAIL_COLORS.soft, fontSize: 15, lineHeight: "24px" }}>{children}</Text>
   );
 }
 
+/** Email call-to-action button (a styled link, which every mail client supports). */
 export function EmailButton({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Section style={{ margin: "24px 0" }}>

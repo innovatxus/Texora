@@ -32,6 +32,7 @@ export async function signInWithIdToken(input: unknown) {
 
 const signOutSchema = z.object({ everywhere: z.boolean().optional() });
 
+/** Ends the session on this device, or on every device when asked. */
 export async function signOut(input: unknown) {
   return runAction(input, {
     schema: signOutSchema,

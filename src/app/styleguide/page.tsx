@@ -32,6 +32,7 @@ import {
 } from "./_components/InteractiveDemos";
 import { Section, Specimen } from "./_components/Section";
 
+/** The styleguide is internal: never indexed. */
 export const metadata: Metadata = {
   title: "Styleguide",
   robots: { index: false, follow: false },
@@ -86,6 +87,7 @@ const NAV = [
   ["feedback", "Loading & structure"],
 ] as const;
 
+/** Every primitive and state on one page. Hidden unless the styleguide feature flag is on. */
 export default function StyleguidePage() {
   if (!features.styleguide) notFound();
 

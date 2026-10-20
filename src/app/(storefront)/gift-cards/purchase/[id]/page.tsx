@@ -10,6 +10,7 @@ import { formatMoney } from "@/lib/format/money";
 import { getGiftCardPurchase } from "@/lib/giftcards/service";
 import { verifyToken } from "@/lib/orders/token";
 
+/** Purchase pages are private: never indexed. */
 export const metadata: Metadata = {
   title: "Your e-gift card",
   robots: { index: false, follow: false },
@@ -79,6 +80,7 @@ async function Purchase({ params, searchParams }: PageProps<"/gift-cards/purchas
   );
 }
 
+/** E-gift card purchase status, streamed because it depends on the signed link. */
 export default function Page(props: PageProps<"/gift-cards/purchase/[id]">) {
   return (
     <Suspense

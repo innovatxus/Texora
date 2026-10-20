@@ -22,6 +22,7 @@ export interface HelpTopic {
   sections: HelpSection[];
 }
 
+/** FAQ groups, in display order. */
 export const FAQ_CATEGORIES = [
   "Orders & delivery",
   "Returns & refunds",
@@ -41,6 +42,7 @@ export interface FaqEntry {
   link?: { label: string; href: string };
 }
 
+/** Every FAQ entry, used by the help search and the FAQ page. */
 export const FAQ: readonly FaqEntry[] = [
   {
     id: "track-order",
@@ -195,6 +197,7 @@ export const FAQ: readonly FaqEntry[] = [
   },
 ];
 
+/** Help centre topics: the slug, title, group and content of each page. */
 export const HELP_TOPICS: readonly HelpTopic[] = [
   {
     slug: "shipping",
@@ -397,10 +400,12 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   },
 ];
 
+/** The help topic for a URL slug, if there is one. */
 export function getHelpTopic(slug: string): HelpTopic | undefined {
   return HELP_TOPICS.find((t) => t.slug === slug);
 }
 
+/** Topics a customer can choose on the contact form. */
 export const CONTACT_TOPICS = [
   { value: "order", label: "An existing order" },
   { value: "return", label: "Returns and refunds" },

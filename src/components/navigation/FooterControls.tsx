@@ -30,6 +30,7 @@ export function CountrySelector() {
   );
 }
 
+/** Footer button that reopens the cookie preferences. */
 export function CookieSettingsButton({ className }: { className?: string }) {
   return (
     <button

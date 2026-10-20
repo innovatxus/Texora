@@ -19,10 +19,12 @@ import { getPdpData, listLiveProductSlugs, type PdpData } from "@/lib/catalog/pd
 import { getListingIndex, getProductsForIds } from "@/lib/catalog/queries";
 import { clientEnv } from "@/lib/env/client";
 
+/** Prerenders every live product page. */
 export async function generateStaticParams() {
   return (await listLiveProductSlugs()).map((slug) => ({ slug }));
 }
 
+/** Title, description, canonical URL and share image for a product. */
 export async function generateMetadata({
   params,
 }: PageProps<"/product/[slug]">): Promise<Metadata> {
@@ -117,6 +119,7 @@ async function YouMayAlsoLike({
  */
 export const instant = false;
 
+/** Product detail page (PDP): gallery, buy box, details, recommendations and reviews. */
 export default async function ProductPage({ params }: PageProps<"/product/[slug]">) {
   const data = await getPdpData((await params).slug);
   if (!data) notFound();

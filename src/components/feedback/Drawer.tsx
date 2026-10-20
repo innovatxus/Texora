@@ -99,4 +99,5 @@ export function Drawer({
   );
 }
 
+/** Wraps any element so activating it closes the drawer. */
 export const DrawerClose = Dialog.Close;

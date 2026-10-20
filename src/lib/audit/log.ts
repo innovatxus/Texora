@@ -29,6 +29,7 @@ async function requestMeta(): Promise<{ ip: string | null; userAgent: string | n
   }
 }
 
+/** Builds an audit log record with the actor, target, before/after values and changed paths. */
 export function buildAuditLog(
   entry: AuditEntry,
   meta: { ip: string | null; userAgent: string | null },

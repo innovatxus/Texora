@@ -13,6 +13,7 @@ import { DEPARTMENTS } from "@/lib/validation";
 
 const DEPARTMENT_LABELS: Record<string, string> = { women: "Women", men: "Men" };
 
+/** Prerenders every live category path in both departments. */
 export async function generateStaticParams() {
   const lists = await Promise.all(DEPARTMENTS.map((d) => getDepartmentCategories(d)));
   return lists
@@ -27,6 +28,7 @@ async function load(params: PageProps<"/[department]/[...category]">["params"]) 
   return { path, category: await getCategory(path) };
 }
 
+/** Title, description and canonical URL for a category listing. */
 export async function generateMetadata({
   params,
 }: PageProps<"/[department]/[...category]">): Promise<Metadata> {
@@ -89,6 +91,7 @@ async function CategoryContent({ params, searchParams }: PageProps<"/[department
  */
 export const instant = false;
 
+/** Category listing page (PLP) with filters, sort and pagination. */
 export default async function Page(props: PageProps<"/[department]/[...category]">) {
   if (!(await load(props.params)).category) notFound();
   return (

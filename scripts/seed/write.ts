@@ -52,6 +52,7 @@ export async function writeSeed(db: Firestore, auth: Auth, data: SeedData): Prom
   }
 }
 
+/** Deletes every Firestore document and Auth account in the emulators for a project. */
 export async function clearEmulators(projectId: string, firestoreHost: string, authHost: string) {
   const responses = await Promise.all([
     fetch(

@@ -37,12 +37,14 @@ export interface GiftCardPurchaseInput {
   idempotencyKey: string;
 }
 
+/** Signed link to a gift card purchase's status page. */
 export function purchasePageUrl(purchaseId: string): string {
   const url = new URL(`/gift-cards/purchase/${purchaseId}`, clientEnv.NEXT_PUBLIC_SITE_URL);
   url.searchParams.set("t", signToken("gift-card-purchase", purchaseId));
   return url.toString();
 }
 
+/** A gift card purchase by id. */
 export async function getGiftCardPurchase(id: string): Promise<GiftCardPurchase | null> {
   return parseSnapshot(giftCardPurchaseSchema, await purchases().doc(id).get());
 }

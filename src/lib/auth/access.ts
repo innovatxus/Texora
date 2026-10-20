@@ -1,6 +1,8 @@
 import { hasPermission, requiredPermissionForPath, type Role } from "./rbac";
 
+/** Where signed-out visitors are sent when a page needs an account. */
 export const SIGN_IN_PATH = "/auth/signin";
+/** Where signed-in users without permission are sent. */
 export const ACCESS_DENIED_PATH = "/access-denied";
 
 export type AccessDecision =

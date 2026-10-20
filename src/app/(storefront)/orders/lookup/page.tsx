@@ -3,12 +3,14 @@ import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { OrderLookupForm } from "@/components/orders/OrderLookupForm";
 import { Link } from "@/components/primitives";
 
+/** Title, description and canonical URL for order lookup. */
 export const metadata: Metadata = {
   title: "Track an order",
   description: "Find your order with its number and email to track it or start a return.",
   alternates: { canonical: "/orders/lookup" },
 };
 
+/** Guest order lookup by order number and email. */
 export default function Page() {
   return (
     <div className="container-page pt-6 pb-24">

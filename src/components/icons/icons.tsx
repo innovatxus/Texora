@@ -1,5 +1,6 @@
 import { Icon, type IconProps } from "./Icon";
 
+/** Magnifying glass: search. */
 export function SearchIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -9,6 +10,7 @@ export function SearchIcon(props: IconProps) {
   );
 }
 
+/** Shopping bag: the bag. */
 export function BagIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -23,6 +25,7 @@ export interface HeartIconProps extends IconProps {
   filled?: boolean;
 }
 
+/** Heart outline, or filled when saved: wishlist. */
 export function HeartIcon({ filled = false, ...props }: HeartIconProps) {
   return (
     <Icon {...props}>
@@ -34,6 +37,7 @@ export function HeartIcon({ filled = false, ...props }: HeartIconProps) {
   );
 }
 
+/** Person: account. */
 export function AccountIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -43,6 +47,7 @@ export function AccountIcon(props: IconProps) {
   );
 }
 
+/** Shopfront: stores. */
 export function StoreIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -53,6 +58,7 @@ export function StoreIcon(props: IconProps) {
   );
 }
 
+/** Cross: close or remove. */
 export function CloseIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -61,6 +67,7 @@ export function CloseIcon(props: IconProps) {
   );
 }
 
+/** Three lines: open the menu. */
 export function MenuIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -69,6 +76,7 @@ export function MenuIcon(props: IconProps) {
   );
 }
 
+/** Chevron pointing down: expand. */
 export function ChevronDownIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -77,6 +85,7 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+/** Chevron pointing up: collapse. */
 export function ChevronUpIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -85,6 +94,7 @@ export function ChevronUpIcon(props: IconProps) {
   );
 }
 
+/** Chevron pointing left: previous. */
 export function ChevronLeftIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -93,6 +103,7 @@ export function ChevronLeftIcon(props: IconProps) {
   );
 }
 
+/** Chevron pointing right: next. */
 export function ChevronRightIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -101,6 +112,7 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
+/** Plus: increase or add. */
 export function PlusIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -109,6 +121,7 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+/** Minus: decrease. */
 export function MinusIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -117,6 +130,7 @@ export function MinusIcon(props: IconProps) {
   );
 }
 
+/** Sliders: filters. */
 export function FilterIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -127,6 +141,7 @@ export function FilterIcon(props: IconProps) {
   );
 }
 
+/** Magnifier with plus: zoom. */
 export function ZoomIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -136,6 +151,7 @@ export function ZoomIcon(props: IconProps) {
   );
 }
 
+/** Delivery truck: shipping. */
 export function TruckIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -147,6 +163,7 @@ export function TruckIcon(props: IconProps) {
   );
 }
 
+/** Curved arrow: returns. */
 export function ReturnIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -156,6 +173,7 @@ export function ReturnIcon(props: IconProps) {
   );
 }
 
+/** Tick: done or selected. */
 export function CheckIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -164,6 +182,7 @@ export function CheckIcon(props: IconProps) {
   );
 }
 
+/** Every icon by name, for the styleguide. */
 export const iconCatalog = {
   search: SearchIcon,
   bag: BagIcon,

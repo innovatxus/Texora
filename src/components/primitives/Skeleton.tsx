@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
+/** Loading placeholder shapes: block, text line or circle. */
 export const skeletonVariants = cva("animate-pulse bg-surface-muted", {
   variants: {
     shape: {

@@ -4,12 +4,14 @@ import { StoreLocator } from "@/components/stores/StoreLocator";
 import { brand } from "@/config/brand";
 import { getStores } from "@/lib/catalog/queries";
 
+/** Title, description and canonical URL for the store locator. */
 export const metadata: Metadata = {
   title: "Find a store",
   description: `Opening hours, services and directions for every ${brand.name} store.`,
   alternates: { canonical: "/stores" },
 };
 
+/** Store locator listing every store that isn't permanently closed. */
 export default async function Page() {
   const stores = (await getStores()).filter((s) => s.status !== "closed");
   return (

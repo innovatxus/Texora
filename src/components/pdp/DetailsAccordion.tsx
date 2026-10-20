@@ -4,6 +4,7 @@ import * as Accordion from "@radix-ui/react-accordion";
 import type { ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/icons";
 
+/** Expandable sections (product details, FAQs); several can be open at once. */
 export function DetailsAccordion({
   sections,
   defaultOpen,

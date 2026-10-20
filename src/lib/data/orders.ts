@@ -5,10 +5,12 @@ import { paginate, parseSnapshot, type Page, type PageRequest } from "./firestor
 
 const orders = () => getFirebaseAdmin().db.collection("orders");
 
+/** An order by id. */
 export async function getOrder(id: string): Promise<Order | null> {
   return parseSnapshot(orderSchema, await orders().doc(id).get());
 }
 
+/** The order with this number placed with this email (guest lookup). Both must match. */
 export async function getOrderByNumberAndEmail(
   number: string,
   email: string,
@@ -22,6 +24,7 @@ export async function getOrderByNumberAndEmail(
   return doc ? parseSnapshot(orderSchema, doc) : null;
 }
 
+/** A customer's orders, newest first, paginated. */
 export async function listOrdersForUser(uid: string, page: PageRequest): Promise<Page<Order>> {
   return paginate(
     orders().where("userId", "==", uid),

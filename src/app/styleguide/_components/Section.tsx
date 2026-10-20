@@ -8,6 +8,7 @@ interface SectionProps {
   children: ReactNode;
 }
 
+/** A titled styleguide section with an anchor id. */
 export function Section({ id, title, description, children }: SectionProps) {
   return (
     <section
@@ -33,6 +34,7 @@ interface SpecimenProps {
   children: ReactNode;
 }
 
+/** A labelled example of a component state, optionally on a dark background. */
 export function Specimen({ label, inverse = false, children }: SpecimenProps) {
   return (
     <div className="flex flex-col gap-3">

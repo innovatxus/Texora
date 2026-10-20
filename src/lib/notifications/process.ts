@@ -12,6 +12,7 @@ import { ONLINE_LOCATION } from "@/lib/validation";
 
 const BATCH = 200;
 
+/** Signed link that lets an email address stop its product alerts. */
 export function unsubscribeUrl(email: string): string {
   const url = new URL("/notifications/unsubscribe", clientEnv.NEXT_PUBLIC_SITE_URL);
   url.searchParams.set("email", email);

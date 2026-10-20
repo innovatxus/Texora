@@ -83,6 +83,7 @@ export async function getPdpData(slug: string): Promise<PdpData | null> {
   };
 }
 
+/** Slugs of every live product, cached, for prerendering product pages. */
 export async function listLiveProductSlugs(): Promise<string[]> {
   "use cache";
   cacheTag("products");

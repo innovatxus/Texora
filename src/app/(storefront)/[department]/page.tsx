@@ -18,10 +18,12 @@ function asDepartment(value: string): Department | null {
   return (DEPARTMENTS as readonly string[]).includes(value) ? (value as Department) : null;
 }
 
+/** Prerenders the Women and Men landing pages. */
 export function generateStaticParams() {
   return DEPARTMENTS.map((department) => ({ department }));
 }
 
+/** Title, description and canonical URL for a department landing page. */
 export async function generateMetadata({ params }: PageProps<"/[department]">): Promise<Metadata> {
   const department = asDepartment((await params).department);
   if (!department) return {};
@@ -77,6 +79,7 @@ async function DepartmentContent({ params, searchParams }: PageProps<"/[departme
  */
 export const instant = false;
 
+/** Department landing page: CMS modules followed by the full department listing. */
 export default async function Page(props: PageProps<"/[department]">) {
   if (!asDepartment((await props.params).department)) notFound();
   return (

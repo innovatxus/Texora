@@ -11,6 +11,7 @@ export interface FirebaseClient {
   storage: FirebaseStorage;
 }
 
+/** Local emulator ports, matching firebase.json. */
 export const EMULATOR_PORTS = {
   auth: 9099,
   firestore: 8080,

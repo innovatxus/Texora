@@ -3,6 +3,7 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { productSchema, variantSchema, type Product, type Variant } from "@/lib/validation";
 import { paginate, parseSnapshot, type Page, type PageRequest } from "./firestore";
 
+/** Firestore sort orders for product queries. */
 export const PRODUCT_SORTS = {
   featured: [{ field: "salesRank", direction: "asc" }],
   best_sellers: [{ field: "salesRank", direction: "asc" }],
@@ -17,6 +18,7 @@ export type ProductSort = keyof typeof PRODUCT_SORTS;
 const products = () => getFirebaseAdmin().db.collection("products");
 const variants = () => getFirebaseAdmin().db.collection("variants");
 
+/** A product by id. */
 export async function getProductById(id: string): Promise<Product | null> {
   return parseSnapshot(productSchema, await products().doc(id).get());
 }
@@ -32,6 +34,7 @@ export async function getLiveProductBySlug(slug: string): Promise<Product | null
   return doc ? parseSnapshot(productSchema, doc) : null;
 }
 
+/** Products by id in one round trip, skipping missing ones. */
 export async function getProductsByIds(ids: readonly string[]): Promise<Product[]> {
   if (ids.length === 0) return [];
   const refs = ids.map((id) => products().doc(id));
@@ -66,6 +69,7 @@ export async function listLiveProducts({
   );
 }
 
+/** Every variant (SKU) of a product. */
 export async function getVariantsForProduct(productId: string): Promise<Variant[]> {
   const snapshot = await variants().where("productId", "==", productId).get();
   return snapshot.docs
@@ -73,6 +77,7 @@ export async function getVariantsForProduct(productId: string): Promise<Variant[
     .filter((v): v is Variant => v !== null);
 }
 
+/** Variants by SKU in one round trip, skipping missing ones. */
 export async function getVariantsBySkus(skus: readonly string[]): Promise<Variant[]> {
   if (skus.length === 0) return [];
   const snapshots = await getFirebaseAdmin().db.getAll(...skus.map((sku) => variants().doc(sku)));

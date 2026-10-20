@@ -24,6 +24,7 @@ export function describedBy(
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
+/** Helper text under a control, referenced by aria-describedby. */
 export function FieldHint({ id, children }: { id: string; children: ReactNode }) {
   return (
     <p id={id} className="text-sm text-ink-subtle">
@@ -32,6 +33,7 @@ export function FieldHint({ id, children }: { id: string; children: ReactNode })
   );
 }
 
+/** Error text under a control, referenced by aria-describedby. */
 export function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
     <p id={id} className="text-sm text-sale">
@@ -40,6 +42,7 @@ export function FieldError({ id, children }: { id: string; children: ReactNode }
   );
 }
 
+/** Visual asterisk for required fields; hidden from screen readers, which hear "required" instead. */
 export function RequiredMark() {
   return (
     <span aria-hidden className="ml-0.5 text-ink-subtle">

@@ -3,6 +3,7 @@ import { cva } from "class-variance-authority";
 import { CloseIcon } from "@/components/icons";
 import { cn } from "@/lib/utils/cn";
 
+/** Chip styles, selected or not. */
 export const chipVariants = cva(
   [
     "inline-flex h-9 items-center gap-1.5 rounded-chip border px-3 text-sm whitespace-nowrap",

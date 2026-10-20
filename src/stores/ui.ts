@@ -25,6 +25,7 @@ interface UiState {
   setOpen: (panel: Exclude<Panel, null>, open: boolean) => void;
 }
 
+/** Which overlay is open (menu, search, bag) and the last item added, for the bag drawer. */
 export const useUiStore = create<UiState>()((set) => ({
   panel: null,
   lastAdded: null,

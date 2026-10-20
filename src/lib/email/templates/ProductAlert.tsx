@@ -16,6 +16,7 @@ export interface ProductAlertProps {
   unsubscribeUrl: string;
 }
 
+/** Back-in-stock or price-drop email for one product. */
 export function ProductAlertEmail(props: ProductAlertProps) {
   const backInStock = props.kind === "back_in_stock";
   const heading = backInStock ? "It's back in stock" : "The price just dropped";

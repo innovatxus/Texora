@@ -8,6 +8,7 @@ import { submitContactRequest } from "@/lib/help/actions";
 
 type Field = "name" | "email" | "topic" | "orderNumber" | "message";
 
+/** Customer care form; confirms with a reference number once sent. */
 export function ContactForm() {
   const id = useId();
   const [values, setValues] = useState<Record<Field, string>>({

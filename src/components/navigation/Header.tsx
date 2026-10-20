@@ -54,6 +54,7 @@ function useHeaderScroll(locked: boolean) {
   return state;
 }
 
+/** Sticky site header: logo, department nav with mega menus, search, stores, account, wishlist and bag. */
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { hidden, compact } = useHeaderScroll(menuOpen);

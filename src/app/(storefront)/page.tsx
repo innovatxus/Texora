@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/primitives";
 import { brand } from "@/config/brand";
 import { getLivePage } from "@/lib/cms/pages";
 
+/** Title and description for the home page, from its CMS record. */
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getLivePage("home");
   return {
@@ -14,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/** Home page assembled from CMS modules. */
 export default async function HomePage() {
   const page = await getLivePage("home");
   if (!page || page.modules.length === 0) {

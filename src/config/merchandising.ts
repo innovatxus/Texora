@@ -8,6 +8,7 @@ export interface GridTile {
   imageAlt: string;
 }
 
+/** Editorial tiles placed between products in listing grids, per department. */
 export const GRID_TILES: Record<string, readonly GridTile[]> = {
   women: [
     {

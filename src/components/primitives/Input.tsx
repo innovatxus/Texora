@@ -43,6 +43,7 @@ export interface InputProps
   inputClassName?: string;
 }
 
+/** Labelled text input with optional hint and error, linked for assistive technology. */
 export function Input({
   id,
   label,

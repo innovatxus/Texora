@@ -1,9 +1,11 @@
 import { deliveredAt } from "@/lib/orders/tracking";
 import type { Order, Return } from "@/lib/validation";
 
+/** Items can be returned within this many days of delivery. */
 export const RETURN_WINDOW_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** Return reasons and their labels, in the order shown on the form. */
 export const RETURN_REASONS = [
   { value: "too_small", label: "Too small" },
   { value: "too_large", label: "Too large" },
@@ -102,6 +104,7 @@ export function refundEstimate(
   }, 0);
 }
 
+/** Customer-facing wording for each return status. */
 export const RETURN_STATUS_LABELS: Record<Return["status"], string> = {
   requested: "Requested",
   approved: "Ready to send",
@@ -113,6 +116,7 @@ export const RETURN_STATUS_LABELS: Record<Return["status"], string> = {
   closed: "Closed",
 };
 
+/** Why an order can't be returned, in customer-facing words. */
 export const INELIGIBLE_MESSAGES: Record<
   Extract<ReturnEligibility, { eligible: false }>["reason"],
   string

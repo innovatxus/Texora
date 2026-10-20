@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils/cn";
 import { useBagStore } from "@/stores/bag";
 import { useWishlistStore } from "@/stores/wishlist";
 
+/** Progress bar and message showing how far the bag is from free shipping. */
 export function FreeShippingProgress({
   remaining,
   threshold,
@@ -338,6 +339,7 @@ export function OrderSummary({
   );
 }
 
+/** Promo code entry with applied and rejected codes listed below. */
 export function PromoCodeField({ bag }: { bag: BagView | null }) {
   const id = useId();
   const add = useBagStore((s) => s.addPromoCode);
@@ -396,6 +398,7 @@ export function PromoCodeField({ bag }: { bag: BagView | null }) {
   );
 }
 
+/** Gift card entry and, for members, a choice of rewards to apply. */
 export function Redemptions({ bag }: { bag: BagView | null }) {
   const id = useId();
   const giftCardCode = useBagStore((s) => s.giftCardCode);

@@ -44,6 +44,7 @@ function firstIn(products: readonly Product[], categoryKey: string, n: number): 
     .map((p) => p.id);
 }
 
+/** CMS pages (home and department landings) built from the seeded products. */
 export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
   const womenTop = firstIn(products, "women/tops", 1)[0] ?? "";
   const womenPants = firstIn(products, "women/pants", 1)[0] ?? "";

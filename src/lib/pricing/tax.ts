@@ -39,6 +39,7 @@ const STATE_RATES: Record<string, number> = {
 /** Used before the shopper gives an address. */
 export const DEFAULT_TAX_RATE = 0.075;
 
+/** Estimated sales tax rate for a US state, or the default rate. */
 export function taxRateFor(region: string | undefined | null): number {
   if (!region) return DEFAULT_TAX_RATE;
   return STATE_RATES[region.trim().toUpperCase()] ?? DEFAULT_TAX_RATE;

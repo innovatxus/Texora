@@ -3,6 +3,7 @@ import { Logo } from "@/components/navigation/Logo";
 import { ButtonLink } from "@/components/primitives";
 import { POPULAR_CATEGORIES } from "@/config/navigation";
 
+/** Branded 404 page with links back into the shop. */
 export default function NotFound() {
   return (
     <div className="flex flex-1 flex-col">

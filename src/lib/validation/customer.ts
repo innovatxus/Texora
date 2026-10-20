@@ -10,12 +10,16 @@ import {
   timestampSchema,
 } from "./common";
 
+/** Loyalty tiers, lowest first. */
 export const LOYALTY_TIERS = ["core", "enthusiast", "icon"] as const;
+/** One loyalty tier. */
 export const loyaltyTierSchema = z.enum(LOYALTY_TIERS);
 export type LoyaltyTier = z.infer<typeof loyaltyTierSchema>;
 
+/** One role. */
 export const roleSchema = z.enum(ROLES);
 
+/** A user profile: identity, role, loyalty, preferences and saved sizes. */
 export const userSchema = z.object({
   uid: idSchema,
   email: z.email(),
@@ -51,6 +55,7 @@ export const profileUpdateSchema = userSchema
   .pick({ firstName: true, lastName: true, phone: true, preferences: true, savedSizes: true })
   .partial();
 
+/** An address saved to an account. */
 export const savedAddressSchema = addressSchema.extend({
   id: idSchema,
   label: z.string().max(40).optional(),
@@ -72,6 +77,7 @@ export const paymentMethodSchema = z.object({
 });
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 
+/** A saved product, with the price when saved for price-drop indicators. */
 export const wishlistItemSchema = z.object({
   id: idSchema,
   productId: idSchema,
@@ -83,6 +89,7 @@ export const wishlistItemSchema = z.object({
 });
 export type WishlistItem = z.infer<typeof wishlistItemSchema>;
 
+/** A product review with moderation status. */
 export const reviewSchema = z.object({
   id: idSchema,
   productId: idSchema,
@@ -115,6 +122,7 @@ export const reviewInputSchema = reviewSchema.pick({
   fitFamily: true,
 });
 
+/** A back-in-stock or price-drop alert for an email address. */
 export const notificationSchema = z.object({
   id: idSchema,
   type: z.enum(["back_in_stock", "price_drop"]),

@@ -53,6 +53,7 @@ const contactSchema = z.object({
   marketingOptIn: z.boolean(),
 });
 
+/** Contact step: email (prefilled when signed in), marketing opt-in and a sign-in prompt for guests. */
 export function ContactStep() {
   const router = useRouter();
   const options = useCheckoutOptions();
@@ -118,6 +119,7 @@ export function ContactStep() {
 
 // ----------------------------------------------------------------- shipping
 
+/** Shipping step: address form validated with the server's schema. */
 export function ShippingStep() {
   const router = useRouter();
   const { shippingAddress, setShippingAddress } = useCheckoutStore();
@@ -136,6 +138,7 @@ export function ShippingStep() {
 
 // ----------------------------------------------------------------- delivery
 
+/** Delivery step: standard or express, with arrival dates and prices. */
 export function DeliveryStep() {
   const router = useRouter();
   const name = useId();
@@ -222,6 +225,7 @@ export function DeliveryStep() {
 
 // ------------------------------------------------------------------ payment
 
+/** Payment step: method, gift card and rewards, and billing address. */
 export function PaymentStep() {
   const router = useRouter();
   const name = useId();
@@ -387,6 +391,7 @@ function AddressBlock({
   );
 }
 
+/** Review step: summary of every choice and the Place order button. */
 export function ReviewStep() {
   const router = useRouter();
   const checkout = useCheckoutStore();

@@ -32,6 +32,7 @@ export interface NavDepartment {
   menu?: { columns: NavColumn[]; feature: NavFeature };
 }
 
+/** Header navigation: departments with their mega menus, plus top-level links. */
 export const MAIN_NAV: readonly NavDepartment[] = [
   {
     id: "women",
@@ -126,6 +127,7 @@ export const MAIN_NAV: readonly NavDepartment[] = [
   { id: "sale", label: "Sale", href: "/sale", tone: "sale" },
 ];
 
+/** Suggested searches shown when the search overlay opens. */
 export const POPULAR_SEARCHES = [
   "linen",
   "cashmere",
@@ -135,6 +137,7 @@ export const POPULAR_SEARCHES = [
   "petite",
 ] as const;
 
+/** Category shortcuts shown in the search overlay. */
 export const POPULAR_CATEGORIES: readonly NavLink[] = [
   { label: "Women's dresses", href: "/women/dresses" },
   { label: "Women's sweaters", href: "/women/sweaters" },
@@ -142,6 +145,7 @@ export const POPULAR_CATEGORIES: readonly NavLink[] = [
   { label: "Men's outerwear", href: "/men/outerwear" },
 ];
 
+/** Footer link columns. */
 export const FOOTER_COLUMNS: readonly NavColumn[] = [
   {
     title: "Help",
@@ -182,12 +186,14 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
   },
 ];
 
+/** Social media links in the footer. */
 export const SOCIAL_LINKS: readonly NavLink[] = [
   { label: "Instagram", href: "https://www.instagram.com/" },
   { label: "Pinterest", href: "https://www.pinterest.com/" },
   { label: "YouTube", href: "https://www.youtube.com/" },
 ];
 
+/** Legal links in the footer, including the cookie settings control. */
 export const LEGAL_LINKS: readonly NavLink[] = [
   { label: "Privacy policy", href: "/help/privacy" },
   { label: "Terms of use", href: "/help/terms" },

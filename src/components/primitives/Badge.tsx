@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
+/** Badge styles per tone (neutral, muted, inverse, sale, success, warning). */
 export const badgeVariants = cva(
   "inline-flex items-center rounded-none px-2 py-1 text-label leading-none whitespace-nowrap",
   {

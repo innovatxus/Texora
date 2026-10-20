@@ -5,6 +5,7 @@ import { getProductsForIds } from "@/lib/catalog/queries";
 import type { lookbookGridSchema, shopTheLookSchema } from "@/lib/cms/modules";
 import { Hotspot } from "./Hotspot";
 
+/** Grid of looks with hotspots linking to the products worn. */
 export async function LookbookGrid({ heading, looks }: z.infer<typeof lookbookGridSchema>) {
   const products = await getProductsForIds(
     looks.flatMap((l) => l.hotspots.map((h) => h.productId)),
@@ -40,6 +41,7 @@ export async function LookbookGrid({ heading, looks }: z.infer<typeof lookbookGr
   );
 }
 
+/** One large look with hotspots and the featured products alongside. */
 export async function ShopTheLook({
   heading,
   body,

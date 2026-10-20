@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 import { Spinner } from "./Spinner";
 
+/** Icon button styles and sizes, with a 44px minimum target. */
 export const iconButtonVariants = cva(
   [
     "relative inline-flex shrink-0 items-center justify-center rounded-none text-ink",
@@ -36,6 +37,7 @@ export interface IconButtonProps
   loading?: boolean;
 }
 
+/** Button showing only an icon; its accessible name comes from `label`. */
 export function IconButton({
   label,
   icon,

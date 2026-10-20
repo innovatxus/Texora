@@ -9,10 +9,12 @@ import {
 } from "@/components/plp/ProductListing";
 import { getCollection } from "@/lib/catalog/queries";
 
+/** Prerenders the seeded collections. */
 export function generateStaticParams() {
   return [{ slug: "the-linen-edit" }, { slug: "new-arrivals" }, { slug: "knitwear" }];
 }
 
+/** Title, description and canonical URL for a collection. */
 export async function generateMetadata({
   params,
 }: PageProps<"/collections/[slug]">): Promise<Metadata> {
@@ -66,6 +68,7 @@ async function CollectionContent({ params, searchParams }: PageProps<"/collectio
  */
 export const instant = false;
 
+/** Collection listing with filters, sort and pagination. */
 export default async function Page(props: PageProps<"/collections/[slug]">) {
   if (!(await getCollection((await props.params).slug))) notFound();
   return (

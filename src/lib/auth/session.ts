@@ -5,6 +5,7 @@ import { isRole, type Role } from "./rbac";
 
 /** `__session` is the one cookie name Firebase Hosting forwards to the server. */
 export const SESSION_COOKIE = "__session";
+/** Session cookies last five days. */
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 5;
 /** A session may only be minted from a sign-in this recent (Firebase guidance). */
 const MAX_SIGN_IN_AGE_SECONDS = 5 * 60;
@@ -23,6 +24,7 @@ interface DecodedClaims {
   vendorId?: unknown;
 }
 
+/** Turns verified Firebase token claims into a session (uid, email, role). */
 export function sessionFromClaims(claims: DecodedClaims): Session {
   return {
     uid: claims.uid,
@@ -56,6 +58,7 @@ export async function getSession({ checkRevoked = false } = {}): Promise<Session
   return verifySessionCookie(value, { checkRevoked });
 }
 
+/** Why a session couldn't be created: invalid token, stale sign-in or disabled account. */
 export class SessionError extends Error {
   constructor(
     public readonly code: "invalid_token" | "stale_sign_in" | "disabled",

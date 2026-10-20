@@ -9,6 +9,7 @@ export interface CheckboxProps extends Omit<ComponentProps<"input">, "type"> {
   error?: ReactNode;
 }
 
+/** Labelled checkbox with optional hint and error text. */
 export function Checkbox({ id, label, hint, error, disabled, className, ...props }: CheckboxProps) {
   const ids = useFieldIds(id);
   return (

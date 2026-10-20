@@ -1,6 +1,7 @@
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { ButtonLink } from "@/components/primitives";
 
+/** Shown when a signed-in user lacks the permission a page needs (403). */
 export default function Forbidden() {
   return (
     <main className="flex flex-1 flex-col">

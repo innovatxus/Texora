@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Forbidden from "../forbidden";
 
+/** Access-denied page is never indexed. */
 export const metadata: Metadata = {
   title: "Access denied",
   robots: { index: false, follow: false },

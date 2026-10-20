@@ -12,12 +12,15 @@ import { paginate, parseSnapshot, type Page, type PageRequest } from "./firestor
 
 const db = () => getFirebaseAdmin().db;
 
+/** A user's profile document, or null. */
 export async function getUserProfile(uid: string): Promise<User | null> {
   return parseSnapshot(userSchema, await db().collection("users").doc(uid).get(), "uid");
 }
 
+/** Document id of the single store settings record. */
 export const STORE_SETTINGS_ID = "store";
 
+/** Store-wide settings (shipping, loyalty, features). Throws if the store hasn't been seeded. */
 export async function getStoreSettings(): Promise<StoreSettings> {
   const settings = parseSnapshot(
     storeSettingsSchema,

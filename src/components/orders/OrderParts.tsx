@@ -11,6 +11,7 @@ const dayFormat = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
+/** Shows waist × inseam sizes ("32x30") with a proper multiplication sign. */
 export const formatSize = (size: string) => size.replace("x", " × ");
 
 /** The snapshotted lines of an order. */
@@ -74,6 +75,7 @@ export function OrderTotals({ order }: { order: Pick<Order, "totals" | "payments
   );
 }
 
+/** A titled postal address. */
 export function AddressBlock({
   title,
   address,
@@ -101,10 +103,7 @@ export function AddressBlock({
   );
 }
 
-/**
- * Vertical progress list. Completed steps show a check and their date; the
- * current step is marked with aria-current so screen readers announce it.
- */
+/** One step of an order or return timeline. */
 export interface TimelineStep {
   key: string;
   label: string;
@@ -112,6 +111,10 @@ export interface TimelineStep {
   at?: Date;
 }
 
+/**
+ * Vertical progress list. Completed steps show a check and their date; the
+ * current step is marked with aria-current so screen readers announce it.
+ */
 export function TrackingTimeline({ steps }: { steps: readonly TimelineStep[] }) {
   return (
     <ol className="flex flex-col">
@@ -127,7 +130,7 @@ export function TrackingTimeline({ steps }: { steps: readonly TimelineStep[] }) 
               <span
                 aria-hidden
                 className={cn(
-                  "absolute top-7 bottom-1 left-[0.6875rem] w-px",
+                  "absolute top-7 bottom-1 left-2.75 w-px",
                   step.state === "done" ? "bg-ink" : "bg-line",
                 )}
               />

@@ -15,6 +15,7 @@ const getStripe = () => {
   return stripePromise;
 };
 
+/** sessionStorage key holding a payment's client secret for this tab only. */
 export const CLIENT_SECRET_KEY = (orderId: string) => `texora-pay-${orderId}`;
 
 function PayForm({ amount, returnUrl }: { amount: number; returnUrl: string }) {

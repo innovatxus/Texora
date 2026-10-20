@@ -48,6 +48,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+/** Full-screen search with live results, popular searches and categories. */
 export function SearchOverlay() {
   const isOpen = useUiStore((s) => s.panel === "search");
   const setOpen = useUiStore((s) => s.setOpen);

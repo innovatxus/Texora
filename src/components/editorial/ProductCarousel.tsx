@@ -23,6 +23,7 @@ export async function resolveCarouselProducts(source: CarouselSource): Promise<L
   return sortProducts(inScope, source.sort).slice(0, source.limit);
 }
 
+/** Scrollable row of products chosen by a CMS rule (collection, category or IDs). */
 export async function ProductCarousel({
   heading,
   cta,

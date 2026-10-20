@@ -1,5 +1,6 @@
 /** Rewards redemption: 100 points = $1, redeemed in $5 steps. */
 export const POINTS_PER_DOLLAR_REDEEMED = 100;
+/** Rewards are redeemed in $5 steps. */
 export const REDEMPTION_STEP_CENTS = 500;
 
 /** Reward values (cents) a member can choose, given their points balance. */
@@ -13,6 +14,7 @@ export function redemptionOptions(points: number, max = 10): number[] {
   );
 }
 
+/** Points needed to redeem a reward value (cents). */
 export function pointsFor(valueCents: number): number {
   return (valueCents / 100) * POINTS_PER_DOLLAR_REDEEMED;
 }

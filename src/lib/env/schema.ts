@@ -5,6 +5,7 @@ import { z } from "zod";
  * tested and shared between the client and server entry points.
  */
 
+/** Public environment variables (safe in the browser bundle). */
 export const clientEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url(),
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
@@ -28,6 +29,7 @@ const serviceAccountSchema = z.object({
 
 export type ServiceAccount = z.infer<typeof serviceAccountSchema>;
 
+/** Server-only environment variables; some are required in production. */
 export const serverEnvSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

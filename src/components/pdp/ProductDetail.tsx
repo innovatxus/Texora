@@ -57,6 +57,7 @@ interface ProductDetailProps {
   details: ReactNode;
 }
 
+/** PDP gallery and buy box: colour, fit and size selection, stock messages, add to bag and alerts. */
 export function ProductDetail({
   product,
   variants,

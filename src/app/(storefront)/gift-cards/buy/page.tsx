@@ -3,11 +3,13 @@ import { GiftCardPurchaseForm } from "@/components/giftcards/GiftCardPurchaseFor
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { cardPaymentsEnabled } from "@/lib/payments/provider";
 
+/** Title and canonical URL for the e-gift card form. */
 export const metadata: Metadata = {
   title: "Send an e-gift card",
   alternates: { canonical: "/gift-cards/buy" },
 };
 
+/** E-gift card purchase form. Disabled with an explanation when card payments aren't configured. */
 export default function Page() {
   return (
     <div className="container-page pt-6 pb-24">

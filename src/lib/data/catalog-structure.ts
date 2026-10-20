@@ -13,6 +13,7 @@ import { parseSnapshot } from "./firestore";
 
 const db = () => getFirebaseAdmin().db;
 
+/** Live categories in a department, in sort order. */
 export async function listLiveCategories(department: Department): Promise<Category[]> {
   const snapshot = await db()
     .collection("categories")
@@ -25,6 +26,7 @@ export async function listLiveCategories(department: Department): Promise<Catego
     .filter((c): c is Category => c !== null);
 }
 
+/** The live category at an exact path, e.g. ["women", "dresses"]. */
 export async function getLiveCategoryByPath(path: readonly string[]): Promise<Category | null> {
   const leaf = path.at(-1);
   if (!leaf) return null;
@@ -42,6 +44,7 @@ export async function getLiveCategoryByPath(path: readonly string[]): Promise<Ca
   return match ?? null;
 }
 
+/** A live collection by slug. */
 export async function getLiveCollectionBySlug(slug: string): Promise<Collection | null> {
   const snapshot = await db()
     .collection("collections")
@@ -53,6 +56,7 @@ export async function getLiveCollectionBySlug(slug: string): Promise<Collection 
   return doc ? parseSnapshot(collectionSchema, doc) : null;
 }
 
+/** Every store, by name. */
 export async function listStores(): Promise<Store[]> {
   const snapshot = await db().collection("stores").orderBy("name", "asc").get();
   return snapshot.docs
@@ -60,6 +64,7 @@ export async function listStores(): Promise<Store[]> {
     .filter((s): s is Store => s !== null);
 }
 
+/** A store by id. */
 export async function getStore(id: string): Promise<Store | null> {
   return parseSnapshot(storeSchema, await db().collection("stores").doc(id).get());
 }

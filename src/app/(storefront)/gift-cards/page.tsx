@@ -4,12 +4,14 @@ import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { ButtonLink, Link } from "@/components/primitives";
 import { brand } from "@/config/brand";
 
+/** Title, description and canonical URL for the gift cards page. */
 export const metadata: Metadata = {
   title: "Gift cards",
   description: `Send a ${brand.name} e-gift card by email, or check the balance of a card.`,
   alternates: { canonical: "/gift-cards" },
 };
 
+/** Gift cards landing: send an e-gift card, or check a card's balance. */
 export default function Page() {
   return (
     <div className="container-page pt-6 pb-24">

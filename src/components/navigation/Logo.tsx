@@ -19,6 +19,7 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
   );
 }
 
+/** Keyboard skip link to the main content, visible on focus. */
 export function SkipLink() {
   return (
     <a

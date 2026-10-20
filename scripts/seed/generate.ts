@@ -128,7 +128,9 @@ export interface SeedData {
   demoOrderEmail: string;
 }
 
+/** Password for every seeded account (local emulators only). */
 export const SEED_PASSWORD = "Texora-demo-1";
+/** Marketplace vendor that the seeded vendor user belongs to. */
 export const VENDOR_ID = "atelier-north";
 
 function sizesFor(def: CategoryDefinition, fit: FitFamily): string[] {
@@ -159,6 +161,7 @@ function describe(def: CategoryDefinition, name: string, attrs: Record<string, s
   );
 }
 
+/** Builds the complete, schema-validated seed data set. Deterministic for a given seed number and date. */
 export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedData {
   const rng = createRng(options.seed ?? 20261019);
   const now = options.now ?? new Date();

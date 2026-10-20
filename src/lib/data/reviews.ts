@@ -3,6 +3,7 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { reviewSchema, type Review } from "@/lib/validation";
 import { paginate, parseSnapshot, type Page, type PageRequest } from "./firestore";
 
+/** Firestore sort orders for reviews. */
 export const REVIEW_SORTS = {
   newest: [{ field: "createdAt", direction: "desc" }],
   most_helpful: [{ field: "helpfulCount", direction: "desc" }],
@@ -12,6 +13,7 @@ export const REVIEW_SORTS = {
 
 export type ReviewSort = keyof typeof REVIEW_SORTS;
 
+/** Approved reviews for a product, sorted and paginated. */
 export async function listApprovedReviews(
   productId: string,
   { sort, ...page }: PageRequest & { sort: ReviewSort },
@@ -23,6 +25,7 @@ export async function listApprovedReviews(
   return paginate(base, REVIEW_SORTS[sort], page, (s) => parseSnapshot(reviewSchema, s));
 }
 
+/** Reviews waiting for moderation, oldest first. */
 export async function listPendingReviews(page: PageRequest): Promise<Page<Review>> {
   const base = getFirebaseAdmin().db.collection("reviews").where("status", "==", "pending");
   return paginate(base, [{ field: "createdAt", direction: "asc" }], page, (s) =>

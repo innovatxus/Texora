@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 import { Spinner } from "./Spinner";
 
+/** Button styles: primary, secondary and tertiary variants in two sizes, optionally full width. */
 export const buttonVariants = cva(
   [
     "relative inline-flex items-center justify-center gap-2 rounded-none text-label whitespace-nowrap select-none",
@@ -52,6 +53,7 @@ export interface ButtonProps extends ComponentProps<"button">, ButtonVariantProp
   loading?: boolean;
 }
 
+/** Button with variants and a loading state that keeps its width and disables it. */
 export function Button({
   variant,
   size,

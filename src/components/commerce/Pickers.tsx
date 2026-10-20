@@ -51,6 +51,7 @@ export interface SwatchOption {
   swatch: string;
 }
 
+/** Colour swatches as a native radio group, with the chosen colour's name. */
 export function SwatchPicker({
   name,
   options,
@@ -101,6 +102,7 @@ export function SwatchPicker({
 
 const FIT_LABELS: Record<string, string> = { regular: "Regular", petite: "Petite", tall: "Tall" };
 
+/** Regular / Petite / Tall fit selector as a radio group styled as tabs. */
 export function FitTabs({
   name,
   fits,
@@ -204,6 +206,7 @@ export function SizePicker({
   );
 }
 
+/** Minus / value / plus control, clamped between 1 and a maximum. */
 export function QuantityStepper({
   value,
   onChange,

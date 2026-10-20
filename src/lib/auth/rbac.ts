@@ -10,6 +10,7 @@
  * Keep this module free of runtime imports so scripts can load it directly.
  */
 
+/** Every permission in the system, grouped by area. */
 export const PERMISSIONS = [
   // Shopper capabilities
   "storefront.browse",
@@ -80,6 +81,7 @@ export const PERMISSIONS = [
 
 export type Permission = (typeof PERMISSIONS)[number];
 
+/** Every role, from anonymous guest to super admin. */
 export const ROLES = [
   "guest",
   "customer",
@@ -206,6 +208,7 @@ const SUPER_ADMIN: readonly Permission[] = [
   ...new Set([...ADMIN, "audit.export", "integrations.write"] as const),
 ];
 
+/** The permissions each role grants. */
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   guest: GUEST,
   customer: CUSTOMER,
@@ -220,6 +223,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   super_admin: SUPER_ADMIN,
 };
 
+/** Human-readable role names for the back office. */
 export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   guest: "Guest",
   customer: "Customer",
@@ -234,22 +238,27 @@ export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   super_admin: "Super admin",
 };
 
+/** Type guard for role strings, e.g. from token claims. */
 export function isRole(value: unknown): value is Role {
   return typeof value === "string" && (ROLES as readonly string[]).includes(value);
 }
 
+/** Type guard for permission strings. */
 export function isPermission(value: unknown): value is Permission {
   return typeof value === "string" && (PERMISSIONS as readonly string[]).includes(value);
 }
 
+/** All permissions a role grants. */
 export function permissionsFor(role: Role): readonly Permission[] {
   return ROLE_PERMISSIONS[role];
 }
 
+/** Whether a role grants a permission. */
 export function hasPermission(role: Role, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role].includes(permission);
 }
 
+/** Whether a role grants at least one of the permissions. */
 export function hasAnyPermission(role: Role, permissions: readonly Permission[]): boolean {
   return permissions.some((permission) => hasPermission(role, permission));
 }
@@ -259,6 +268,7 @@ export function rolesWith(permission: Permission): Role[] {
   return ROLES.filter((role) => hasPermission(role, permission));
 }
 
+/** Whether a role works in the back office. */
 export function isStaffRole(role: Role): boolean {
   return (STAFF_ROLES as readonly Role[]).includes(role);
 }

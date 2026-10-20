@@ -14,6 +14,7 @@ import { RETURN_REASONS, RETURN_STATUS_LABELS, returnTimeline } from "@/lib/retu
 import { qrSvg } from "@/lib/returns/qr";
 import { directionsUrl } from "@/lib/stores/hours";
 
+/** Return pages are private: never indexed. */
 export const metadata: Metadata = {
   title: "Your return",
   robots: { index: false, follow: false },
@@ -157,6 +158,7 @@ async function ReturnDetail({
   );
 }
 
+/** Return details with the QR label, streamed because access depends on the signed link. */
 export default function Page(props: PageProps<"/orders/[id]/returns/[returnId]">) {
   return (
     <Suspense

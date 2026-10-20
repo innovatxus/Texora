@@ -24,6 +24,7 @@ export interface ResolvedScope {
   context: FacetContext;
 }
 
+/** The products and facets for a listing scope (department, category, collection, sale or search). */
 export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> {
   const [index, stores] = await Promise.all([getListingIndex(), getStores()]);
   let products = index;

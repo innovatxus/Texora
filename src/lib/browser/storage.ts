@@ -7,6 +7,7 @@
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
+/** Subscribes to storage and cookie changes from this tab and others. */
 export function subscribeToBrowserState(listener: Listener): () => void {
   listeners.add(listener);
   window.addEventListener("storage", listener);
@@ -16,6 +17,7 @@ export function subscribeToBrowserState(listener: Listener): () => void {
   };
 }
 
+/** Tells subscribers that storage or cookies changed in this tab. */
 export function notifyBrowserStateChanged(): void {
   for (const listener of listeners) listener();
 }
@@ -35,6 +37,7 @@ export function readStorage(kind: StorageArea, key: string): string | null {
   }
 }
 
+/** Writes to local or session storage, ignoring blocked storage (e.g. private browsing). */
 export function writeStorage(kind: StorageArea, key: string, value: string): void {
   try {
     area(kind).setItem(key, value);
@@ -44,6 +47,7 @@ export function writeStorage(kind: StorageArea, key: string, value: string): voi
   notifyBrowserStateChanged();
 }
 
+/** Reads a cookie value by name, or null. */
 export function readCookie(name: string): string | null {
   const match = document.cookie.split(/;\s*/).find((part) => part.startsWith(`${name}=`));
   return match ? match.slice(name.length + 1) : null;

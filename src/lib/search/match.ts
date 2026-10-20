@@ -52,6 +52,7 @@ function rawTokens(text: string): string[] {
     .map(stem);
 }
 
+/** Lower-cases text and strips accents and punctuation for matching. */
 export function normalise(text: string): string {
   return text
     .toLowerCase()
@@ -112,6 +113,7 @@ interface Indexed {
   allTokens: string[];
 }
 
+/** Pre-tokenises search documents so queries only compare tokens. */
 export function buildIndex(documents: readonly SearchDocument[]): Indexed[] {
   return documents.map((doc) => {
     const nameTokens = [...new Set(indexTokens(doc.name))];

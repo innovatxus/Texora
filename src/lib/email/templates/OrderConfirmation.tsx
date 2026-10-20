@@ -40,6 +40,7 @@ export interface OrderConfirmationProps {
   paymentNote: string;
 }
 
+/** Order confirmation email: items, totals, delivery and payment, with a link to the order. */
 export function OrderConfirmationEmail(props: OrderConfirmationProps) {
   const { brandName, orderNumber, firstName, orderUrl, lines, totals, delivery, paymentNote } =
     props;

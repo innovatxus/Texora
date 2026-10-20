@@ -5,6 +5,7 @@ import { parseSnapshot } from "./firestore";
 
 const returns = () => getFirebaseAdmin().db.collection("returns");
 
+/** A return by id. */
 export async function getReturn(id: string): Promise<Return | null> {
   return parseSnapshot(returnSchema, await returns().doc(id).get());
 }

@@ -8,6 +8,7 @@ export interface ColorDefinition {
   hex: string;
 }
 
+/** Colour palette used across the seeded catalog: code, display name, filter family and swatch hex. */
 export const COLORS: readonly ColorDefinition[] = [
   { code: "black", name: "Black", family: "black", hex: "#1c1b1a" },
   { code: "ivory", name: "Ivory", family: "white", hex: "#f2ece0" },
@@ -33,6 +34,7 @@ export const COLORS: readonly ColorDefinition[] = [
   { code: "stripe", name: "Navy Stripe", family: "multi", hex: "#43506b" },
 ];
 
+/** Size runs per size type, in display order. */
 export const SIZE_RUNS = {
   womenAlpha: ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
   menAlpha: ["XS", "S", "M", "L", "XL", "XXL"],
@@ -40,6 +42,7 @@ export const SIZE_RUNS = {
   womenDenim: ["24", "25", "26", "27", "28", "29", "30", "31", "32", "33"],
 } as const;
 
+/** Men's waist sizes (inches) for pants and jeans. */
 export const MEN_WAISTS = ["28", "29", "30", "31", "32", "33", "34", "36", "38"] as const;
 /** Inseams per fit family: tall gets the longer lengths. */
 export const MEN_INSEAMS: Record<"regular" | "tall", readonly string[]> = {
@@ -75,6 +78,7 @@ const CARE_WOOL = ["Hand wash cold or dry clean", "Dry flat", "Store folded"];
 const CARE_DENIM = ["Wash sparingly, inside out", "Machine wash cold", "Hang to dry"];
 const CARE_OUTER = ["Dry clean only", "Use a garment brush between wears"];
 
+/** Category tree with garments, materials and price bands that the seed turns into products. */
 export const CATEGORIES: readonly CategoryDefinition[] = [
   {
     department: "women",
@@ -405,6 +409,7 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
   },
 ];
 
+/** The three physical stores: address, coordinates, phone and time zone. */
 export const STORES = [
   {
     id: "soho",
@@ -450,6 +455,7 @@ export const STORES = [
   },
 ] as const;
 
+/** Review titles and bodies by sentiment, combined at random for seeded reviews. */
 export const REVIEW_SNIPPETS = {
   positive: [
     [
@@ -485,6 +491,7 @@ export const REVIEW_SNIPPETS = {
   ],
 } as const;
 
+/** First names for seeded reviewer display names. */
 export const FIRST_NAMES = [
   "Amara",
   "Jonah",
@@ -507,6 +514,7 @@ export const FIRST_NAMES = [
   "Ana",
   "Ravi",
 ] as const;
+/** Last-name initials for seeded reviewer display names. */
 export const LAST_INITIALS = [
   "A",
   "B",

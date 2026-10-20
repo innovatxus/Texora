@@ -7,6 +7,7 @@ export interface Announcement {
   endsAt?: string;
 }
 
+/** Messages rotated in the announcement bar. */
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
     id: "free-shipping",

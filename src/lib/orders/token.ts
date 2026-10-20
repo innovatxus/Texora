@@ -12,6 +12,7 @@ export function signToken(purpose: TokenPurpose, id: string): string {
     .digest("base64url");
 }
 
+/** Checks a signed link token for a purpose and id, in constant time. */
 export function verifyToken(
   purpose: TokenPurpose,
   id: string,
@@ -28,6 +29,7 @@ export function orderAccessToken(orderId: string): string {
   return signToken("order", orderId);
 }
 
+/** Checks the token on a guest order link. */
 export function verifyOrderAccessToken(orderId: string, token: string | null | undefined): boolean {
   return verifyToken("order", orderId, token);
 }

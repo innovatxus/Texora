@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 import { VisuallyHidden } from "./VisuallyHidden";
 
+/** Link styles: inline (underlined), quiet and inverse. */
 export const linkVariants = cva("transition-colors duration-fast ease-atelier", {
   variants: {
     variant: {
@@ -28,6 +29,7 @@ function isAbsoluteUrl(href: LinkProps["href"]): boolean {
   return typeof href === "string" && /^https?:\/\//.test(href);
 }
 
+/** Link that uses client navigation for internal URLs and opens external ones in a new tab. */
 export function Link({ variant, external, className, children, ...props }: LinkProps) {
   const opensNewTab = external ?? isAbsoluteUrl(props.href);
   return (

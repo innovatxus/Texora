@@ -42,6 +42,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+/** Which requests the proxy runs on. */
 export const config = {
   // Everything except framework assets, media and files with an extension.
   matcher: ["/((?!_next/static|_next/image|media/|.*\\.[a-z0-9]+$).*)"],

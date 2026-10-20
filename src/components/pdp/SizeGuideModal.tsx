@@ -5,6 +5,7 @@ import { Modal } from "@/components/feedback/Modal";
 import type { SizeGuide } from "@/config/size-guides";
 import { HowToMeasure, SizeGuideTable } from "./SizeGuideContent";
 
+/** "Size guide" link that opens the measurements table in a modal. */
 export function SizeGuideModal({ guide }: { guide: SizeGuide }) {
   const [open, setOpen] = useState(false);
   return (

@@ -12,6 +12,7 @@ import { getOrder } from "@/lib/data/orders";
 import { clientEnv } from "@/lib/env/client";
 import { orderAccessToken, verifyOrderAccessToken } from "@/lib/orders/token";
 
+/** Confirmation pages are private: never indexed. */
 export const metadata: Metadata = {
   title: "Order confirmation",
   robots: { index: false, follow: false },
@@ -114,6 +115,7 @@ async function Confirmation({ params, searchParams }: PageProps<"/order-confirma
   );
 }
 
+/** Order confirmation, streamed behind a skeleton because it renders at request time. */
 export default function Page(props: PageProps<"/order-confirmation/[id]">) {
   return (
     <Suspense

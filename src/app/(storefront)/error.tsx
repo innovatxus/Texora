@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { Button, ButtonLink } from "@/components/primitives";
 
+/** Error boundary for storefront pages: branded message with a retry button. */
 export default function StorefrontError({
   error,
   reset,

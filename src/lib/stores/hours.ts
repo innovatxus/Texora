@@ -1,5 +1,6 @@
 import type { Store } from "@/lib/validation";
 
+/** Day names, indexed like Date#getDay (0 = Sunday). */
 export const DAY_NAMES = [
   "Sunday",
   "Monday",

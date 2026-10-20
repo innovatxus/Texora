@@ -6,9 +6,12 @@
 import type { ListingProduct } from "./listing-types";
 import { compareSizes } from "./sizes";
 
+/** Products per page in listings. */
 export const PAGE_SIZE = 24;
+/** Products added within this many days count as new. */
 export const NEW_WINDOW_DAYS = 30;
 
+/** Listing sort options and their labels. */
 export const SORTS = {
   featured: "Featured",
   newest: "Newest",
@@ -19,6 +22,7 @@ export const SORTS = {
 } as const;
 export type SortKey = keyof typeof SORTS;
 
+/** Price filter buckets (cents). */
 export const PRICE_RANGES = [
   { value: "0-50", label: "Under $50", min: 0, max: 5000 },
   { value: "50-100", label: "$50 – $100", min: 5000, max: 10000 },
@@ -90,6 +94,7 @@ function list(value: string | string[] | undefined): string[] {
   ].slice(0, 30);
 }
 
+/** Listing filters with nothing selected. */
 export const EMPTY_FILTERS: ListingFilters = {
   category: [],
   size: [],
@@ -154,6 +159,7 @@ export function toSearchParams(
   return params;
 }
 
+/** Number of selected filter values, for the filter button badge. */
 export function countActiveFilters(filters: ListingFilters): number {
   return (
     filters.category.length +
@@ -216,6 +222,7 @@ function matches(p: ListingProduct, f: ListingFilters, now: number, skip?: Facet
   return true;
 }
 
+/** Products matching every selected filter. */
 export function applyFilters(
   products: readonly ListingProduct[],
   filters: ListingFilters,
@@ -428,6 +435,7 @@ export function computeFacets(
 
 // --------------------------------------------------------- sort & paging
 
+/** Products in the chosen sort order. */
 export function sortProducts(
   products: readonly ListingProduct[],
   sort: SortKey,

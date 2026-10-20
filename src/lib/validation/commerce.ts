@@ -13,6 +13,7 @@ import {
   timestampSchema,
 } from "./common";
 
+/** One line in a saved cart. */
 export const cartLineSchema = z.object({
   sku: z.string().min(1).max(64),
   productId: idSchema,
@@ -21,6 +22,7 @@ export const cartLineSchema = z.object({
   addedAt: timestampSchema,
 });
 
+/** A saved cart, for cross-device bags. */
 export const cartSchema = z.object({
   id: idSchema,
   /** Firebase uid of the owner; guests get an anonymous-auth uid. */
@@ -49,6 +51,7 @@ export const orderLineSchema = z.object({
 });
 export type OrderLine = z.infer<typeof orderLineSchema>;
 
+/** An order's totals (cents). */
 export const orderTotalsSchema = z.object({
   subtotal: moneySchema,
   discount: moneySchema,
@@ -59,6 +62,7 @@ export const orderTotalsSchema = z.object({
   total: moneySchema,
 });
 
+/** Every order status, in lifecycle order. */
 export const ORDER_STATUSES = [
   "pending_payment",
   "placed",
@@ -70,11 +74,13 @@ export const ORDER_STATUSES = [
   "partially_refunded",
   "refunded",
 ] as const;
+/** One order status. */
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 
 const actorSchema = z.object({ uid: idSchema, role: roleSchema });
 
+/** An order: snapshotted lines, totals, addresses, payments, shipments and history. */
 export const orderSchema = z.object({
   id: idSchema,
   /** Marketplace vendors with lines in this order (empty for first-party orders). */
@@ -144,6 +150,7 @@ export const orderSchema = z.object({
 });
 export type Order = z.infer<typeof orderSchema>;
 
+/** Every return status, in lifecycle order. */
 export const RETURN_STATUSES = [
   "requested",
   "approved",
@@ -155,6 +162,7 @@ export const RETURN_STATUSES = [
   "closed",
 ] as const;
 
+/** Reasons a customer can give for returning an item. */
 export const RETURN_REASON_VALUES = [
   "too_small",
   "too_large",
@@ -164,6 +172,7 @@ export const RETURN_REASON_VALUES = [
   "other",
 ] as const;
 
+/** A return: items, method, refund choice, label and status history. */
 export const returnSchema = z.object({
   id: idSchema,
   /** Human-facing reference, e.g. TX-100482-R1. */
@@ -198,8 +207,10 @@ export const returnSchema = z.object({
 });
 export type Return = z.infer<typeof returnSchema>;
 
+/** Supported promotion mechanics. */
 export const PROMOTION_TYPES = ["percent", "fixed", "bogo", "tiered", "free_shipping"] as const;
 
+/** A promotion: type, value, conditions, stacking, audience and schedule. */
 export const promotionSchema = z.object({
   id: idSchema,
   name: z.string().min(1).max(80),
@@ -226,6 +237,7 @@ export const promotionSchema = z.object({
 });
 export type Promotion = z.infer<typeof promotionSchema>;
 
+/** A promo code that unlocks a promotion, with usage limits. */
 export const promoCodeSchema = z.object({
   /** Upper-case code, also the document id. */
   code: z.string().regex(/^[A-Z0-9-]{3,40}$/),
@@ -237,6 +249,7 @@ export const promoCodeSchema = z.object({
 });
 export type PromoCode = z.infer<typeof promoCodeSchema>;
 
+/** An issued gift card, keyed by the hash of its code. */
 export const giftCardSchema = z.object({
   /** SHA-256 of the card code; the code itself is never stored. */
   id: z.string().regex(/^[0-9a-f]{64}$/),
@@ -275,6 +288,7 @@ export const giftCardPurchaseSchema = z.object({
 });
 export type GiftCardPurchase = z.infer<typeof giftCardPurchaseSchema>;
 
+/** A customer care enquiry from the contact form. */
 export const contactRequestSchema = z.object({
   id: idSchema,
   name: z.string().min(1).max(80),
@@ -287,6 +301,7 @@ export const contactRequestSchema = z.object({
 });
 export type ContactRequest = z.infer<typeof contactRequestSchema>;
 
+/** A physical store: address, location, hours and services. */
 export const storeSchema = z.object({
   id: idSchema,
   slug: slugSchema,
@@ -308,6 +323,7 @@ export const storeSchema = z.object({
 });
 export type Store = z.infer<typeof storeSchema>;
 
+/** Stock held for an unpaid card order, released when it expires. */
 export const inventoryReservationSchema = z.object({
   id: idSchema,
   sku: z.string(),
@@ -319,6 +335,7 @@ export const inventoryReservationSchema = z.object({
 });
 export type InventoryReservation = z.infer<typeof inventoryReservationSchema>;
 
+/** One audit log entry for a staff or system action. */
 export const auditLogSchema = z.object({
   id: idSchema,
   actor: z.object({ uid: idSchema, role: roleSchema, email: z.email().optional() }),
@@ -334,6 +351,7 @@ export const auditLogSchema = z.object({
 });
 export type AuditLog = z.infer<typeof auditLogSchema>;
 
+/** Store-wide settings: shipping, refunds, reservations, loyalty and features. */
 export const storeSettingsSchema = z.object({
   currency: currencySchema,
   freeShippingThreshold: moneySchema,

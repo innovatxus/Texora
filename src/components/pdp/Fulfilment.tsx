@@ -6,6 +6,7 @@ import { Button, Input } from "@/components/primitives";
 import { estimateDelivery, isValidPostcode } from "@/lib/catalog/variant-selection";
 import { formatMoney } from "@/lib/format/money";
 
+/** Order value (cents) above which standard shipping is free, as shown on the PDP. */
 export const FREE_SHIPPING_THRESHOLD = 15000;
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {

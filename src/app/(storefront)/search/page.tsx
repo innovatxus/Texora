@@ -5,6 +5,7 @@ import { Link } from "@/components/primitives";
 import { ListingSkeleton, ProductListing } from "@/components/plp/ProductListing";
 import { POPULAR_CATEGORIES } from "@/config/navigation";
 
+/** Search results are not indexed. */
 export const metadata: Metadata = {
   title: "Search",
   // Search result pages are not indexed.
@@ -47,6 +48,7 @@ async function SearchResults({
   );
 }
 
+/** Search results, streamed because they depend on the query string. */
 export default function SearchPage({ searchParams }: PageProps<"/search">) {
   return (
     <Suspense

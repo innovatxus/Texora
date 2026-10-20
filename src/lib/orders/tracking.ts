@@ -31,6 +31,7 @@ const PROGRESS: Record<OrderStatus, number> = {
   refunded: 3,
 };
 
+/** Customer-facing wording for each order status. */
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   pending_payment: "Awaiting payment",
   placed: "Order placed",

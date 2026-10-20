@@ -9,6 +9,7 @@ export interface BagLine {
   addedAt: number;
 }
 
+/** Most units of one SKU per bag line. */
 export const MAX_LINE_QUANTITY = 10;
 
 interface BagState {
@@ -146,6 +147,7 @@ export const useBagStore = create<BagState>()(
   ),
 );
 
+/** Total units in the bag, for the header badge. */
 export const selectBagCount = (state: Pick<BagState, "lines">) =>
   state.lines.reduce((sum, l) => sum + l.quantity, 0);
 

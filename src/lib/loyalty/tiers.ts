@@ -6,6 +6,7 @@ export interface TierThresholds {
   icon: number;
 }
 
+/** Display name of each loyalty tier. */
 export const TIER_NAMES: Record<LoyaltyTier, string> = {
   core: "Core",
   enthusiast: "Enthusiast",
@@ -19,6 +20,7 @@ export const TIER_MULTIPLIERS: Record<LoyaltyTier, number> = {
   icon: 1.5,
 };
 
+/** The tier earned by a period's qualifying spend. */
 export function tierFor(periodSpend: number, thresholds: TierThresholds): LoyaltyTier {
   if (periodSpend >= thresholds.icon) return "icon";
   if (periodSpend >= thresholds.enthusiast) return "enthusiast";
@@ -47,6 +49,7 @@ export interface TierProgress {
   ratio: number;
 }
 
+/** Current tier, next tier and how much more spend reaches it. */
 export function tierProgress(periodSpend: number, thresholds: TierThresholds): TierProgress {
   const tier = tierFor(periodSpend, thresholds);
   if (tier === "icon") return { tier, next: null, remaining: 0, ratio: 1 };

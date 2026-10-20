@@ -15,10 +15,12 @@ async function getStoreBySlug(slug: string): Promise<Store | null> {
   return (await getStores()).find((s) => s.slug === slug && s.status !== "closed") ?? null;
 }
 
+/** Prerenders a page for every open store. */
 export async function generateStaticParams() {
   return (await getStores()).filter((s) => s.status !== "closed").map((s) => ({ slug: s.slug }));
 }
 
+/** Title, description and canonical URL for a store. */
 export async function generateMetadata({ params }: PageProps<"/stores/[slug]">): Promise<Metadata> {
   const store = await getStoreBySlug((await params).slug);
   if (!store) return { title: "Store not found", robots: { index: false } };
@@ -59,6 +61,7 @@ function storeJsonLd(store: Store) {
 /** Unknown slugs answer 404 before streaming; every store is prerendered. */
 export const instant = false;
 
+/** Store details: address, live open status, hours, services and directions. */
 export default async function Page({ params }: PageProps<"/stores/[slug]">) {
   const store = await getStoreBySlug((await params).slug);
   if (!store) notFound();

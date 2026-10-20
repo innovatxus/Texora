@@ -97,6 +97,7 @@ function SavedForLater() {
   );
 }
 
+/** Full bag: server-priced lines with inline edits, saved for later, promo codes, redemptions and summary. */
 export function BagPage() {
   const { bag, pending, empty, error } = useBagPricing();
   const remove = useBagStore((s) => s.remove);

@@ -31,6 +31,7 @@ export type ResponsiveImage = z.infer<typeof responsiveImageSchema>;
 
 const simpleImageSchema = z.object({ url: z.string().min(1), alt: z.string().max(200) });
 
+/** Hero banner: headline, copy, call to action and art-directed images. */
 export const heroBannerSchema = z.object({
   eyebrow: z.string().max(40).optional(),
   headline: z.string().min(1).max(80),
@@ -44,12 +45,14 @@ export const heroBannerSchema = z.object({
   size: z.enum(["full", "medium"]),
 });
 
+/** Promo strip: one message with an optional link. */
 export const promoStripSchema = z.object({
   message: z.string().min(1).max(120),
   link: ctaSchema.optional(),
   tone: z.enum(["muted", "inverse"]),
 });
 
+/** Category tiles: image tiles linking to categories. */
 export const categoryTilesSchema = z.object({
   heading: z.string().max(60).optional(),
   tiles: z
@@ -64,6 +67,7 @@ export const categoryTilesSchema = z.object({
     .max(8),
 });
 
+/** Product carousel: a heading and a product selection rule. */
 export const productCarouselSchema = z.object({
   heading: z.string().min(1).max(60),
   cta: ctaSchema.optional(),
@@ -80,6 +84,7 @@ export const productCarouselSchema = z.object({
   ]),
 });
 
+/** Split feature: image and copy side by side. */
 export const splitFeatureSchema = z.object({
   eyebrow: z.string().max(40).optional(),
   headline: z.string().min(1).max(80),
@@ -89,6 +94,7 @@ export const splitFeatureSchema = z.object({
   imageSide: z.enum(["left", "right"]),
 });
 
+/** Story block: centred editorial text. */
 export const storyBlockSchema = z.object({
   eyebrow: z.string().max(40).optional(),
   headline: z.string().min(1).max(120),
@@ -103,6 +109,7 @@ const hotspotSchema = z.object({
   y: z.number().min(0).max(1),
 });
 
+/** Lookbook grid: looks with product hotspots. */
 export const lookbookGridSchema = z.object({
   heading: z.string().min(1).max(60),
   looks: z
@@ -117,6 +124,7 @@ export const lookbookGridSchema = z.object({
     .max(6),
 });
 
+/** Shop the look: one look with hotspots and featured products. */
 export const shopTheLookSchema = z.object({
   heading: z.string().min(1).max(60),
   body: z.string().max(240).optional(),
@@ -130,6 +138,7 @@ const moduleBase = {
   audience: z.array(audienceSchema).min(1),
 };
 
+/** Any page module, discriminated by type, with scheduling and audience. */
 export const cmsModuleSchema = z.discriminatedUnion("type", [
   z.object({ ...moduleBase, type: z.literal("hero"), data: heroBannerSchema }),
   z.object({ ...moduleBase, type: z.literal("promoStrip"), data: promoStripSchema }),
@@ -144,6 +153,7 @@ export const cmsModuleSchema = z.discriminatedUnion("type", [
 export type CmsModule = z.infer<typeof cmsModuleSchema>;
 export type CmsModuleType = CmsModule["type"];
 
+/** A CMS page: slug, SEO and its ordered modules. */
 export const cmsPageSchema = z.object({
   id: idSchema,
   slug: z.string().min(1),

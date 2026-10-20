@@ -4,6 +4,7 @@ import { Logo, SkipLink } from "@/components/navigation/Logo";
 import { brand } from "@/config/brand";
 import { StoreHydration } from "@/stores/StoreHydration";
 
+/** Checkout pages are never indexed. */
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };

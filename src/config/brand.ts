@@ -17,4 +17,5 @@ export const brand = {
   },
 } as const;
 
+/** Platform name for places that need a plain string. */
 export const PLATFORM_NAME = brand.name;

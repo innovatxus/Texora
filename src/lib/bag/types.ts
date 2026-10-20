@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { AppliedPromotion } from "@/lib/pricing/engine";
 import type { LoyaltyTier } from "@/lib/validation";
 
+/** What the client sends to price the bag: lines, codes, delivery method, region and redemptions. */
 export const bagRequestSchema = z.object({
   lines: z
     .array(z.object({ sku: z.string().min(1).max(64), quantity: z.number().int().min(1).max(10) }))
@@ -69,5 +70,6 @@ export interface BagView {
   itemCount: number;
 }
 
+/** Type guard: the line can still be bought (product and variant exist). */
 export const isAvailableLine = (line: BagLineView | UnavailableLine): line is BagLineView =>
   line.issue !== "unavailable";

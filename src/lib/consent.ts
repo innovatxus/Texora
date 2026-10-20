@@ -2,7 +2,9 @@ import { notifyBrowserStateChanged } from "./browser/storage";
 
 /** Cookie consent: necessary is always on; analytics and marketing need opt-in. */
 export const CONSENT_COOKIE = "tx_consent";
+/** Cookie choices are remembered for 180 days. */
 export const CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
+/** Bump to ask everyone for consent again after the policy changes. */
 export const CONSENT_VERSION = 1;
 
 export interface ConsentChoices {
@@ -15,6 +17,7 @@ export interface ConsentRecord extends ConsentChoices {
   decidedAt: number;
 }
 
+/** Reads a consent cookie value; null if missing, malformed or from an older version. */
 export function parseConsent(value: string | undefined | null): ConsentRecord | null {
   if (!value) return null;
   try {
@@ -44,12 +47,14 @@ export function parseConsent(value: string | undefined | null): ConsentRecord | 
   return null;
 }
 
+/** Encodes cookie choices for the consent cookie. */
 export function serializeConsent(choices: ConsentChoices, now = Date.now()): string {
   return encodeURIComponent(
     JSON.stringify({ version: CONSENT_VERSION, ...choices, decidedAt: now }),
   );
 }
 
+/** Reads consent from a raw Cookie header (server side). */
 export function readConsentCookie(cookieHeader: string): ConsentRecord | null {
   const match = cookieHeader.split(/;\s*/).find((part) => part.startsWith(`${CONSENT_COOKIE}=`));
   return parseConsent(match?.slice(CONSENT_COOKIE.length + 1));
@@ -63,4 +68,5 @@ export function writeConsent(choices: ConsentChoices): void {
   notifyBrowserStateChanged();
 }
 
+/** Window event that reopens the cookie preferences. */
 export const OPEN_CONSENT_EVENT = "texora:open-consent";

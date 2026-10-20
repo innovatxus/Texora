@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { UnsubscribeAlerts } from "@/components/marketing/UnsubscribeAlerts";
 import { Skeleton } from "@/components/primitives";
 
+/** Unsubscribe pages are never indexed. */
 export const metadata: Metadata = {
   title: "Stop product alerts",
   robots: { index: false, follow: false },
@@ -32,6 +33,7 @@ async function Unsubscribe({ searchParams }: PageProps<"/notifications/unsubscri
   );
 }
 
+/** Stop product alerts for the email in a signed link. */
 export default function Page(props: PageProps<"/notifications/unsubscribe">) {
   return (
     <div className="container-page max-w-2xl pt-10 pb-24">

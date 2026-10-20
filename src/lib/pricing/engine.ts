@@ -96,6 +96,7 @@ export interface PricingResult {
 const isOnSale = (l: PricingLine) =>
   l.compareAtPrice !== undefined && l.compareAtPrice > l.unitPrice;
 
+/** Whether a promotion's audience includes this customer. */
 export function audienceMatches(audience: Audience, customer: Customer): boolean {
   switch (audience) {
     case "everyone":
@@ -225,6 +226,7 @@ export function selectPromotions(
   return [...stackable, ...(best ? [best.p] : [])].sort((a, b) => b.priority - a.priority);
 }
 
+/** Prices a bag: discounts, shipping, tax, then gift card and rewards. Pure; all amounts in cents. */
 export function priceOrder(input: PricingInput): PricingResult {
   let lines: PricedLine[] = input.lines.map((l) => {
     const lineSubtotal = l.unitPrice * l.quantity;
@@ -292,6 +294,7 @@ export function priceOrder(input: PricingInput): PricingResult {
 export type CodeRejection =
   "not_found" | "inactive" | "expired" | "not_eligible" | "not_combinable" | "usage_limit";
 
+/** What shoppers are told when a promo code can't be used. */
 export const CODE_MESSAGES: Record<CodeRejection, string> = {
   not_found: "We don't recognise that code",
   inactive: "That code is no longer active",

@@ -5,6 +5,7 @@ import { Button, Chip } from "@/components/primitives";
 
 const FIT_FAMILIES = ["Regular", "Petite", "Tall"] as const;
 
+/** Styleguide demo: toggle chips with live pressed state. */
 export function ToggleChipDemo() {
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set(["Regular"]));
 
@@ -29,6 +30,7 @@ export function ToggleChipDemo() {
 
 const INITIAL_FILTERS = ["Size: M", "Colour: Navy", "Linen"];
 
+/** Styleguide demo: dismissible filter chips that remove themselves. */
 export function DismissibleChipDemo() {
   const [filters, setFilters] = useState(INITIAL_FILTERS);
 
@@ -55,6 +57,7 @@ export function DismissibleChipDemo() {
   );
 }
 
+/** Styleguide demo: a button that shows its loading state on click. */
 export function LoadingButtonDemo() {
   const [loading, setLoading] = useState(false);
 

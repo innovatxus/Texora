@@ -34,6 +34,7 @@ async function CopyrightYear() {
   return <>{new Date().getFullYear()}</>;
 }
 
+/** Site footer: newsletter signup, link columns, region selector, social and legal links. */
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-line bg-surface-muted print:hidden">

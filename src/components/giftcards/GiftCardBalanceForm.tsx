@@ -18,6 +18,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
+/** Gift card number entry that shows the remaining balance and expiry. */
 export function GiftCardBalanceForm() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);

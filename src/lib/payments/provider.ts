@@ -32,8 +32,10 @@ function stripeClient(): Stripe {
   return stripe;
 }
 
+/** Whether card payments are configured (a Stripe secret key is set). */
 export const cardPaymentsEnabled = () => Boolean(serverEnv.STRIPE_SECRET_KEY);
 
+/** Stripe implementation of the payment provider: payment intents and refunds. */
 export const stripeProvider: PaymentProvider = {
   async createPayment({ amount, currency, email, metadata, idempotencyKey }) {
     const intent = await stripeClient().paymentIntents.create(

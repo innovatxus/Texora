@@ -17,6 +17,7 @@ export interface ReturnInstructionsProps {
   deadline: string;
 }
 
+/** Return approved email: how to send the items, the QR code and the expected refund. */
 export function ReturnInstructionsEmail(props: ReturnInstructionsProps) {
   const { brandName, returnNumber, orderNumber, returnUrl, method, storeName, qrImageUrl } = props;
   return (
