@@ -16,8 +16,3 @@ export function redemptionOptions(points: number, max = 10): number[] {
 export function pointsFor(valueCents: number): number {
   return (valueCents / 100) * POINTS_PER_DOLLAR_REDEEMED;
 }
-
-/** Points earned on an order: per dollar of merchandise after discounts. */
-export function pointsEarned(merchandiseCents: number, pointsPerDollar: number): number {
-  return Math.floor(merchandiseCents / 100) * pointsPerDollar;
-}

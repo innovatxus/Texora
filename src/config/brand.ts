@@ -10,6 +10,11 @@ export const brand = {
   locale: "en",
   /** Browser UI colour; mirrors --color-canvas (meta tags cannot read CSS variables). */
   themeColor: "#faf8f5",
+  support: {
+    phone: "(212) 555-0141",
+    email: "care@texora.example",
+    hours: "Monday to Friday 9am–8pm ET, weekends 10am–6pm ET",
+  },
 } as const;
 
 export const PLATFORM_NAME = brand.name;

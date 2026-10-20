@@ -147,7 +147,7 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
     title: "Help",
     links: [
       { label: "Help centre", href: "/help" },
-      { label: "Track an order", href: "/account/orders" },
+      { label: "Track an order", href: "/orders/lookup" },
       { label: "Shipping", href: "/help/shipping" },
       { label: "Returns & exchanges", href: "/help/returns" },
       { label: "Size guides", href: "/help/size-guides" },

@@ -10,9 +10,11 @@ import {
   collectionSchema,
   giftCardSchema,
   ONLINE_LOCATION,
+  orderSchema,
   productSchema,
   promoCodeSchema,
   promotionSchema,
+  returnSchema,
   reviewSchema,
   storeSchema,
   storeSettingsSchema,
@@ -22,10 +24,13 @@ import {
   type Collection,
   type FitFamily,
   type GiftCard,
+  type Order,
+  type OrderLine,
   type Product,
   type ProductBadge,
   type PromoCode,
   type Promotion,
+  type Return,
   type Review,
   type Store,
   type StoreSettings,
@@ -43,6 +48,7 @@ import {
   STORES,
   type CategoryDefinition,
 } from "./catalog-definitions";
+import { taxRateFor } from "../../src/lib/pricing/tax";
 import { buildPages } from "./pages";
 
 // ------------------------------------------------------------------ rng
@@ -109,11 +115,17 @@ export interface SeedData {
   promotions: Promotion[];
   promoCodes: PromoCode[];
   giftCards: GiftCard[];
+  orders: Order[];
+  returns: Return[];
+  /** Last order number used by the seed; new orders continue from here. */
+  orderCounter: number;
   collections: Collection[];
   pages: CmsPage[];
   settings: StoreSettings;
   /** Plain gift card code for local testing (only its hash is stored). */
   demoGiftCardCode: string;
+  /** Email on the sample guest orders, for order lookup. */
+  demoOrderEmail: string;
 }
 
 export const SEED_PASSWORD = "Texora-demo-1";
@@ -628,6 +640,189 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
     },
   ].map((c) => collectionSchema.parse({ ...c, status: "live", seo: { title: c.name } }));
 
+  // ----------------------------------------------------------- orders
+  // Sample order history for order lookup, tracking and returns demos.
+  const demoOrderEmail = "guest@texora.test";
+  const productById = new Map(products.map((p) => [p.id, p]));
+  const orderable = variants.filter((v) => {
+    const p = productById.get(v.productId);
+    return p?.status === "live" && !p.badges.includes("final_sale");
+  });
+  const finalSaleVariant = variants.find(
+    (v) => productById.get(v.productId)?.badges.includes("final_sale") ?? false,
+  );
+  const orderLine = (v: Variant, quantity: number): OrderLine => {
+    const p = productById.get(v.productId) as Product;
+    const color = p.colors.find((c) => c.code === v.color) ?? p.colors[0];
+    return {
+      sku: v.sku,
+      productId: p.id,
+      name: p.name,
+      colorName: color?.name ?? v.color,
+      size: v.size,
+      fitFamily: v.fitFamily,
+      imageUrl: color?.images[0]?.url ?? "",
+      unitPrice: v.price,
+      ...(v.compareAtPrice ? { compareAtPrice: v.compareAtPrice } : {}),
+      quantity,
+      discount: 0,
+      lineTotal: v.price * quantity,
+      finalSale: p.badges.includes("final_sale"),
+    };
+  };
+  const orderVariant = (i: number) => orderable[(i * 37) % orderable.length] as Variant;
+  const demoAddress = {
+    firstName: "Ada",
+    lastName: "Lovelace",
+    line1: "118 Greene Street",
+    city: "New York",
+    region: "NY",
+    postalCode: "10012",
+    country: "US",
+    phone: "212 555 0100",
+  };
+  let orderNumber = 100_000;
+  const makeOrder = (spec: {
+    id: string;
+    email: string;
+    userId: string | null;
+    lines: OrderLine[];
+    status: Order["status"];
+    placedDaysAgo: number;
+    shippedDaysAgo?: number;
+    deliveredDaysAgo?: number;
+  }): Order => {
+    orderNumber += 1;
+    const subtotal = spec.lines.reduce((sum, l) => sum + l.lineTotal, 0);
+    const shipping = subtotal >= cents(150) ? 0 : cents(8);
+    const tax = Math.round(subtotal * taxRateFor(demoAddress.region));
+    const total = subtotal + shipping + tax;
+    const placedAt = ago(spec.placedDaysAgo);
+    const shipped = spec.shippedDaysAgo !== undefined;
+    const delivered = spec.deliveredDaysAgo !== undefined;
+    const history: Order["statusHistory"] = [{ status: "placed", at: placedAt }];
+    if (spec.status !== "placed") {
+      history.push({ status: "processing", at: ago(spec.placedDaysAgo - 0.2) });
+    }
+    if (shipped) history.push({ status: "shipped", at: ago(spec.shippedDaysAgo ?? 0) });
+    if (delivered) history.push({ status: "delivered", at: ago(spec.deliveredDaysAgo ?? 0) });
+    const number = `TX-${orderNumber}`;
+    return orderSchema.parse({
+      id: spec.id,
+      vendorIds: [],
+      number,
+      userId: spec.userId,
+      email: spec.email,
+      status: spec.status,
+      currency: "USD",
+      lines: spec.lines,
+      totals: { subtotal, discount: 0, shipping, tax, giftCard: 0, rewards: 0, total },
+      shippingAddress: demoAddress,
+      billingAddress: demoAddress,
+      delivery: {
+        method: "standard",
+        cost: shipping,
+        estimatedFrom: ago(spec.placedDaysAgo - 3),
+        estimatedTo: ago(spec.placedDaysAgo - 5),
+      },
+      promoCodes: [],
+      payments: [
+        { provider: "cod", ref: number, amount: total, status: delivered ? "captured" : "pending" },
+      ],
+      shipments: shipped
+        ? [
+            {
+              id: `${spec.id}-s1`,
+              carrier: "UPS Ground",
+              trackingNumber: `1Z999AA1${String(orderNumber).padStart(10, "0")}`,
+              skus: spec.lines.map((l) => l.sku),
+              status: delivered ? "delivered" : "in_transit",
+              shippedAt: ago(spec.shippedDaysAgo ?? 0),
+              ...(delivered ? { deliveredAt: ago(spec.deliveredDaysAgo ?? 0) } : {}),
+            },
+          ]
+        : [],
+      refunds: [],
+      statusHistory: history,
+      notes: [],
+      idempotencyKey: `seed-order-${spec.id}-0000`,
+      loyaltyPointsEarned: 0,
+      placedAt,
+      updatedAt: now,
+    });
+  };
+
+  const orders: Order[] = [
+    makeOrder({
+      id: "seed-order-delivered",
+      email: demoOrderEmail,
+      userId: null,
+      lines: [
+        orderLine(orderVariant(1), 2),
+        orderLine(orderVariant(2), 1),
+        ...(finalSaleVariant ? [orderLine(finalSaleVariant, 1)] : []),
+      ],
+      status: "delivered",
+      placedDaysAgo: 9,
+      shippedDaysAgo: 8,
+      deliveredDaysAgo: 5,
+    }),
+    makeOrder({
+      id: "seed-order-shipped",
+      email: demoOrderEmail,
+      userId: null,
+      lines: [orderLine(orderVariant(3), 1)],
+      status: "shipped",
+      placedDaysAgo: 2,
+      shippedDaysAgo: 1,
+    }),
+    makeOrder({
+      id: "seed-order-placed",
+      email: demoOrderEmail,
+      userId: null,
+      lines: [orderLine(orderVariant(4), 1), orderLine(orderVariant(5), 1)],
+      status: "placed",
+      placedDaysAgo: 0.1,
+    }),
+    makeOrder({
+      id: "seed-order-member",
+      email: "customer@texora.test",
+      userId: "seed-customer",
+      lines: [orderLine(orderVariant(6), 1), orderLine(orderVariant(7), 1)],
+      status: "delivered",
+      placedDaysAgo: 14,
+      shippedDaysAgo: 13,
+      deliveredDaysAgo: 10,
+    }),
+  ];
+  const memberOrder = orders[3] as Order;
+  const returns: Return[] = [
+    returnSchema.parse({
+      id: `${memberOrder.id}-r1`,
+      number: `${memberOrder.number}-R1`,
+      orderId: memberOrder.id,
+      orderNumber: memberOrder.number,
+      userId: memberOrder.userId,
+      email: memberOrder.email,
+      lines: [{ sku: memberOrder.lines[0]?.sku, quantity: 1, reason: "too_large" }],
+      method: "mail",
+      refundTo: "original",
+      status: "approved",
+      label: {
+        carrier: "Prepaid return",
+        trackingNumber: "TXR1000000001",
+        code: `${memberOrder.number}-R1`,
+      },
+      refundEstimate: memberOrder.lines[0]?.lineTotal ?? 0,
+      statusHistory: [
+        { status: "requested", at: ago(2) },
+        { status: "approved", at: ago(2) },
+      ],
+      createdAt: ago(2),
+    }),
+  ];
+  const orderCounter = orderNumber;
+
   // --------------------------------------------------------- settings
   const settings = storeSettingsSchema.parse({
     currency: "USD",
@@ -663,8 +858,12 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
     promotions,
     promoCodes,
     giftCards,
+    orders,
+    returns,
+    orderCounter,
     collections,
     settings,
     demoGiftCardCode,
+    demoOrderEmail,
   };
 }

@@ -46,6 +46,10 @@ Sign in as any role with <role>@texora.test, e.g.
 
 Promo codes: WELCOME15, SPEND200 (EXPIRED10 is inactive)
 Gift card:   ${data.demoGiftCardCode}
+Orders:      ${data.orders
+    .slice(0, 3)
+    .map((o) => o.number)
+    .join(", ")} (look up with ${data.demoOrderEmail})
 `);
 }
 

@@ -1,4 +1,4 @@
-import { pointsEarned, pointsFor, redemptionOptions } from "./rewards";
+import { pointsFor, redemptionOptions } from "./rewards";
 import { DEFAULT_TAX_RATE, taxRateFor } from "./tax";
 
 describe("rewards", () => {
@@ -8,9 +8,8 @@ describe("rewards", () => {
     expect(redemptionOptions(100000, 3)).toEqual([500, 1000, 1500]);
   });
 
-  it("converts value to points and earns per whole dollar", () => {
+  it("converts value to points", () => {
     expect(pointsFor(1500)).toBe(1500);
-    expect(pointsEarned(12999, 10)).toBe(1290);
   });
 });
 

@@ -54,7 +54,7 @@ export function AnnouncementBar({ announcements }: { announcements: readonly Ann
     <section
       aria-label="Promotions"
       aria-roledescription="carousel"
-      className="relative bg-ink text-canvas"
+      className="relative bg-ink text-canvas print:hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

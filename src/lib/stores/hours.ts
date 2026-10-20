@@ -1,0 +1,108 @@
+import type { Store } from "@/lib/validation";
+
+export const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+const WEEKDAY_INDEX: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+/** "20:00" → "8pm", "10:30" → "10:30am". */
+export function formatTime(hhmm: string): string {
+  const [h = 0, m = 0] = hhmm.split(":").map(Number);
+  const suffix = h >= 12 ? "pm" : "am";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return m === 0 ? `${hour}${suffix}` : `${hour}:${String(m).padStart(2, "0")}${suffix}`;
+}
+
+/** Day of week (0 = Sunday) and minutes since midnight in the store's own time zone. */
+export function localTime(now: Date, timeZone: string): { day: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return {
+    day: WEEKDAY_INDEX[get("weekday")] ?? 0,
+    minutes: Number(get("hour")) * 60 + Number(get("minute")),
+  };
+}
+
+const toMinutes = (hhmm: string) => {
+  const [h = 0, m = 0] = hhmm.split(":").map(Number);
+  return h * 60 + m;
+};
+
+export interface OpenStatus {
+  open: boolean;
+  label: string;
+}
+
+type HoursStore = Pick<Store, "hours" | "timezone" | "status">;
+
+/** "Open until 8pm" / "Closed · opens 10am tomorrow", in the store's time zone. */
+export function openStatus(store: HoursStore, now: Date): OpenStatus {
+  if (store.status === "closed") return { open: false, label: "Permanently closed" };
+  if (store.status === "temporarily_closed") return { open: false, label: "Temporarily closed" };
+
+  const { day, minutes } = localTime(now, store.timezone);
+  const today = store.hours.find((h) => h.day === day);
+  if (today && minutes >= toMinutes(today.open) && minutes < toMinutes(today.close)) {
+    return { open: true, label: `Open until ${formatTime(today.close)}` };
+  }
+  if (today && minutes < toMinutes(today.open)) {
+    return { open: false, label: `Closed · opens ${formatTime(today.open)}` };
+  }
+  for (let offset = 1; offset <= 7; offset += 1) {
+    const nextDay = (day + offset) % 7;
+    const hours = store.hours.find((h) => h.day === nextDay);
+    if (hours) {
+      const when = offset === 1 ? "tomorrow" : (DAY_NAMES[nextDay] ?? "");
+      return { open: false, label: `Closed · opens ${formatTime(hours.open)} ${when}` };
+    }
+  }
+  return { open: false, label: "Closed" };
+}
+
+/** Opening hours grouped Monday-first for display, e.g. "Mon–Thu 10am–8pm". */
+export function weeklyHours(store: Pick<Store, "hours">): Array<{ day: number; text: string }> {
+  return [1, 2, 3, 4, 5, 6, 0].map((day) => {
+    const h = store.hours.find((x) => x.day === day);
+    return { day, text: h ? `${formatTime(h.open)} – ${formatTime(h.close)}` : "Closed" };
+  });
+}
+
+/** Great-circle distance in miles. */
+export function distanceMiles(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const rad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 3958.8 * Math.asin(Math.sqrt(h));
+}
+
+/** A neutral directions link (OpenStreetMap); no maps key or third-party script needed. */
+export function directionsUrl(store: Pick<Store, "geo">): string {
+  const { lat, lng } = store.geo;
+  return `https://www.openstreetmap.org/directions?to=${lat}%2C${lng}#map=16/${lat}/${lng}`;
+}

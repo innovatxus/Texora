@@ -23,6 +23,7 @@ import { useBagStore } from "@/stores/bag";
 import { useRecentlyViewedStore } from "@/stores/recentlyViewed";
 import { useUiStore } from "@/stores/ui";
 import { BackInStockForm } from "./BackInStockForm";
+import { PriceDropAlert } from "./PriceDropAlert";
 import { Fulfilment } from "./Fulfilment";
 import { Gallery } from "./Gallery";
 import { SizeGuideModal } from "./SizeGuideModal";
@@ -266,6 +267,8 @@ export function ProductDetail({
               className="size-14"
             />
           </div>
+
+          <PriceDropAlert productId={product.id} />
 
           <Fulfilment />
 

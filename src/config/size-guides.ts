@@ -68,6 +68,14 @@ const MEN_WAIST: SizeGuide = {
   ],
 };
 
+/** Every guide, for the help centre. */
+export const ALL_SIZE_GUIDES: readonly SizeGuide[] = [
+  WOMEN_ALPHA,
+  WOMEN_NUMERIC,
+  MEN_ALPHA,
+  MEN_WAIST,
+];
+
 export function sizeGuideFor(department: string, sizeType: string): SizeGuide {
   if (department === "men") return sizeType === "waist_inseam" ? MEN_WAIST : MEN_ALPHA;
   return sizeType === "numeric" ? WOMEN_NUMERIC : WOMEN_ALPHA;

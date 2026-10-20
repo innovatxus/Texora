@@ -6,13 +6,16 @@ import { ChevronDownIcon } from "@/components/icons";
 
 export function DetailsAccordion({
   sections,
+  defaultOpen,
 }: {
   sections: Array<{ id: string; title: string; content: ReactNode }>;
+  /** Sections open on first render; the first one by default. */
+  defaultOpen?: string[];
 }) {
   return (
     <Accordion.Root
       type="multiple"
-      defaultValue={sections.slice(0, 1).map((s) => s.id)}
+      defaultValue={defaultOpen ?? sections.slice(0, 1).map((s) => s.id)}
       className="border-t border-line"
     >
       {sections.map((section) => (

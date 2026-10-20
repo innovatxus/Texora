@@ -239,3 +239,33 @@ At the owner's request, Texora does not offer buy-online-pick-up-in-store. Deliv
 
 **Date:** 2026-10-19 · **Phase:** 6
 The bag is cleared by the confirmation page (`ClearAfterOrder`), not before navigating away from review: clearing first tripped the checkout's empty-bag guard and redirected to `/bag` mid-navigation.
+
+## D-046 — Guest access to orders by signed link
+
+**Date:** 2026-10-19 · **Phase:** 7
+Guests reach their order, return and gift card pages through HMAC-signed links (`signToken(purpose, id)`), from checkout, email or the order lookup (order number + email, both required, with one error message for any mismatch). The purpose is part of the signature, so an order link can't open a gift card purchase or an unsubscribe action. Signed-in owners and staff with `orders.read` get in without a token. These pages render at request time (`connection()`) inside Suspense.
+
+## D-047 — Returns are approved automatically within policy
+
+**Date:** 2026-10-19 · **Phase:** 7
+A return request inside the policy (shipped, within 30 days of delivery or of the latest estimate, not final sale, units not already returned) is approved immediately with a prepaid label or an in-store drop-off code; both carry a QR code of the return number. The check runs in a Firestore transaction that reads the order's existing returns, so two tabs can't return the same units. The refund estimate is the discounted unit price, rounded down; shipping is not refunded. Receiving, inspection and refunds happen in the back office (Phase 8). Email images use a signed PNG route because mail clients block `data:` URLs.
+
+## D-048 — Store locator without a map
+
+**Date:** 2026-10-19 · **Phase:** 7
+No maps key is configured, so the locator ships as a list with text search, service filters and "use my location" distance sorting (browser geolocation, computed on the device), plus OpenStreetMap directions links. Open/closed status is computed in the browser in each store's time zone so the pages stay fully static. A map can be added when a provider key is chosen.
+
+## D-049 — E-gift cards are issued on delivery, not at purchase
+
+**Date:** 2026-10-19 · **Phase:** 7
+E-gift cards are bought outside the bag (card payment only) as a `giftCardPurchases` record. The Stripe webhook marks it paid; on the delivery date (immediately, or via the hourly cron) the card is created and its code emailed to the recipient. Only the code's hash is stored, so the code never exists at rest. If the email fails, the card is disabled and the purchase returns to "paid" for a fresh code on the next run. Locally, without Stripe keys, the form explains that card payments are unavailable.
+
+## D-050 — Account creation moved to the final phase
+
+**Date:** 2026-10-19 · **Phase:** 7
+At the owner's request, sign-in, registration and all account pages are built in the final phase. Phase 7 delivers the guest versions of post-purchase features and the server pieces accounts will use: points are credited to members once per order (`loyaltyCreditedAt`) with a ledger in `users/{uid}/loyaltyLedger`. Header and footer account links stay in place and resolve when that phase lands. The order confirmation page offers "Track this order" instead of account creation until then.
+
+## D-051 — Product alerts fire once
+
+**Date:** 2026-10-19 · **Phase:** 7
+Back-in-stock and price-drop alerts are `pending` until their condition is met (online stock above zero; lowest price below the price when subscribing, read on the server), then sent once and marked `sent`. The hourly `api/cron/notifications` job processes them. "Stop these emails" links are signed per email address and require a button press, so mail scanners can't unsubscribe people.

@@ -397,6 +397,20 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "giftCardPurchases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deliverOn",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

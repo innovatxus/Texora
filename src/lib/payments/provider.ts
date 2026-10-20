@@ -13,11 +13,13 @@ export interface PaymentIntentResult {
 /** Card payments behind one interface; Cash on Delivery needs no provider call. */
 export interface PaymentProvider {
   createPayment(input: {
-    orderId: string;
-    orderNumber: string;
     amount: number;
     currency: string;
     email: string;
+    /** What the payment is for; the webhook routes on these keys (orderId, giftCardPurchaseId). */
+    metadata: Record<string, string>;
+    /** Retries with the same key return the same intent. */
+    idempotencyKey: string;
   }): Promise<PaymentIntentResult>;
   refund(input: { ref: string; amount: number }): Promise<{ ref: string }>;
 }
@@ -33,17 +35,16 @@ function stripeClient(): Stripe {
 export const cardPaymentsEnabled = () => Boolean(serverEnv.STRIPE_SECRET_KEY);
 
 export const stripeProvider: PaymentProvider = {
-  async createPayment({ orderId, orderNumber, amount, currency, email }) {
+  async createPayment({ amount, currency, email, metadata, idempotencyKey }) {
     const intent = await stripeClient().paymentIntents.create(
       {
         amount,
         currency: currency.toLowerCase(),
         receipt_email: email,
         automatic_payment_methods: { enabled: true },
-        metadata: { orderId, orderNumber },
+        metadata,
       },
-      // The order id makes retries of the same order return the same intent.
-      { idempotencyKey: `order-${orderId}` },
+      { idempotencyKey },
     );
     if (!intent.client_secret) throw new Error("Payment provider returned no client secret");
     return { provider: "stripe", ref: intent.id, clientSecret: intent.client_secret };

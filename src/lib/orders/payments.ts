@@ -1,6 +1,7 @@
 import "server-only";
 import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
+import { creditOrderPoints } from "@/lib/loyalty/credit";
 import { logger } from "@/lib/observability/logger";
 import { sendOrderConfirmation } from "./notifications";
 
@@ -63,9 +64,14 @@ export async function settleCardPayment(
   });
 
   if (settled && outcome === "succeeded") {
-    await sendOrderConfirmation(orderId).catch((error: unknown) =>
-      logger.error("order.confirmation_email_failed", { orderId, error }),
-    );
+    await Promise.all([
+      sendOrderConfirmation(orderId).catch((error: unknown) =>
+        logger.error("order.confirmation_email_failed", { orderId, error }),
+      ),
+      creditOrderPoints(orderId).catch((error: unknown) =>
+        logger.error("loyalty.credit_failed", { orderId, error }),
+      ),
+    ]);
   }
   return settled ? "settled" : "ignored";
 }

@@ -39,6 +39,9 @@ export async function writeSeed(db: Firestore, auth: Auth, data: SeedData): Prom
   for (const p of data.promotions) write(`promotions/${p.id}`, withoutKey(p, "id"));
   for (const c of data.promoCodes) write(`promoCodes/${c.code}`, withoutKey(c, "code"));
   for (const g of data.giftCards) write(`giftCards/${g.id}`, withoutKey(g, "id"));
+  for (const o of data.orders) write(`orders/${o.id}`, withoutKey(o, "id"));
+  for (const r of data.returns) write(`returns/${r.id}`, withoutKey(r, "id"));
+  write("counters/orders", { value: data.orderCounter });
   for (const c of data.collections) write(`collections/${c.id}`, withoutKey(c, "id"));
   for (const page of data.pages) write(`pages/${page.slug}`, withoutKey(page, "id"));
   write("settings/store", data.settings);

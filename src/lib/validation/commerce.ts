@@ -137,6 +137,8 @@ export const orderSchema = z.object({
   placedOnBehalfBy: actorSchema.optional(),
   idempotencyKey: z.string().min(16).max(128),
   loyaltyPointsEarned: z.number().int().nonnegative(),
+  /** Set once the earned points have been added to the member's balance. */
+  loyaltyCreditedAt: timestampSchema.optional(),
   placedAt: timestampSchema,
   updatedAt: timestampSchema,
 });
@@ -153,32 +155,41 @@ export const RETURN_STATUSES = [
   "closed",
 ] as const;
 
+export const RETURN_REASON_VALUES = [
+  "too_small",
+  "too_large",
+  "not_as_described",
+  "damaged",
+  "changed_mind",
+  "other",
+] as const;
+
 export const returnSchema = z.object({
   id: idSchema,
+  /** Human-facing reference, e.g. TX-100482-R1. */
+  number: z.string().regex(/^TX-\d{6,}-R\d+$/),
   orderId: idSchema,
+  orderNumber: z.string(),
   userId: idSchema.nullable(),
+  email: z.email(),
   lines: z.array(
     z.object({
       sku: z.string(),
       quantity: z.number().int().min(1),
-      reason: z.enum([
-        "too_small",
-        "too_large",
-        "not_as_described",
-        "damaged",
-        "changed_mind",
-        "other",
-      ]),
+      reason: z.enum(RETURN_REASON_VALUES),
       comment: z.string().max(500).optional(),
       condition: z.enum(["resellable", "damaged"]).optional(),
     }),
   ),
   method: z.enum(["mail", "store"]),
+  /** Drop-off store for in-store returns. */
+  storeId: idSchema.optional(),
   refundTo: z.enum(["original", "store_credit"]),
   status: z.enum(RETURN_STATUSES),
-  label: z
-    .object({ carrier: z.string(), trackingNumber: z.string(), qrUrl: z.string() })
-    .optional(),
+  /** Prepaid label for mail returns; the code is what the QR encodes. */
+  label: z.object({ carrier: z.string(), trackingNumber: z.string(), code: z.string() }).optional(),
+  /** Refund the customer can expect, calculated when the return is requested. */
+  refundEstimate: moneySchema,
   refundAmount: moneySchema.optional(),
   statusHistory: z.array(
     z.object({ status: z.enum(RETURN_STATUSES), at: timestampSchema, by: actorSchema.optional() }),
@@ -240,6 +251,41 @@ export const giftCardSchema = z.object({
   createdAt: timestampSchema,
 });
 export type GiftCard = z.infer<typeof giftCardSchema>;
+
+/** An e-gift card bought online. The card itself is issued (and its code emailed) on delivery. */
+export const giftCardPurchaseSchema = z.object({
+  id: idSchema,
+  amount: moneySchema,
+  currency: currencySchema,
+  purchaserEmail: z.email(),
+  senderName: z.string().min(1).max(60),
+  recipientName: z.string().min(1).max(60),
+  recipientEmail: z.email(),
+  message: z.string().max(300).optional(),
+  /** Calendar date (YYYY-MM-DD, store time) to email the card. */
+  deliverOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  status: z.enum(["pending_payment", "paid", "delivered", "cancelled"]),
+  paymentRef: z.string().optional(),
+  /** The issued card (hash id), once delivered. */
+  giftCardId: z.string().optional(),
+  userId: idSchema.nullable(),
+  createdAt: timestampSchema,
+  paidAt: timestampSchema.optional(),
+  deliveredAt: timestampSchema.optional(),
+});
+export type GiftCardPurchase = z.infer<typeof giftCardPurchaseSchema>;
+
+export const contactRequestSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(80),
+  email: z.email(),
+  topic: z.enum(["order", "return", "product", "payment", "other"]),
+  orderNumber: z.string().max(20).optional(),
+  message: z.string().min(10).max(2000),
+  status: z.enum(["open", "closed"]),
+  createdAt: timestampSchema,
+});
+export type ContactRequest = z.infer<typeof contactRequestSchema>;
 
 export const storeSchema = z.object({
   id: idSchema,

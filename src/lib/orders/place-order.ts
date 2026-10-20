@@ -9,7 +9,9 @@ import { hashGiftCardCode } from "@/lib/data/promotions";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { logger } from "@/lib/observability/logger";
 import { cardPaymentsEnabled, stripeProvider } from "@/lib/payments/provider";
-import { pointsEarned, pointsFor } from "@/lib/pricing/rewards";
+import { creditOrderPoints } from "@/lib/loyalty/credit";
+import { pointsForOrder } from "@/lib/loyalty/tiers";
+import { pointsFor } from "@/lib/pricing/rewards";
 import { estimateDelivery } from "@/lib/catalog/variant-selection";
 import { ONLINE_LOCATION, type OrderLine } from "@/lib/validation";
 import type { PlaceOrderInput } from "./checkout-schema";
@@ -221,7 +223,7 @@ export async function placeOrder(
       notes: [],
       idempotencyKey: input.idempotencyKey,
       loyaltyPointsEarned: bag.rewards
-        ? pointsEarned(merchandise, settings.loyalty.pointsPerCurrencyUnit)
+        ? pointsForOrder(merchandise, settings.loyalty.pointsPerCurrencyUnit, bag.rewards.tier)
         : 0,
       placedAt: now,
       updatedAt: now,
@@ -232,11 +234,12 @@ export async function placeOrder(
   let payment: PlacedOrder["payment"] = { kind: paymentMethod === "cod" ? "cod" : "none" };
   if (paymentMethod === "card") {
     const intent = await stripeProvider.createPayment({
-      orderId: orderRef.id,
-      orderNumber: number,
       amount: total,
       currency: "USD",
       email: input.email,
+      metadata: { orderId: orderRef.id, orderNumber: number },
+      // The order id makes retries of the same order return the same intent.
+      idempotencyKey: `order-${orderRef.id}`,
     });
     await orderRef.update({
       payments: FieldValue.arrayUnion({
@@ -263,9 +266,14 @@ export async function placeOrder(
   });
 
   if (status === "placed") {
-    await sendOrderConfirmation(orderRef.id).catch((error: unknown) =>
-      logger.error("order.confirmation_email_failed", { orderId: orderRef.id, error }),
-    );
+    await Promise.all([
+      sendOrderConfirmation(orderRef.id).catch((error: unknown) =>
+        logger.error("order.confirmation_email_failed", { orderId: orderRef.id, error }),
+      ),
+      creditOrderPoints(orderRef.id).catch((error: unknown) =>
+        logger.error("loyalty.credit_failed", { orderId: orderRef.id, error }),
+      ),
+    ]);
   }
   return result;
 }

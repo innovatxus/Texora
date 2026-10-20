@@ -63,7 +63,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b border-line bg-canvas transition-transform duration-base ease-atelier",
+        "sticky top-0 z-40 border-b border-line bg-canvas transition-transform duration-base ease-atelier print:hidden",
         hidden && "-translate-y-full",
       )}
     >

@@ -36,7 +36,7 @@ async function CopyrightYear() {
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-line bg-surface-muted">
+    <footer className="mt-auto border-t border-line bg-surface-muted print:hidden">
       <div className="container-page grid gap-12 section-y lg:grid-cols-12">
         <div className="lg:col-span-4">
           <h2 className="font-display text-3xl">Letters from {brand.name}</h2>

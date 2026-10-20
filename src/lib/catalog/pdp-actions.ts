@@ -3,6 +3,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
 import { ActionError, runAction } from "@/lib/actions/run-action";
+import { getSession } from "@/lib/auth/session";
 import { getUserProfile } from "@/lib/data/admin-records";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { reviewInputSchema } from "@/lib/validation";
@@ -75,25 +76,67 @@ export async function voteHelpful(input: unknown) {
   });
 }
 
-/** Back-in-stock alert for one SKU. Idempotent per email + SKU. */
+const alertEmail = z.email("Enter a valid email address").max(254).toLowerCase();
+
+/** Back-in-stock alert for one SKU. Idempotent per email + SKU; re-subscribing re-arms a sent alert. */
 export async function notifyBackInStock(input: unknown) {
   return runAction(input, {
     schema: z.object({
-      email: z.email("Enter a valid email address").max(254).toLowerCase(),
+      email: alertEmail,
       productId: z.string().min(1).max(128),
       sku: z.string().min(1).max(64),
     }),
     access: { public: true },
     handler: async ({ email, productId, sku }) => {
-      const id = `${sku}:${email}`.replace(/[/]/g, "_");
+      const session = await getSession();
+      const id = `bis:${sku}:${email}`.replace(/[/]/g, "_");
       await getFirebaseAdmin()
         .db.collection("notifications")
         .doc(id)
-        .set(
-          { type: "back_in_stock", email, productId, sku, createdAt: new Date() },
-          { merge: true },
-        );
+        .set({
+          type: "back_in_stock",
+          email,
+          productId,
+          sku,
+          status: "pending",
+          ...(session ? { userId: session.uid } : {}),
+          createdAt: new Date(),
+        });
       return { subscribed: true };
+    },
+  });
+}
+
+/**
+ * Price-drop alert for a product: fires once when its lowest price falls
+ * below the price at the time of subscribing. The price is read on the
+ * server, never taken from the client.
+ */
+export async function notifyPriceDrop(input: unknown) {
+  return runAction(input, {
+    schema: z.object({ email: alertEmail, productId: z.string().min(1).max(128) }),
+    access: { public: true },
+    handler: async ({ email, productId }) => {
+      const { db } = getFirebaseAdmin();
+      const session = await getSession();
+      const product = await db.collection("products").doc(productId).get();
+      if (!product.exists || product.get("status") !== "live") {
+        throw new ActionError("not_found", "This product is no longer available");
+      }
+      const price = Number(product.get("priceRange.min"));
+      await db
+        .collection("notifications")
+        .doc(`pd:${productId}:${email}`.replace(/[/]/g, "_"))
+        .set({
+          type: "price_drop",
+          email,
+          productId,
+          priceAtSubscribe: price,
+          status: "pending",
+          ...(session ? { userId: session.uid } : {}),
+          createdAt: new Date(),
+        });
+      return { subscribed: true, price };
     },
   });
 }

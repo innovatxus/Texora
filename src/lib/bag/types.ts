@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { AppliedPromotion } from "@/lib/pricing/engine";
+import type { LoyaltyTier } from "@/lib/validation";
 
 export const bagRequestSchema = z.object({
   lines: z
@@ -60,7 +61,7 @@ export interface BagView {
     | { status: "applied"; last4: string; balance: number; applied: number }
     | { status: "rejected"; message: string }
     | null;
-  rewards: { points: number; tier: string; options: number[]; applied: number } | null;
+  rewards: { points: number; tier: LoyaltyTier; options: number[]; applied: number } | null;
   freeShippingThreshold: number;
   freeShippingRemaining: number;
   taxEstimated: boolean;

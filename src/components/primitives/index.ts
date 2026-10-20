@@ -23,4 +23,5 @@ export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./Radi
 export { Select, type SelectOption, type SelectProps } from "./Select";
 export { Skeleton, type SkeletonProps } from "./Skeleton";
 export { Spinner } from "./Spinner";
+export { Textarea, type TextareaProps } from "./Textarea";
 export { VisuallyHidden } from "./VisuallyHidden";

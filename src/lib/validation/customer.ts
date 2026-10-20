@@ -122,6 +122,10 @@ export const notificationSchema = z.object({
   email: z.email(),
   productId: idSchema,
   sku: z.string().max(64).optional(),
+  /** Price when a price-drop alert was set; the alert fires below it. */
+  priceAtSubscribe: moneySchema.optional(),
+  /** Alerts fire once: pending until sent. */
+  status: z.enum(["pending", "sent"]),
   createdAt: timestampSchema,
   sentAt: timestampSchema.optional(),
 });

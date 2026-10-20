@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { BagDrawer } from "@/components/bag/BagDrawer";
 import { ConsentBanner } from "@/components/marketing/ConsentBanner";
 import { SignupModal } from "@/components/marketing/SignupModal";
@@ -24,7 +25,10 @@ export default function StorefrontLayout({ children }: LayoutProps<"/">) {
       <SearchOverlay />
       <BagDrawer />
       <ConsentBanner />
-      <SignupModal />
+      {/* Reads the pathname: under a Suspense boundary so routes with request-time params still prerender their shell. */}
+      <Suspense fallback={null}>
+        <SignupModal />
+      </Suspense>
       <StoreHydration />
     </>
   );

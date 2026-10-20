@@ -12,10 +12,15 @@ export const STATIC_TOP_LEVEL_ROUTES = [
   "bag",
   "checkout",
   "collections",
+  "gift-cards",
+  "help",
+  "notifications",
   "order-confirmation",
+  "orders",
   "product",
   "sale",
   "search",
+  "stores",
   "styleguide",
 ] as const;
 
