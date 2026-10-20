@@ -2,6 +2,7 @@ import "server-only";
 import { createElement } from "react";
 import { brand } from "@/config/brand";
 import { ActionError } from "@/lib/actions/run-action";
+import type { Role } from "@/lib/auth/rbac";
 import type { Session } from "@/lib/auth/session";
 import { hashGiftCardCode } from "@/lib/data/promotions";
 import { sendEmail } from "@/lib/email/send";
@@ -221,4 +222,54 @@ export async function deliverScheduledGiftCards(now = new Date()): Promise<numbe
     if (await deliverGiftCard(doc.id, now)) delivered += 1;
   }
   return delivered;
+}
+
+/**
+ * Issues a gift card as store credit (e.g. for a return) and emails the code
+ * to the customer. As with purchases, only the code's hash is stored.
+ */
+export async function issueStoreCredit(input: {
+  amount: number;
+  email: string;
+  firstName: string;
+  reference: string;
+  issuedBy: { uid: string; role: Role };
+}): Promise<{ giftCardId: string; last4: string }> {
+  const { db } = getFirebaseAdmin();
+  const code = generateGiftCardCode();
+  const id = hashGiftCardCode(code);
+  const now = new Date();
+  const expiresAt = new Date(now);
+  expiresAt.setUTCFullYear(expiresAt.getUTCFullYear() + GIFT_CARD_VALID_YEARS);
+  await db
+    .collection("giftCards")
+    .doc(id)
+    .create({
+      last4: code.slice(-4),
+      currency: "USD",
+      initialBalance: input.amount,
+      balance: input.amount,
+      recipientEmail: input.email,
+      issuedBy: input.issuedBy,
+      status: "active",
+      expiresAt,
+      createdAt: now,
+    });
+  await sendEmail({
+    to: input.email,
+    subject: `Your ${brand.name} store credit`,
+    kind: "store_credit",
+    ref: input.reference,
+    template: createElement(GiftCardEmail, {
+      brandName: brand.name,
+      recipientName: input.firstName,
+      senderName: brand.name,
+      message: `Store credit for ${input.reference}. Thank you for shopping with us.`,
+      amount: input.amount,
+      code,
+      expiresOn: longDate.format(expiresAt),
+      shopUrl: clientEnv.NEXT_PUBLIC_SITE_URL,
+    }),
+  });
+  return { giftCardId: id, last4: code.slice(-4) };
 }

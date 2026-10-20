@@ -128,6 +128,12 @@ export const orderSchema = z.object({
       reason: z.string().max(500),
       by: actorSchema,
       at: timestampSchema,
+      /** Payment provider refund id, for card refunds. */
+      providerRef: z.string().optional(),
+      /** Part paid back outside the system (cash on delivery). */
+      manual: moneySchema.optional(),
+      /** Paid as store credit instead of back to the original payment. */
+      storeCredit: z.boolean().optional(),
     }),
   ),
   statusHistory: z.array(
@@ -200,6 +206,11 @@ export const returnSchema = z.object({
   /** Refund the customer can expect, calculated when the return is requested. */
   refundEstimate: moneySchema,
   refundAmount: moneySchema.optional(),
+  /** Internal note from the approve/deny decision. */
+  staffNote: z.string().max(500).optional(),
+  receivedAt: timestampSchema.optional(),
+  /** Inventory location the resellable units were restocked to. */
+  receivedAtLocation: z.string().optional(),
   statusHistory: z.array(
     z.object({ status: z.enum(RETURN_STATUSES), at: timestampSchema, by: actorSchema.optional() }),
   ),

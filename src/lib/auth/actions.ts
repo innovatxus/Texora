@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { ActionError, runAction } from "@/lib/actions/run-action";
 import { safeNextPath } from "./access";
+import { isStaffRole } from "./rbac";
 import { createSession, destroySession, SessionError } from "./session";
 
 const signInSchema = z.object({
@@ -21,7 +22,9 @@ export async function signInWithIdToken(input: unknown) {
     handler: async ({ idToken, next }) => {
       try {
         const session = await createSession(idToken);
-        return { role: session.role, redirectTo: safeNextPath(next) };
+        // Staff land in the back office; customers go home until account pages exist (D-050).
+        const fallback = isStaffRole(session.role) ? "/admin" : "/";
+        return { role: session.role, redirectTo: safeNextPath(next, fallback) };
       } catch (error) {
         if (error instanceof SessionError) throw new ActionError("unauthenticated", error.message);
         throw error;
