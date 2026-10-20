@@ -237,6 +237,14 @@ describe("sorting and paging", () => {
     expect(sortProducts(catalog, "price_desc", ["d"])[0]?.id).toBe("c");
   });
 
+  it("boosts and buries in the featured sort, after pins", () => {
+    // Featured order without rules is b, c, a, d.
+    expect(
+      sortProducts(catalog, "featured", ["c"], { boosted: ["d"], buried: ["b"] }).map((p) => p.id),
+    ).toEqual(["c", "d", "a", "b"]);
+    expect(sortProducts(catalog, "price_asc", [], { buried: ["a"] })[0]?.id).toBe("a");
+  });
+
   it("pages cumulatively for load more", () => {
     const items = Array.from({ length: 50 }, (_, i) => i);
     expect(pageOf(items, 1)).toMatchObject({ shown: 24, total: 50, hasMore: true });

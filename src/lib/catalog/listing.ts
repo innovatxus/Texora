@@ -440,6 +440,7 @@ export function sortProducts(
   products: readonly ListingProduct[],
   sort: SortKey,
   pinned: readonly string[] = [],
+  merch: { boosted?: readonly string[]; buried?: readonly string[] } = {},
 ): ListingProduct[] {
   const sorted = [...products];
   const by: Record<SortKey, (a: ListingProduct, b: ListingProduct) => number> = {
@@ -451,13 +452,24 @@ export function sortProducts(
     top_rated: (a, b) => b.ratingAvg - a.ratingAvg || b.ratingCount - a.ratingCount,
   };
   sorted.sort((a, b) => by[sort](a, b) || a.id.localeCompare(b.id));
-  if (sort !== "featured" || pinned.length === 0) return sorted;
-  // Merchandising: pinned products lead the featured sort, in pin order.
+  const boosted = new Set(merch.boosted ?? []);
+  const buried = new Set(merch.buried ?? []);
+  if (sort !== "featured" || (pinned.length === 0 && boosted.size === 0 && buried.size === 0)) {
+    return sorted;
+  }
+  // Merchandising, featured sort only: pinned products lead in pin order,
+  // then boosted ones, then the rest; buried products go last.
   const pinnedSet = new Set(pinned);
   const head = pinned
     .map((id) => sorted.find((p) => p.id === id))
     .filter((p): p is ListingProduct => p !== undefined);
-  return [...head, ...sorted.filter((p) => !pinnedSet.has(p.id))];
+  const rest = sorted.filter((p) => !pinnedSet.has(p.id));
+  return [
+    ...head,
+    ...rest.filter((p) => boosted.has(p.id) && !buried.has(p.id)),
+    ...rest.filter((p) => !boosted.has(p.id) && !buried.has(p.id)),
+    ...rest.filter((p) => buried.has(p.id)),
+  ];
 }
 
 /** Cumulative paging: page N shows the first N × PAGE_SIZE results ("Load more"). */

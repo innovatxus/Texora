@@ -55,6 +55,7 @@ export async function ProductListing({
     applyFilters(resolved.products, filters, now),
     sort,
     resolved.pinned,
+    { boosted: resolved.boosted, buried: resolved.buried },
   );
   const { items, shown, total, hasMore } = pageOf(results, page);
   const chips = describeActiveFilters(filters, facets);

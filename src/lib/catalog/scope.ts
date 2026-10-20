@@ -4,7 +4,13 @@ import { buildIndex, search } from "@/lib/search/match";
 import { getSearchDocuments } from "@/lib/search/index-data";
 import { ATTRIBUTE_LABELS, type FacetContext } from "./listing";
 import type { ListingProduct } from "./listing-types";
-import { getCollection, getDepartmentCategories, getListingIndex, getStores } from "./queries";
+import {
+  getCategory,
+  getCollection,
+  getDepartmentCategories,
+  getListingIndex,
+  getStores,
+} from "./queries";
 
 /** What a listing shows. Serialisable, so client filter drawers can ask for counts. */
 export const listingScopeSchema = z.object({
@@ -19,8 +25,11 @@ export type ListingScope = z.infer<typeof listingScopeSchema>;
 
 export interface ResolvedScope {
   products: ListingProduct[];
-  /** Relevance order for search, pin order for collections. */
+  /** Relevance order for search, pin order for collections and categories. */
   pinned: string[];
+  /** Category merchandising: shown after pins / at the end of the featured sort. */
+  boosted: string[];
+  buried: string[];
   context: FacetContext;
 }
 
@@ -31,8 +40,16 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
   let pinned: string[] = [];
 
   if (scope.department) products = products.filter((p) => p.department === scope.department);
+  let boosted: string[] = [];
+  let buried: string[] = [];
   if (scope.categoryKey) {
     const key = scope.categoryKey;
+    const rules = (await getCategory(key.split("/")))?.merchRules;
+    if (rules) {
+      pinned = rules.pinned;
+      boosted = rules.boosted;
+      buried = rules.buried;
+    }
     products = products.filter((p) => {
       const own = p.categoryPath.join("/");
       return own === key || own.startsWith(`${key}/`);
@@ -71,6 +88,8 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
   return {
     products,
     pinned,
+    boosted,
+    buried,
     context: {
       ...(categories ? { categories } : {}),
       attributeKeys,
