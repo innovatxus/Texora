@@ -16,7 +16,8 @@ function staticTopLevelFolders(dir: string): string[] {
 
 describe("route allow-list", () => {
   it("matches the static route folders in src/app", () => {
-    const folders = staticTopLevelFolders(join(process.cwd(), "src", "app")).sort();
+    // A folder can appear in more than one route group (e.g. merchant auth vs portal).
+    const folders = [...new Set(staticTopLevelFolders(join(process.cwd(), "src", "app")))].sort();
     expect([...STATIC_TOP_LEVEL_ROUTES].sort()).toEqual(folders);
   });
 

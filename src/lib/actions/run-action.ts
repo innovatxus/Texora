@@ -26,6 +26,8 @@ export class ActionError extends Error {
   constructor(
     public readonly code: Exclude<ActionErrorCode, "validation" | "internal">,
     message: string,
+    /** Form field the error belongs to (e.g. "username"), shown inline next to it. */
+    public readonly field?: string,
   ) {
     super(message);
     this.name = "ActionError";
@@ -89,7 +91,14 @@ export async function runAction<S extends z.ZodType, R>(
       };
     }
     if (error instanceof ActionError) {
-      return { ok: false, error: { code: error.code, message: error.message } };
+      return {
+        ok: false,
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.field ? { fieldErrors: { [error.field]: [error.message] } } : {}),
+        },
+      };
     }
     logger.error("action.failed", { error });
     return {

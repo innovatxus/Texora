@@ -369,3 +369,18 @@ The footer column, `/merchants` and merchant help are static and always shown, s
 
 **Date:** 2026-10-20 · **Phase:** Merchant 0
 The merchant prompt includes pickup points, pickup settings and PDP pickup availability. At the owner's request there is no pickup anywhere (D-044), so merchant locations are retail stores or ship-from warehouses, at least one active ship-from location is required, and the PDP shows shipping only.
+
+## D-072 — Merchant passwords are checked on the server
+
+**Date:** 2026-10-20 · **Phase:** Merchant 2
+Customer and staff sign-in checks the password in the browser with the Firebase SDK. Merchant sign-in sends email-or-username and password to a Server Action, which calls the Identity Toolkit REST API. That is what lets usernames resolve to an email without exposing the mapping, failed attempts count towards a 15-minute lockout per account (and per IP), and registration create a session in the same request. Verification and password-reset codes are applied the same way, through links built on our own domain (`/merchant/verify-email`, `/merchant/reset-password`) carrying Firebase's one-time code.
+
+## D-073 — One-time codes are never used during render
+
+**Date:** 2026-10-20 · **Phase:** Merchant 2
+Email clients, link previews and router prefetches can open a link before the person does. The reset page only checks its code, which doesn't use it up. The verification page applies its code from an effect after the page loads in a browser, so a prefetch or a preview can't consume it.
+
+## D-074 — Rate limits key on the forwarded client IP
+
+**Date:** 2026-10-20 · **Phase:** Merchant 2
+Per-IP limits use the first `X-Forwarded-For` address, falling back to `X-Real-IP`. The hosting proxy (Firebase App Hosting, or any load balancer in front of `next start`) overwrites these headers, so clients can't choose their own key. Per-account limits (sign-in lockout, verification resends) don't depend on the IP at all. End-to-end tests send a distinct forwarded address per test, as separate visitors would.

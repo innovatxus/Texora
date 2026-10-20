@@ -16,6 +16,7 @@ import {
   type ShopAccent,
   type ShopType,
 } from "@/config/merchant";
+import { PASSWORD_MAX_LENGTH, passwordProblem } from "@/lib/auth/password";
 import {
   departmentSchema,
   geoSchema,
@@ -450,3 +451,85 @@ export const merchantMediaSchema = z.object({
   processedAt: timestampSchema.optional(),
 });
 export type MerchantMedia = z.infer<typeof merchantMediaSchema>;
+
+// ---------------------------------------------------------------- account forms
+
+/** Lets password checks run alongside other field errors, so a submit shows every problem at once. */
+const alwaysForObjects = (payload: { value: unknown }) =>
+  typeof payload.value === "object" && payload.value !== null;
+
+const newPasswordSchema = z
+  .string()
+  .min(1, "Enter a password")
+  .max(PASSWORD_MAX_LENGTH, `Use ${PASSWORD_MAX_LENGTH} characters or fewer`);
+
+const acceptTermsSchema = z.literal(true, { error: "Accept the merchant terms to continue" });
+
+/** `/merchant/register` for a new account. */
+export const merchantRegisterSchema = z
+  .object({
+    email: merchantEmailSchema,
+    username: usernameSchema,
+    password: newPasswordSchema,
+    confirmPassword: z.string(),
+    acceptTerms: acceptTermsSchema,
+  })
+  .superRefine(
+    (value, ctx) => {
+      // Runs even when other fields are invalid (see `when`), so values may be partial.
+      const password = typeof value.password === "string" ? value.password : "";
+      if (!password) return;
+      const inputs = [value.email, value.username].filter((v) => typeof v === "string");
+      const problem = passwordProblem(password, inputs);
+      if (problem) ctx.addIssue({ code: "custom", path: ["password"], message: problem });
+      if (password !== value.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["confirmPassword"],
+          message: "The passwords don't match",
+        });
+      }
+    },
+    { when: alwaysForObjects },
+  );
+export type MerchantRegisterInput = z.infer<typeof merchantRegisterSchema>;
+
+/** `/merchant/register` for a signed-in shopper adding a shop to their account. */
+export const merchantUpgradeSchema = z.object({
+  username: usernameSchema,
+  acceptTerms: acceptTermsSchema,
+});
+
+/** `/merchant/sign-in`: email or username, plus password. */
+export const merchantSignInSchema = z.object({
+  identifier: z.string().trim().min(1, "Enter your email or username").max(254),
+  password: z.string().min(1, "Enter your password").max(PASSWORD_MAX_LENGTH),
+  next: z.string().max(2048).optional(),
+});
+
+/** `/merchant/forgot-password`. */
+export const merchantForgotPasswordSchema = z.object({ email: merchantEmailSchema });
+
+/** `/merchant/reset-password`: the email isn't known until the code is checked on the server. */
+export const merchantResetPasswordSchema = z
+  .object({
+    oobCode: z.string().min(1).max(2000),
+    password: newPasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .superRefine(
+    (value, ctx) => {
+      const password = typeof value.password === "string" ? value.password : "";
+      if (!password) return;
+      const problem = passwordProblem(password);
+      if (problem) ctx.addIssue({ code: "custom", path: ["password"], message: problem });
+      if (password !== value.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["confirmPassword"],
+          message: "The passwords don't match",
+        });
+      }
+    },
+    { when: alwaysForObjects },
+  );

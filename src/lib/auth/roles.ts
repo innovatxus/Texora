@@ -1,6 +1,7 @@
 import "server-only";
 import { writeAuditLog } from "@/lib/audit/log";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
+import { writeRoleToProfile } from "./profile";
 import { canAssignRole, canSystemGrant, isRole, type Role } from "./rbac";
 import type { Session } from "./session";
 
@@ -35,7 +36,7 @@ export async function assignRole(
   nextRole: Role,
   options: { vendorId?: string } = {},
 ): Promise<void> {
-  const { auth, db } = getFirebaseAdmin();
+  const { auth } = getFirebaseAdmin();
 
   let target;
   try {
@@ -69,17 +70,11 @@ export async function assignRole(
   }
 
   await auth.setCustomUserClaims(targetUid, claims);
-  await db
-    .collection("users")
-    .doc(targetUid)
-    .set(
-      {
-        role: nextRole,
-        ...(claims.vendorId ? { vendorId: claims.vendorId } : {}),
-        updatedAt: new Date(),
-      },
-      { merge: true },
-    );
+  await writeRoleToProfile(
+    target,
+    nextRole,
+    typeof claims.vendorId === "string" ? claims.vendorId : null,
+  );
   await auth.revokeRefreshTokens(targetUid);
 
   await writeAuditLog({
@@ -98,7 +93,7 @@ export async function assignRole(
  * sessions (the caller mints a fresh one) and audits the change as the user's own.
  */
 export async function grantMerchantRole(targetUid: string, vendorId: string): Promise<void> {
-  const { auth, db } = getFirebaseAdmin();
+  const { auth } = getFirebaseAdmin();
   const target = await auth.getUser(targetUid);
   const currentClaim = target.customClaims?.role;
   const currentRole: Role = isRole(currentClaim) ? currentClaim : "customer";
@@ -109,10 +104,7 @@ export async function grantMerchantRole(targetUid: string, vendorId: string): Pr
   }
 
   await auth.setCustomUserClaims(targetUid, { role: "vendor", vendorId });
-  await db
-    .collection("users")
-    .doc(targetUid)
-    .set({ role: "vendor", vendorId, updatedAt: new Date() }, { merge: true });
+  await writeRoleToProfile(target, "vendor", vendorId);
   await auth.revokeRefreshTokens(targetUid);
 
   await writeAuditLog({

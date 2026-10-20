@@ -13,6 +13,9 @@ import {
   e164PhoneSchema,
   LOCATION_TYPE_VALUES,
   merchantEmailSchema,
+  merchantRegisterSchema,
+  merchantResetPasswordSchema,
+  merchantSignInSchema,
   merchantStockKey,
   PROCESSING_TIME_VALUES,
   returnPolicySchema,
@@ -189,5 +192,75 @@ describe("merchant config", () => {
 
   it("namespaces merchant stock keys", () => {
     expect(merchantStockKey("s1", "l1")).toBe("m_s1_l1");
+  });
+});
+
+describe("account forms", () => {
+  const valid = {
+    email: "ada@maisonrue.com",
+    username: "maisonrue",
+    password: "violet-harbour-stitch-42",
+    confirmPassword: "violet-harbour-stitch-42",
+    acceptTerms: true,
+  };
+  const errorsOf = (result: {
+    success: boolean;
+    error?: { issues: Array<{ path: PropertyKey[]; message: string }> };
+  }) => Object.fromEntries((result.error?.issues ?? []).map((i) => [i.path.join("."), i.message]));
+
+  it("accepts a complete registration", () => {
+    expect(merchantRegisterSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("reports each problem on its field", () => {
+    const result = merchantRegisterSchema.safeParse({
+      ...valid,
+      password: "maisonrue-ada",
+      confirmPassword: "something-else",
+      acceptTerms: false,
+    });
+    expect(errorsOf(result)).toEqual({
+      password: "Add a few more words or characters to make it stronger",
+      confirmPassword: "The passwords don't match",
+      acceptTerms: "Accept the merchant terms to continue",
+    });
+  });
+
+  it("uses the email and username when judging the password", () => {
+    const strong = "maisonrue lovelace";
+    expect(
+      merchantRegisterSchema.safeParse({
+        ...valid,
+        password: strong,
+        confirmPassword: strong,
+        email: "lovelace@maisonrue.com",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("needs a code and a strong, confirmed password to reset", () => {
+    expect(
+      errorsOf(
+        merchantResetPasswordSchema.safeParse({
+          oobCode: "c",
+          password: "short",
+          confirmPassword: "short",
+        }),
+      ),
+    ).toEqual({ password: "Use at least 12 characters" });
+    expect(
+      merchantResetPasswordSchema.safeParse({
+        oobCode: "c",
+        password: valid.password,
+        confirmPassword: valid.password,
+      }).success,
+    ).toBe(true);
+  });
+
+  it("asks for both sign-in fields in plain words", () => {
+    expect(errorsOf(merchantSignInSchema.safeParse({ identifier: " ", password: "" }))).toEqual({
+      identifier: "Enter your email or username",
+      password: "Enter your password",
+    });
   });
 });

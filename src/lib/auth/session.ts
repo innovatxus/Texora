@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { isRole, type Role } from "./rbac";
+import { newProfile } from "./profile";
 
 /** `__session` is the one cookie name Firebase Hosting forwards to the server. */
 export const SESSION_COOKIE = "__session";
@@ -103,20 +104,7 @@ export async function createSession(idToken: string): Promise<Session> {
   await db.runTransaction(async (tx) => {
     const snapshot = await tx.get(profileRef);
     if (snapshot.exists) return;
-    const [firstName = "", ...rest] = (record.displayName ?? "").split(" ");
-    const now = new Date();
-    tx.create(profileRef, {
-      uid: decoded.uid,
-      email: record.email ?? decoded.email ?? "",
-      firstName,
-      lastName: rest.join(" "),
-      role: "customer",
-      preferences: { marketingEmail: false, marketingSms: false },
-      savedSizes: {},
-      disabled: false,
-      createdAt: now,
-      updatedAt: now,
-    });
+    tx.create(profileRef, newProfile(record, new Date()));
   });
 
   const cookie = await auth.createSessionCookie(idToken, {
