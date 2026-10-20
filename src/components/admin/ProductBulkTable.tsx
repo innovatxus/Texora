@@ -5,24 +5,19 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/primitives";
 import { setProductStatusAction } from "@/lib/admin/catalog-actions";
+import { PRODUCT_STATUS_LABELS, PRODUCT_STATUS_TONES } from "@/lib/catalog/product-status";
+import type { ProductStatus } from "@/lib/validation/catalog";
 import { StatusPill } from "./ui";
 
 export interface ProductRow {
   id: string;
   name: string;
   slug: string;
-  status: "draft" | "scheduled" | "live" | "archived";
+  status: ProductStatus;
   category: string;
   price: string;
   colors: number;
 }
-
-const TONES = {
-  draft: "neutral",
-  scheduled: "warning",
-  live: "success",
-  archived: "danger",
-} as const;
 
 /** Product table with row selection and bulk publish / unpublish / archive. */
 export function ProductBulkTable({
@@ -170,7 +165,9 @@ export function ProductBulkTable({
                 <td className="px-3 py-2 text-right tabular-nums">{row.colors}</td>
                 <td className="px-3 py-2 text-right tabular-nums">{row.price}</td>
                 <td className="px-3 py-2">
-                  <StatusPill tone={TONES[row.status]}>{row.status}</StatusPill>
+                  <StatusPill tone={PRODUCT_STATUS_TONES[row.status]}>
+                    {PRODUCT_STATUS_LABELS[row.status]}
+                  </StatusPill>
                 </td>
               </tr>
             ))}

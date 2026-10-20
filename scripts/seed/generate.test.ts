@@ -12,7 +12,10 @@ describe("seed data", () => {
     expect(new Set(data.products.map((p) => p.department))).toEqual(new Set(["women", "men"]));
     const leafCategories = data.categories.filter((c) => c.parentId !== null);
     expect(leafCategories).toHaveLength(12);
-    expect(new Set(data.variants.map((v) => v.fitFamily))).toEqual(new Set(FIT_FAMILIES));
+    // Texora's own catalog is cut in regular, petite and tall; plus arrives with merchants.
+    expect(new Set(data.variants.map((v) => v.fitFamily))).toEqual(
+      new Set(FIT_FAMILIES.filter((f) => f !== "plus")),
+    );
     expect(data.stores).toHaveLength(3);
     expect(data.reviews.length).toBeGreaterThan(300);
     expect(data.promotions.length).toBeGreaterThanOrEqual(3);

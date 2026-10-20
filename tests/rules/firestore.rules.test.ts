@@ -20,6 +20,7 @@ import {
   getDoc,
   getDocs,
   query,
+  serverTimestamp,
   setDoc,
   updateDoc,
   where,
@@ -33,26 +34,41 @@ interface Persona {
   role: Role;
   uid: string | null;
   anonymous: boolean;
+  /** The vendorId claim, for merchants. */
+  vendorId?: string;
 }
+
+/** The merchant that owns every merchant fixture. */
+const VENDOR_ID = "vendor-1";
+/** A second merchant, which must never reach the first one's data. */
+const OTHER_VENDOR_ID = "vendor-2";
 
 const PERSONAS: Persona[] = [
   { key: "signed-out", role: "guest", uid: null, anonymous: false },
   { key: "anonymous", role: "guest", uid: "anon-uid", anonymous: true },
   ...ROLES.filter((r) => r !== "guest").map((role) => ({
-    key: role,
+    key: role === "vendor" ? "vendor-owner" : role,
     role,
     uid: `${role}-uid`,
     anonymous: false,
+    ...(role === "vendor" ? { vendorId: VENDOR_ID } : {}),
   })),
+  {
+    key: "vendor-other",
+    role: "vendor",
+    uid: "vendor-other-uid",
+    anonymous: false,
+    vendorId: OTHER_VENDOR_ID,
+  },
 ];
-
-const VENDOR_ID = "vendor-1";
 
 const can = (p: Persona, permission: Permission) => hasPermission(p.role, permission);
 /** A real (non-anonymous) signed-in account. */
 const hasAccount = (p: Persona) => p.uid !== null && !p.anonymous;
 const signedIn = (p: Persona) => p.uid !== null;
 const never = () => false;
+/** The merchant that owns the fixtures (not merely any merchant). */
+const isOwner = (p: Persona) => p.vendorId === VENDOR_ID;
 const always = () => true;
 
 interface Ctx {
@@ -105,6 +121,49 @@ const review = (userId: string, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
+const merchant = () => ({
+  ownerUid: "vendor-uid",
+  email: "shop@example.com",
+  username: "maison",
+  status: "active",
+  trustLevel: "standard",
+  shopIds: ["s1"],
+});
+
+const shop = (extra: Record<string, unknown> = {}) => ({
+  vendorId: VENDOR_ID,
+  name: "Maison Rue",
+  slug: "maison-rue",
+  tagline: "",
+  status: "draft",
+  ...extra,
+});
+
+const location = (extra: Record<string, unknown> = {}) => ({
+  vendorId: VENDOR_ID,
+  name: "Studio",
+  types: ["ship_from"],
+  status: "active",
+  ...extra,
+});
+
+const draft = (uid: string, extra: Record<string, unknown> = {}) => ({
+  vendorId: VENDOR_ID,
+  shopId: "s1",
+  version: 0,
+  data: {},
+  updatedBy: uid,
+  updatedAt: now,
+  ...extra,
+});
+
+const media = () => ({
+  vendorId: VENDOR_ID,
+  shopId: "s1",
+  kind: "logo",
+  status: "tmp",
+});
+
 const CASES: Record<string, Case[]> = {
   products: [
     {
@@ -136,9 +195,21 @@ const CASES: Record<string, Case[]> = {
       expected: (p) => can(p, "catalog.write") && can(p, "catalog.publish"),
     },
     {
-      name: "create own vendor draft",
+      name: "create own vendor draft (server only for merchants, D-062)",
       attempt: ({ db, id }) => setDoc(doc(db, "products", id), product({ vendorId: VENDOR_ID })),
-      expected: (p) => can(p, "catalog.write") || p.role === "vendor",
+      expected: (p) => can(p, "catalog.write"),
+    },
+    {
+      name: "get a merchant's draft",
+      fixtures: ({ id }) => [[`products/${id}`, product({ vendorId: VENDOR_ID })]],
+      attempt: ({ db, id }) => getDoc(doc(db, "products", id)),
+      expected: (p) => can(p, "catalog.read_drafts") || isOwner(p),
+    },
+    {
+      name: "update a merchant's draft",
+      fixtures: ({ id }) => [[`products/${id}`, product({ vendorId: VENDOR_ID })]],
+      attempt: ({ db, id }) => updateDoc(doc(db, "products", id), { name: "Renamed" }),
+      expected: (p) => can(p, "catalog.write"),
     },
     {
       name: "update name",
@@ -490,7 +561,7 @@ const CASES: Record<string, Case[]> = {
       name: "get another's (with vendor lines)",
       fixtures: ({ id }) => [[`orders/${id}`, { userId: "someone", vendorIds: [VENDOR_ID] }]],
       attempt: ({ db, id }) => getDoc(doc(db, "orders", id)),
-      expected: (p) => can(p, "orders.read") || p.role === "vendor",
+      expected: (p) => can(p, "orders.read") || isOwner(p),
     },
     {
       name: "create",
@@ -634,6 +705,317 @@ const CASES: Record<string, Case[]> = {
     },
   ],
 
+  merchants: [
+    {
+      name: "get own",
+      fixtures: () => [[`merchants/${VENDOR_ID}`, merchant()]],
+      attempt: ({ db }) => getDoc(doc(db, "merchants", VENDOR_ID)),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "list",
+      fixtures: () => [[`merchants/${VENDOR_ID}`, merchant()]],
+      attempt: ({ db }) => getDocs(collection(db, "merchants")),
+      expected: (p) => can(p, "merchants.review"),
+    },
+    {
+      name: "create",
+      attempt: ({ db }) => setDoc(doc(db, "merchants", VENDOR_ID), merchant()),
+      expected: never,
+    },
+    {
+      name: "update own trust level",
+      fixtures: () => [[`merchants/${VENDOR_ID}`, merchant()]],
+      attempt: ({ db }) => updateDoc(doc(db, "merchants", VENDOR_ID), { trustLevel: "trusted" }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: () => [[`merchants/${VENDOR_ID}`, merchant()]],
+      attempt: ({ db }) => deleteDoc(doc(db, "merchants", VENDOR_ID)),
+      expected: never,
+    },
+  ],
+
+  usernames: [
+    {
+      name: "get",
+      fixtures: ({ id }) => [[`usernames/${id}`, { uid: "u", vendorId: VENDOR_ID }]],
+      attempt: ({ db, id }) => getDoc(doc(db, "usernames", id)),
+      expected: never,
+    },
+    {
+      name: "claim",
+      attempt: ({ db, id, uid }) => setDoc(doc(db, "usernames", id), { uid, vendorId: VENDOR_ID }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: ({ id, uid }) => [[`usernames/${id}`, { uid, vendorId: VENDOR_ID }]],
+      attempt: ({ db, id }) => deleteDoc(doc(db, "usernames", id)),
+      expected: never,
+    },
+  ],
+
+  shopSlugs: [
+    {
+      name: "get",
+      fixtures: ({ id }) => [[`shopSlugs/${id}`, { shopId: "s", vendorId: VENDOR_ID }]],
+      attempt: ({ db, id }) => getDoc(doc(db, "shopSlugs", id)),
+      expected: never,
+    },
+    {
+      name: "claim",
+      attempt: ({ db, id }) =>
+        setDoc(doc(db, "shopSlugs", id), { shopId: id, vendorId: VENDOR_ID }),
+      expected: never,
+    },
+  ],
+
+  shops: [
+    {
+      name: "get approved",
+      fixtures: ({ id }) => [[`shops/${id}`, shop({ status: "approved" })]],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id)),
+      expected: always,
+    },
+    {
+      name: "get pending review",
+      fixtures: ({ id }) => [[`shops/${id}`, shop({ status: "pending_review" })]],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id)),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "get suspended",
+      fixtures: ({ id }) => [[`shops/${id}`, shop({ status: "suspended" })]],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id)),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "list approved",
+      fixtures: ({ id }) => [[`shops/${id}`, shop({ status: "approved" })]],
+      attempt: ({ db }) =>
+        getDocs(query(collection(db, "shops"), where("status", "==", "approved"))),
+      expected: always,
+    },
+    {
+      name: "list all",
+      fixtures: ({ id }) => [[`shops/${id}`, shop()]],
+      attempt: ({ db }) => getDocs(collection(db, "shops")),
+      expected: (p) => can(p, "merchants.review"),
+    },
+    {
+      name: "create",
+      attempt: ({ db, id }) => setDoc(doc(db, "shops", id), shop()),
+      expected: never,
+    },
+    {
+      name: "approve own",
+      fixtures: ({ id }) => [[`shops/${id}`, shop({ status: "pending_review" })]],
+      attempt: ({ db, id }) => updateDoc(doc(db, "shops", id), { status: "approved" }),
+      expected: never,
+    },
+    {
+      name: "change own tagline",
+      fixtures: ({ id }) => [[`shops/${id}`, shop()]],
+      attempt: ({ db, id }) => updateDoc(doc(db, "shops", id), { tagline: "New" }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: ({ id }) => [[`shops/${id}`, shop()]],
+      attempt: ({ db, id }) => deleteDoc(doc(db, "shops", id)),
+      expected: never,
+    },
+  ],
+
+  locations: [
+    {
+      name: "get active location of an approved shop",
+      fixtures: ({ id }) => [
+        [`shops/${id}`, shop({ status: "approved" })],
+        [`shops/${id}/locations/l1`, location()],
+      ],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id, "locations", "l1")),
+      expected: always,
+    },
+    {
+      name: "get archived location of an approved shop",
+      fixtures: ({ id }) => [
+        [`shops/${id}`, shop({ status: "approved" })],
+        [`shops/${id}/locations/l1`, location({ status: "archived" })],
+      ],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id, "locations", "l1")),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "get location of a shop in review",
+      fixtures: ({ id }) => [
+        [`shops/${id}`, shop({ status: "pending_review" })],
+        [`shops/${id}/locations/l1`, location()],
+      ],
+      attempt: ({ db, id }) => getDoc(doc(db, "shops", id, "locations", "l1")),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "create",
+      fixtures: ({ id }) => [[`shops/${id}`, shop()]],
+      attempt: ({ db, id }) => setDoc(doc(db, "shops", id, "locations", "l1"), location()),
+      expected: never,
+    },
+    {
+      name: "update",
+      fixtures: ({ id }) => [
+        [`shops/${id}`, shop()],
+        [`shops/${id}/locations/l1`, location()],
+      ],
+      attempt: ({ db, id }) => updateDoc(doc(db, "shops", id, "locations", "l1"), { name: "X" }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: ({ id }) => [
+        [`shops/${id}`, shop()],
+        [`shops/${id}/locations/l1`, location()],
+      ],
+      attempt: ({ db, id }) => deleteDoc(doc(db, "shops", id, "locations", "l1")),
+      expected: never,
+    },
+  ],
+
+  productDrafts: [
+    {
+      name: "get",
+      fixtures: ({ id }) => [[`productDrafts/${id}`, draft("someone")]],
+      attempt: ({ db, id }) => getDoc(doc(db, "productDrafts", id)),
+      expected: isOwner,
+    },
+    {
+      name: "create for own shop",
+      fixtures: ({ id }) => [[`shops/s-${id}`, shop()]],
+      attempt: ({ db, id, uid }) =>
+        setDoc(doc(db, "productDrafts", id), {
+          ...draft(uid, { shopId: `s-${id}` }),
+          updatedAt: serverTimestamp(),
+        }),
+      expected: isOwner,
+    },
+    {
+      name: "create for another merchant's shop",
+      fixtures: ({ id }) => [[`shops/s-${id}`, shop({ vendorId: OTHER_VENDOR_ID })]],
+      attempt: ({ db, id, uid }) =>
+        setDoc(doc(db, "productDrafts", id), {
+          ...draft(uid, { shopId: `s-${id}`, vendorId: OTHER_VENDOR_ID }),
+          updatedAt: serverTimestamp(),
+        }),
+      expected: (p) => p.vendorId === OTHER_VENDOR_ID,
+    },
+    {
+      name: "create claiming own vendor on another's shop",
+      fixtures: ({ id }) => [[`shops/s-${id}`, shop({ vendorId: OTHER_VENDOR_ID })]],
+      attempt: ({ db, id, uid }) =>
+        setDoc(doc(db, "productDrafts", id), {
+          ...draft(uid, { shopId: `s-${id}` }),
+          updatedAt: serverTimestamp(),
+        }),
+      expected: never,
+    },
+    {
+      name: "create with a status field",
+      fixtures: ({ id }) => [[`shops/s-${id}`, shop()]],
+      attempt: ({ db, id, uid }) =>
+        setDoc(doc(db, "productDrafts", id), {
+          ...draft(uid, { shopId: `s-${id}` }),
+          status: "live",
+          updatedAt: serverTimestamp(),
+        }),
+      expected: never,
+    },
+    {
+      name: "save the next version",
+      fixtures: ({ id }) => [[`productDrafts/${id}`, draft("someone")]],
+      attempt: ({ db, id, uid }) =>
+        updateDoc(doc(db, "productDrafts", id), {
+          version: 1,
+          data: { name: "Linen Shirt" },
+          updatedBy: uid,
+          updatedAt: serverTimestamp(),
+        }),
+      expected: isOwner,
+    },
+    {
+      name: "save a stale version",
+      fixtures: ({ id }) => [[`productDrafts/${id}`, draft("someone", { version: 3 })]],
+      attempt: ({ db, id, uid }) =>
+        updateDoc(doc(db, "productDrafts", id), {
+          version: 3,
+          data: {},
+          updatedBy: uid,
+          updatedAt: serverTimestamp(),
+        }),
+      expected: never,
+    },
+    {
+      name: "move to another merchant",
+      fixtures: ({ id }) => [[`productDrafts/${id}`, draft("someone")]],
+      attempt: ({ db, id, uid }) =>
+        updateDoc(doc(db, "productDrafts", id), {
+          vendorId: OTHER_VENDOR_ID,
+          version: 1,
+          updatedBy: uid,
+          updatedAt: serverTimestamp(),
+        }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: ({ id }) => [[`productDrafts/${id}`, draft("someone")]],
+      attempt: ({ db, id }) => deleteDoc(doc(db, "productDrafts", id)),
+      expected: isOwner,
+    },
+  ],
+
+  merchantMedia: [
+    {
+      name: "get",
+      fixtures: ({ id }) => [[`merchantMedia/${id}`, media()]],
+      attempt: ({ db, id }) => getDoc(doc(db, "merchantMedia", id)),
+      expected: (p) => isOwner(p) || can(p, "merchants.review"),
+    },
+    {
+      name: "create",
+      attempt: ({ db, id }) => setDoc(doc(db, "merchantMedia", id), media()),
+      expected: never,
+    },
+    {
+      name: "mark attached",
+      fixtures: ({ id }) => [[`merchantMedia/${id}`, media()]],
+      attempt: ({ db, id }) => updateDoc(doc(db, "merchantMedia", id), { status: "attached" }),
+      expected: never,
+    },
+    {
+      name: "delete",
+      fixtures: ({ id }) => [[`merchantMedia/${id}`, media()]],
+      attempt: ({ db, id }) => deleteDoc(doc(db, "merchantMedia", id)),
+      expected: never,
+    },
+  ],
+
+  rateLimits: [
+    {
+      name: "get",
+      fixtures: ({ id }) => [[`rateLimits/${id}`, { count: 1 }]],
+      attempt: ({ db, id }) => getDoc(doc(db, "rateLimits", id)),
+      expected: never,
+    },
+    {
+      name: "reset",
+      fixtures: ({ id }) => [[`rateLimits/${id}`, { count: 5 }]],
+      attempt: ({ db, id }) => setDoc(doc(db, "rateLimits", id), { count: 0 }),
+      expected: never,
+    },
+  ],
+
   unlisted: [
     {
       name: "any unknown collection",
@@ -668,7 +1050,7 @@ function contextFor(persona: Persona) {
   }
   return env.authenticatedContext(persona.uid, {
     role: persona.role,
-    ...(persona.role === "vendor" ? { vendorId: VENDOR_ID } : {}),
+    ...(persona.vendorId ? { vendorId: persona.vendorId } : {}),
     firebase: { sign_in_provider: "password" },
   });
 }

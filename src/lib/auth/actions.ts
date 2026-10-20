@@ -22,8 +22,13 @@ export async function signInWithIdToken(input: unknown) {
     handler: async ({ idToken, next }) => {
       try {
         const session = await createSession(idToken);
-        // Staff land in the back office; customers go home until account pages exist (D-050).
-        const fallback = isStaffRole(session.role) ? "/admin" : "/";
+        // Staff land in the back office and merchants in their portal; customers go
+        // home until account pages exist (D-050).
+        const fallback = isStaffRole(session.role)
+          ? "/admin"
+          : session.role === "vendor"
+            ? "/merchant"
+            : "/";
         return { role: session.role, redirectTo: safeNextPath(next, fallback) };
       } catch (error) {
         if (error instanceof SessionError) throw new ActionError("unauthenticated", error.message);

@@ -43,7 +43,12 @@ export const ATTRIBUTE_LABELS: Record<string, string> = {
   style: "Style",
 };
 
-const FIT_LABELS: Record<string, string> = { regular: "Regular", petite: "Petite", tall: "Tall" };
+const FIT_LABELS: Record<string, string> = {
+  regular: "Regular",
+  petite: "Petite",
+  tall: "Tall",
+  plus: "Plus",
+};
 
 export interface ListingFilters {
   category: string[];

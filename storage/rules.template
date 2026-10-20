@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// Cloud Storage Security Rules for Texora.
+// Edit storage/rules.template, then run `npm run rules:generate`.
+//
+// Merchants upload raw files into their own temporary folder only. A Server
+// Action then checks the bytes (type, dimensions, SVG scripts, EXIF), writes
+// the processed file to a permanent path and deletes the upload. Processed
+// media is streamed by the app (D-064), so nothing here is publicly readable.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function role() {
+      return request.auth == null || request.auth.token.firebase.sign_in_provider == 'anonymous'
+        ? 'guest'
+        : request.auth.token.get('role', 'customer');
+    }
+
+    // Roles holding merchant.media.write (generated from src/lib/auth/rbac.ts).
+    function canUploadMedia() {
+      return role() in {{MEDIA_WRITE_ROLES}};
+    }
+
+    function isVendor(id) {
+      return request.auth != null && canUploadMedia() && request.auth.token.get('vendorId', '') == id;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|avif|svg[+]xml)');
+    }
+
+    function isVideo() {
+      return request.resource.contentType.matches('video/(mp4|webm)');
+    }
+
+    // Per-kind limits (logo 5 MB, banner 10 MB) are enforced by the server; these are the ceilings.
+    function withinSize() {
+      return request.resource.size > 0
+        && ((isImage() && request.resource.size <= 15 * 1024 * 1024)
+          || (isVideo() && request.resource.size <= 100 * 1024 * 1024));
+    }
+
+    // Write-once raw uploads, named by a client-generated UUID.
+    match /merchant-media/{vendorId}/{shopId}/tmp/{fileName} {
+      allow create: if isVendor(vendorId)
+        && resource == null
+        && fileName.matches('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        && withinSize();
+      allow delete: if isVendor(vendorId);
+      allow read, update: if false;
+    }
+
+    // Everything else, including processed media, is server-only.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

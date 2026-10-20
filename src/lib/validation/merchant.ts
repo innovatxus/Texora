@@ -1,0 +1,452 @@
+/**
+ * Merchant marketplace schemas: merchants, uniqueness locks, shops, locations,
+ * product drafts and media. Field rules and messages are shared by client forms
+ * and Server Actions; limits come from `src/config/merchant.ts`.
+ */
+import { z } from "zod";
+import {
+  isReservedName,
+  MERCHANT_LIMITS,
+  RETURN_WINDOWS,
+  SOCIAL_HANDLE_PATTERNS,
+  type LocationType,
+  type MediaKind,
+  type ProcessingTime,
+  type ReturnWindow,
+  type ShopAccent,
+  type ShopType,
+} from "@/config/merchant";
+import {
+  departmentSchema,
+  geoSchema,
+  hexColorSchema,
+  idSchema,
+  imageSchema,
+  timestampSchema,
+} from "./common";
+
+const { username: U, shop: S } = MERCHANT_LIMITS;
+
+// ---------------------------------------------------------------- fields
+
+/** A sign-in email: trimmed, lower-cased, RFC-valid. */
+export const merchantEmailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(z.email("Enter an email address like name@example.com").max(254));
+
+/** A merchant username, normalised to lower case. */
+export const usernameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(U.min, `Use ${U.min} to ${U.max} characters`)
+  .max(U.max, `Use ${U.min} to ${U.max} characters`)
+  .regex(/^[a-z0-9_.-]+$/, "Use lowercase letters, numbers, dots, dashes or underscores")
+  .regex(/^[a-z0-9](?:.*[a-z0-9])?$/, "Start and end with a letter or number")
+  .refine((value) => !isReservedName(value), "That name is reserved — try another");
+
+/** A shop's web address under `/shops/`. */
+export const shopSlugSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(S.slugMin, `Use ${S.slugMin}–${S.slugMax} lowercase letters, numbers and dashes`)
+  .max(S.slugMax, `Use ${S.slugMin}–${S.slugMax} lowercase letters, numbers and dashes`)
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    `Use ${S.slugMin}–${S.slugMax} lowercase letters, numbers and dashes`,
+  )
+  .refine((value) => !isReservedName(value), "That address is reserved");
+
+/** Turns a shop name into a suggested address: "Maison Rue & Co." → "maison-rue-co". */
+export function suggestShopSlug(name: string): string {
+  return name
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, S.slugMax)
+    .replace(/-+$/g, "");
+}
+
+/** An international phone number in E.164 form, e.g. +12125550123. */
+export const e164PhoneSchema = z
+  .string()
+  .trim()
+  .regex(/^\+[1-9]\d{6,14}$/, "Enter a phone number like 212 555 0123");
+
+/** A public website: a full https address. */
+export const websiteSchema = z
+  .string()
+  .trim()
+  .max(200)
+  .refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.hostname.includes(".");
+    } catch {
+      return false;
+    }
+  }, "Enter a full address starting with https://");
+
+const handle = (network: keyof typeof SOCIAL_HANDLE_PATTERNS) =>
+  z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/^@/, ""))
+    .pipe(z.string().regex(SOCIAL_HANDLE_PATTERNS[network], "Enter your handle without the @"));
+
+/** HH:MM, 24-hour. */
+const clockSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use a time like 09:30");
+
+// ---------------------------------------------------------------- merchants
+
+export const MERCHANT_STATUSES = ["onboarding", "active", "suspended", "closed"] as const;
+export const TRUST_LEVELS = ["standard", "trusted"] as const;
+
+/** A merchant account (`merchants/{vendorId}`); `vendorId` is the custom claim. */
+export const merchantSchema = z.object({
+  id: idSchema,
+  ownerUid: idSchema,
+  email: merchantEmailSchema,
+  username: usernameSchema,
+  displayName: z.string().trim().min(1).max(80),
+  status: z.enum(MERCHANT_STATUSES),
+  emailVerified: z.boolean(),
+  /** Trusted merchants publish without product review (admin-set only). */
+  trustLevel: z.enum(TRUST_LEVELS),
+  shopIds: z.array(idSchema).max(S.maxPerMerchant),
+  usernameChangedAt: timestampSchema.optional(),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+});
+export type Merchant = z.infer<typeof merchantSchema>;
+export type MerchantStatus = Merchant["status"];
+export type TrustLevel = Merchant["trustLevel"];
+
+/** `usernames/{username}`: the uniqueness lock, claimed in a transaction. */
+export const usernameLockSchema = z.object({
+  id: usernameSchema,
+  uid: idSchema,
+  vendorId: idSchema,
+  createdAt: timestampSchema,
+});
+export type UsernameLock = z.infer<typeof usernameLockSchema>;
+
+/** `shopSlugs/{slug}`: the uniqueness lock for shop addresses. */
+export const shopSlugLockSchema = z.object({
+  id: shopSlugSchema,
+  shopId: idSchema,
+  vendorId: idSchema,
+  createdAt: timestampSchema,
+});
+export type ShopSlugLock = z.infer<typeof shopSlugLockSchema>;
+
+// ---------------------------------------------------------------- shops
+
+export const SHOP_STATUSES = [
+  "draft",
+  "pending_review",
+  "changes_requested",
+  "approved",
+  "suspended",
+  "closed",
+] as const;
+export const shopStatusSchema = z.enum(SHOP_STATUSES);
+export type ShopStatus = z.infer<typeof shopStatusSchema>;
+
+export const ONBOARDING_STEPS = ["basics", "branding", "contact", "locations", "review"] as const;
+export const onboardingStepSchema = z.enum(ONBOARDING_STEPS);
+export type OnboardingStep = z.infer<typeof onboardingStepSchema>;
+
+/** A processed image owned by a merchant, with its placeholder and dominant colour. */
+export const merchantImageSchema = imageSchema.extend({
+  mediaId: idSchema,
+  blurDataURL: z.string().startsWith("data:image/").max(2000),
+  dominantColor: hexColorSchema,
+});
+export type MerchantImage = z.infer<typeof merchantImageSchema>;
+
+// Literal tuples keep exact types; merchant.test.ts checks they match the config lists.
+export const SHOP_TYPE_VALUES = [
+  "brand",
+  "boutique",
+  "designer",
+  "reseller",
+] as const satisfies readonly ShopType[];
+export const ACCENT_VALUES = [
+  "ink",
+  "moss",
+  "clay",
+  "harbour",
+  "plum",
+  "saffron",
+  "rose",
+  "slate",
+] as const satisfies readonly ShopAccent[];
+export const PROCESSING_TIME_VALUES = [
+  "1-2",
+  "3-5",
+  "5-10",
+] as const satisfies readonly ProcessingTime[];
+export const LOCATION_TYPE_VALUES = [
+  "retail",
+  "ship_from",
+] as const satisfies readonly LocationType[];
+
+const shopTypeSchema = z.enum(SHOP_TYPE_VALUES);
+const accentSchema = z.enum(ACCENT_VALUES);
+
+export const returnPolicySchema = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("platform") }),
+  z.object({
+    mode: z.literal("custom"),
+    windowDays: z
+      .number()
+      .int()
+      .refine((w): w is ReturnWindow => (RETURN_WINDOWS as readonly number[]).includes(w), {
+        message: "Choose a return window",
+      }),
+    notes: z.string().trim().max(S.returnNotesMax).optional(),
+  }),
+]);
+export type ReturnPolicy = z.infer<typeof returnPolicySchema>;
+
+export const shopContactSchema = z.object({
+  email: merchantEmailSchema,
+  phone: e164PhoneSchema.optional(),
+  website: websiteSchema.optional(),
+});
+
+export const shopSocialSchema = z.object({
+  instagram: handle("instagram").optional(),
+  tiktok: handle("tiktok").optional(),
+  facebook: handle("facebook").optional(),
+});
+
+export const shopShippingSchema = z.object({
+  shipsFromLocationId: idSchema.optional(),
+  processingTime: z.enum(PROCESSING_TIME_VALUES),
+});
+
+/** One review decision on a shop, shown to the merchant. */
+export const reviewNoteSchema = z.object({
+  at: timestampSchema,
+  byUid: idSchema,
+  decision: z.enum([
+    "submitted",
+    "approved",
+    "changes_requested",
+    "rejected",
+    "suspended",
+    "reinstated",
+  ]),
+  reasons: z.array(z.string().trim().min(1).max(500)).max(10),
+});
+export type ReviewNote = z.infer<typeof reviewNoteSchema>;
+
+/** Counters maintained in the same batch as each product write (no counting queries). */
+export const shopCountersSchema = z.object({
+  live: z.number().int().nonnegative(),
+  draft: z.number().int().nonnegative(),
+  inReview: z.number().int().nonnegative(),
+  changesRequested: z.number().int().nonnegative(),
+  lowStock: z.number().int().nonnegative(),
+});
+export type ShopCounters = z.infer<typeof shopCountersSchema>;
+
+export const EMPTY_SHOP_COUNTERS: ShopCounters = {
+  live: 0,
+  draft: 0,
+  inReview: 0,
+  changesRequested: 0,
+  lowStock: 0,
+};
+
+/** Shop basics, as entered in onboarding step 1 and shop settings. */
+export const shopBasicsSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(S.nameMin, `Use ${S.nameMin} to ${S.nameMax} characters`)
+    .max(S.nameMax, `Use ${S.nameMin} to ${S.nameMax} characters`),
+  slug: shopSlugSchema,
+  tagline: z.string().trim().max(S.taglineMax, `Keep it to ${S.taglineMax} characters`),
+  description: z.string().trim().max(S.descriptionMax, `Keep it to ${S.descriptionMax} characters`),
+  shopType: shopTypeSchema,
+  departments: z.array(departmentSchema).min(1, "Choose at least one department"),
+  categoryKeys: z.array(z.string().min(1).max(120)).min(1, "Choose at least one category").max(40),
+});
+export type ShopBasics = z.infer<typeof shopBasicsSchema>;
+
+/** A merchant's shop (`shops/{shopId}`). */
+export const shopSchema = shopBasicsSchema.extend({
+  id: idSchema,
+  vendorId: idSchema,
+  logo: merchantImageSchema.optional(),
+  banner: merchantImageSchema.optional(),
+  accent: accentSchema,
+  contact: shopContactSchema,
+  social: shopSocialSchema,
+  returnPolicy: returnPolicySchema,
+  shipping: shopShippingSchema,
+  status: shopStatusSchema,
+  /** Why the shop is suspended or what must change, as last decided. */
+  statusReason: z.string().max(1000).optional(),
+  reviewNotes: z.array(reviewNoteSchema).max(100),
+  onboardingStep: onboardingStepSchema,
+  /** Steps saved at least once, so the stepper can mark them done. */
+  completedSteps: z.array(onboardingStepSchema),
+  counters: shopCountersSchema,
+  submittedAt: timestampSchema.optional(),
+  approvedAt: timestampSchema.optional(),
+  closedAt: timestampSchema.optional(),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+});
+export type Shop = z.infer<typeof shopSchema>;
+
+// ---------------------------------------------------------------- locations
+
+const locationTypeSchema = z.enum(LOCATION_TYPE_VALUES);
+
+/** Weekly opening hours: entries per day (0 = Sunday), same shape as Texora stores (D-066). */
+export const weeklyHoursSchema = z.array(
+  z.object({ day: z.number().int().min(0).max(6), open: clockSchema, close: clockSchema }),
+);
+export type WeeklyHours = z.infer<typeof weeklyHoursSchema>;
+
+/** Problems with a week of hours, in shopper-facing words; empty when valid. */
+export function weeklyHoursProblems(hours: WeeklyHours): string[] {
+  const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const problems: string[] = [];
+  for (let day = 0; day < 7; day++) {
+    const ranges = hours.filter((h) => h.day === day).sort((a, b) => a.open.localeCompare(b.open));
+    const name = DAYS[day] ?? String(day);
+    if (ranges.length > MERCHANT_LIMITS.location.rangesPerDay) {
+      problems.push(`Use at most ${MERCHANT_LIMITS.location.rangesPerDay} time ranges on ${name}`);
+    }
+    for (const r of ranges) {
+      if (r.close <= r.open) problems.push(`Closing time must be after opening time on ${name}`);
+    }
+    for (let i = 1; i < ranges.length; i++) {
+      const prev = ranges[i - 1];
+      const cur = ranges[i];
+      if (prev && cur && cur.open < prev.close) problems.push(`Ranges on ${name} overlap`);
+    }
+  }
+  return [...new Set(problems)];
+}
+
+/** A one-off change to opening hours: a holiday closure or special times. */
+export const specialHoursSchema = z
+  .object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use a date like 2026-12-24"),
+    closed: z.boolean(),
+    open: clockSchema.optional(),
+    close: clockSchema.optional(),
+    note: z.string().trim().max(120).optional(),
+  })
+  .refine((s) => s.closed || (s.open && s.close && s.close > s.open), {
+    message: "Closing time must be after opening time",
+    path: ["close"],
+  });
+export type SpecialHours = z.infer<typeof specialHoursSchema>;
+
+/** A US street address for a merchant location. */
+export const locationAddressSchema = z.object({
+  line1: z.string().trim().min(1, "Enter a street address").max(120),
+  line2: z.string().trim().max(120).optional(),
+  city: z.string().trim().min(1, "Enter a city").max(80),
+  region: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/, "Choose a state"),
+  postalCode: z
+    .string()
+    .trim()
+    .regex(/^\d{5}(-\d{4})?$/, "Enter a 5-digit ZIP code"),
+  country: z.literal("US"),
+});
+export type LocationAddress = z.infer<typeof locationAddressSchema>;
+
+/** A shop location (`shops/{shopId}/locations/{locationId}`). No pickup (D-071). */
+export const merchantLocationSchema = z.object({
+  id: idSchema,
+  shopId: idSchema,
+  vendorId: idSchema,
+  name: z.string().trim().min(1, "Enter a name for this location").max(80),
+  types: z.array(locationTypeSchema).min(1, "Choose what this location is"),
+  address: locationAddressSchema,
+  /** Absent until a geocoder finds the address (D-068). */
+  geo: geoSchema.optional(),
+  timezone: z.string().min(1).max(64),
+  hours: weeklyHoursSchema,
+  specialHours: z.array(specialHoursSchema).max(MERCHANT_LIMITS.location.specialHoursMax),
+  phone: e164PhoneSchema.optional(),
+  isPrimary: z.boolean(),
+  sortOrder: z.number().int().nonnegative(),
+  status: z.enum(["active", "archived"]),
+  createdAt: timestampSchema,
+  updatedAt: timestampSchema,
+});
+export type MerchantLocation = z.infer<typeof merchantLocationSchema>;
+
+/** The `stockByLocation` key for a merchant location (namespaced, never collides). */
+export function merchantStockKey(shopId: string, locationId: string): string {
+  return `m_${shopId}_${locationId}`;
+}
+
+// ---------------------------------------------------------------- drafts & media
+
+/**
+ * Autosaved editor state (`productDrafts/{productId}`), so half-finished work
+ * never touches `products`. `data` is validated section by section when the
+ * draft is saved to the product.
+ */
+export const productDraftSchema = z.object({
+  id: idSchema,
+  vendorId: idSchema,
+  shopId: idSchema,
+  /** Increments on every save; stale autosaves are rejected. */
+  version: z.number().int().nonnegative(),
+  data: z.record(z.string(), z.unknown()),
+  updatedBy: idSchema,
+  updatedAt: timestampSchema,
+});
+export type ProductDraft = z.infer<typeof productDraftSchema>;
+
+export const MEDIA_KINDS = [
+  "logo",
+  "banner",
+  "productImage",
+  "productVideo",
+] as const satisfies readonly MediaKind[];
+
+/** An uploaded file (`merchantMedia/{mediaId}`) and what processing found. */
+export const merchantMediaSchema = z.object({
+  id: idSchema,
+  vendorId: idSchema,
+  shopId: idSchema,
+  ownerUid: idSchema,
+  kind: z.enum(MEDIA_KINDS),
+  /** Storage object path: the tmp path until processed, then the permanent one. */
+  path: z.string().min(1).max(400),
+  contentType: z.string().min(1).max(100),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+  durationSeconds: z.number().positive().optional(),
+  bytes: z.number().int().nonnegative(),
+  blurDataURL: z.string().startsWith("data:image/").max(2000).optional(),
+  dominantColor: hexColorSchema.optional(),
+  alt: z.string().max(200),
+  status: z.enum(["tmp", "attached", "orphaned"]),
+  createdAt: timestampSchema,
+  processedAt: timestampSchema.optional(),
+});
+export type MerchantMedia = z.infer<typeof merchantMediaSchema>;

@@ -362,8 +362,8 @@ Orders already group SKUs into `shipments` with carrier and tracking, which is p
 
 ## D-070 — Marketplace flag; no TOTP in this pass
 
-**Date:** 2026-10-20 · **Phase:** Merchant 0
-The existing `settings.features.vendorMarketplace` flag gates the merchant entry points: the footer column, registration, and the shop facet. TOTP two-factor needs Firebase Identity Platform, and the Auth emulator can't complete TOTP enrolment, so it can't be tested. It is recorded as a known limitation instead of shipping an untested setting.
+**Date:** 2026-10-20 · **Phase:** Merchant 0 (revised in Merchant 1)
+The footer column, `/merchants` and merchant help are static and always shown, so the storefront shell stays prerendered. The existing `settings.features.vendorMarketplace` flag (on in the seed) gates what creates new marketplace activity: registration and shop submission show "Merchant registration is paused" when it is off, and the shop facet hides. Existing merchants keep their portal. TOTP two-factor needs Firebase Identity Platform, and the Auth emulator can't complete TOTP enrolment, so it can't be tested. It is recorded as a known limitation instead of shipping an untested setting.
 
 ## D-071 — No pickup for merchants
 

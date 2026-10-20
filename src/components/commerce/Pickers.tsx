@@ -100,7 +100,12 @@ export function SwatchPicker({
   );
 }
 
-const FIT_LABELS: Record<string, string> = { regular: "Regular", petite: "Petite", tall: "Tall" };
+const FIT_LABELS: Record<string, string> = {
+  regular: "Regular",
+  petite: "Petite",
+  tall: "Tall",
+  plus: "Plus",
+};
 
 /** Regular / Petite / Tall fit selector as a radio group styled as tabs. */
 export function FitTabs({

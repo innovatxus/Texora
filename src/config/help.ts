@@ -5,8 +5,9 @@
  * (settings), the return window (lib/returns/policy) and loyalty tiers.
  */
 import { brand } from "./brand";
+import { MERCHANT_FEES, MERCHANT_LIMITS } from "./merchant";
 
-export type HelpGroup = "help" | "about" | "legal";
+export type HelpGroup = "help" | "about" | "legal" | "merchants";
 
 export interface HelpSection {
   heading?: string;
@@ -394,6 +395,136 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         paragraphs: [
           "We design and test this site to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA, including full keyboard support, screen-reader labels and sufficient colour contrast.",
           `If something doesn't work for you, tell us at ${brand.support.email} or ${brand.support.phone} and we'll help you complete your order and fix the problem.`,
+        ],
+      },
+    ],
+  },
+  {
+    slug: "merchants",
+    title: `Selling on ${brand.name}`,
+    summary: "How the merchant programme works, from registering to your first order.",
+    group: "merchants",
+    sections: [
+      {
+        paragraphs: [
+          `Merchants sell their own clothing on ${brand.name} from a shop page with their branding. Your products appear in our search, filters and category pages, and shoppers check out with us as usual.`,
+        ],
+      },
+      {
+        heading: "How it works",
+        list: [
+          "Register a merchant account with your email, a username and a password.",
+          "Build your shop: name and address, logo and banner, contact details, policies and locations.",
+          "Submit your shop for review. We usually reply within 1 business day.",
+          "Add products with colours, fits, sizes, prices, stock and photos. They go live once your shop is approved.",
+          "Ship orders from your own location and add the carrier and tracking number in your dashboard.",
+        ],
+      },
+      {
+        heading: "Fees",
+        paragraphs: [
+          `There are no monthly or listing fees. We take a ${MERCHANT_FEES.commissionPercent}% commission on each item sold. Payouts are arranged with our merchant team while self-serve payouts are being built.`,
+        ],
+      },
+    ],
+  },
+  {
+    slug: "merchants/getting-started",
+    title: "Setting up your shop",
+    summary: "What each onboarding step needs and how review works.",
+    group: "merchants",
+    sections: [
+      {
+        heading: "What you'll need",
+        list: [
+          `A square logo, at least ${MERCHANT_LIMITS.logo.minWidth}×${MERCHANT_LIMITS.logo.minHeight} px (PNG, JPG, WebP or SVG, up to 5 MB).`,
+          `A 3:1 banner, at least ${MERCHANT_LIMITS.banner.minWidth}×${MERCHANT_LIMITS.banner.minHeight} px (up to 10 MB).`,
+          "A public contact email, and optionally a phone number, website and social handles.",
+          "At least one ship-from location in the US. Retail stores can be listed too, with opening hours.",
+        ],
+      },
+      {
+        heading: "Review",
+        paragraphs: [
+          "You can save each step and come back on any device. When everything is ready, submit your shop from the review step. You need to verify your email first.",
+          "If we need changes, you'll see exactly what to fix on your dashboard and by email. Fix them and submit again.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "merchants/products",
+    title: "Listing products",
+    summary: "Options, variants, photos and what we check before a product goes live.",
+    group: "merchants",
+    sections: [
+      {
+        heading: "Options and variants",
+        paragraphs: [
+          "Add each colour you make, the fits (regular, petite, tall or plus) and the sizes. We build every combination for you; switch off the ones you don't make and set the price and stock for the rest.",
+        ],
+      },
+      {
+        heading: "Photos",
+        list: [
+          `1 to ${MERCHANT_LIMITS.productImage.maxPerColor} photos per colour, at least ${MERCHANT_LIMITS.productImage.minLongEdge} px on the long edge, in a 3:4 portrait crop.`,
+          "The first photo is the main image and the second shows on hover.",
+          "Every photo needs a short description (alt text) for shoppers using screen readers.",
+        ],
+      },
+      {
+        heading: "Before a product goes live",
+        list: [
+          "Your shop is approved and your email is verified.",
+          "At least one colour has a photo, and every photo has alt text.",
+          "Every variant you make has a price, and at least one has stock or allows backorder.",
+          "The category's required details, such as material, are filled in.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "merchants/orders",
+    title: "Orders and shipping",
+    summary: "Seeing your orders and marking them shipped.",
+    group: "merchants",
+    sections: [
+      {
+        paragraphs: [
+          "When a shopper buys your products, the order appears in your dashboard with only your items and the delivery address. Ship within the processing time you set, then add the carrier and tracking number. We email the customer for you.",
+          "Shoppers pay our standard delivery rates at checkout. Returns follow the policy shown on your products: ours (30 days) or your own.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "merchants/terms",
+    title: "Merchant terms",
+    summary: `The terms for selling on ${brand.name}.`,
+    group: "merchants",
+    sections: [
+      {
+        heading: "Eligibility",
+        paragraphs: [
+          "You must be a US business or sole trader with a US ship-from address, and be authorised to sell everything you list.",
+        ],
+      },
+      {
+        heading: "Listings",
+        paragraphs: [
+          "Listings must be accurate: real photos, correct sizing, materials and care, and prices you honour. We may decline, pause or remove listings that break these terms or our content standards.",
+        ],
+      },
+      {
+        heading: "Orders, returns and fees",
+        paragraphs: [
+          `You ship each order within your stated processing time and honour the return policy shown on your products. We charge a ${MERCHANT_FEES.commissionPercent}% commission on the item price of each sale, with no monthly or listing fees.`,
+        ],
+      },
+      {
+        heading: "Suspension and closing",
+        paragraphs: [
+          "We may suspend a shop that breaks these terms; we'll tell you why and how to resolve it. You can close your shop at any time and reopen it within 30 days.",
         ],
       },
     ],

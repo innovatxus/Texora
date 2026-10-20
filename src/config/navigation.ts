@@ -2,6 +2,7 @@
  * Site navigation. Structure mirrors the seeded category tree; in Phase 8 the
  * merchandising team edits this through the back office.
  */
+import { brand } from "./brand";
 
 export interface NavLink {
   label: string;
@@ -174,6 +175,14 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
       { label: "Texora SoHo", href: "/stores/soho" },
       { label: "Texora Austin", href: "/stores/austin" },
       { label: "Texora Chicago", href: "/stores/chicago" },
+    ],
+  },
+  {
+    title: "Merchants",
+    links: [
+      { label: `Sell on ${brand.name}`, href: "/merchants" },
+      { label: "Merchant sign in", href: "/merchant/sign-in" },
+      { label: "Merchant help", href: "/help/merchants" },
     ],
   },
   {

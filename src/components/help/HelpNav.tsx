@@ -6,6 +6,7 @@ const GROUPS: Array<{ group: HelpGroup; title: string }> = [
   { group: "help", title: "Help" },
   { group: "about", title: "About us" },
   { group: "legal", title: "Policies" },
+  { group: "merchants", title: "Merchants" },
 ];
 
 /** Topic navigation for the help centre, marking the current page. */

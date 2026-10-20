@@ -1,3 +1,4 @@
+import { PRODUCT_STATUS_LABELS, PRODUCT_STATUS_TONES } from "@/lib/catalog/product-status";
 import type { Metadata } from "next";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -106,12 +107,6 @@ async function Editor({ params }: PageProps<"/admin/catalog/[id]">) {
   if (!data) notFound();
   const { product, variants } = data;
   const directPricing = can("pricing.write");
-  const statusTone = {
-    draft: "neutral",
-    scheduled: "warning",
-    live: "success",
-    archived: "danger",
-  } as const;
 
   return (
     <div className="flex flex-col gap-6">
@@ -124,7 +119,9 @@ async function Editor({ params }: PageProps<"/admin/catalog/[id]">) {
         title={product.name}
         description={
           <span className="flex flex-wrap items-center gap-2">
-            <StatusPill tone={statusTone[product.status]}>{product.status}</StatusPill>
+            <StatusPill tone={PRODUCT_STATUS_TONES[product.status]}>
+              {PRODUCT_STATUS_LABELS[product.status]}
+            </StatusPill>
             <span className="font-mono text-xs">{product.id}</span> · updated{" "}
             {formatDateTime(product.updatedAt)}
           </span>

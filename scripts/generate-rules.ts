@@ -1,12 +1,14 @@
-// Generates firestore.rules from firestore/rules.template and the role bundles
-// in src/lib/auth/rbac.ts. Run `npm run rules:generate`; CI runs `--check`.
+// Generates firestore.rules and storage.rules from their templates and the role
+// bundles in src/lib/auth/rbac.ts. Run `npm run rules:generate`; CI runs `--check`.
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { PERMISSIONS, ROLE_PERMISSIONS, ROLES } from "../src/lib/auth/rbac";
+import { PERMISSIONS, ROLE_PERMISSIONS, ROLES, rolesWith } from "../src/lib/auth/rbac";
 
 const root = new URL("..", import.meta.url);
 const templatePath = fileURLToPath(new URL("firestore/rules.template", root));
 const outputPath = fileURLToPath(new URL("firestore.rules", root));
+const storageTemplatePath = fileURLToPath(new URL("storage/rules.template", root));
+const storageOutputPath = fileURLToPath(new URL("storage.rules", root));
 
 const template = readFileSync(templatePath, "utf8");
 
@@ -32,16 +34,33 @@ const header =
   "// GENERATED FILE: edit firestore/rules.template and run `npm run rules:generate`.\n";
 const output = header + template.replace("{{ROLE_PERMISSIONS}}", map);
 
+const storageHeader =
+  "// GENERATED FILE: edit storage/rules.template and run `npm run rules:generate`.\n";
+const mediaRoles = `[${rolesWith("merchant.media.write")
+  .map((r) => `'${r}'`)
+  .join(", ")}]`;
+const storageOutput =
+  storageHeader +
+  readFileSync(storageTemplatePath, "utf8").replace("{{MEDIA_WRITE_ROLES}}", mediaRoles);
+
+const outputs: Array<[path: string, name: string, content: string]> = [
+  [outputPath, "firestore.rules", output],
+  [storageOutputPath, "storage.rules", storageOutput],
+];
+
 if (process.argv.includes("--check")) {
-  const current = readFileSync(outputPath, "utf8");
-  if (current !== output) {
-    console.error("firestore.rules is out of date. Run `npm run rules:generate`.");
-    process.exit(1);
+  let stale = false;
+  for (const [path, name, content] of outputs) {
+    if (readFileSync(path, "utf8") !== content) {
+      console.error(`${name} is out of date. Run \`npm run rules:generate\`.`);
+      stale = true;
+    }
   }
-  console.log("firestore.rules is up to date.");
+  if (stale) process.exit(1);
+  console.log("firestore.rules and storage.rules are up to date.");
 } else {
-  writeFileSync(outputPath, output);
+  for (const [path, , content] of outputs) writeFileSync(path, content);
   console.log(
-    `Wrote firestore.rules (${ROLES.length} roles, ${new Set(referenced).size} permissions referenced).`,
+    `Wrote firestore.rules (${ROLES.length} roles, ${new Set(referenced).size} permissions referenced) and storage.rules.`,
   );
 }

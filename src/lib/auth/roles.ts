@@ -1,7 +1,7 @@
 import "server-only";
 import { writeAuditLog } from "@/lib/audit/log";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
-import { canAssignRole, isRole, type Role } from "./rbac";
+import { canAssignRole, canSystemGrant, isRole, type Role } from "./rbac";
 import type { Session } from "./session";
 
 /** Thrown when a role change is refused, with the reason. */
@@ -88,5 +88,38 @@ export async function assignRole(
     target: { type: "user", id: targetUid },
     before: { role: targetCurrentRole },
     after: { role: nextRole, ...(claims.vendorId ? { vendorId: claims.vendorId } : {}) },
+  });
+}
+
+/**
+ * Makes a shopper a merchant when they register a shop (D-061). There is no
+ * admin actor, so the policy is `canSystemGrant`: only customer or rewards
+ * member → vendor. Sets the claims, mirrors them on the profile, revokes old
+ * sessions (the caller mints a fresh one) and audits the change as the user's own.
+ */
+export async function grantMerchantRole(targetUid: string, vendorId: string): Promise<void> {
+  const { auth, db } = getFirebaseAdmin();
+  const target = await auth.getUser(targetUid);
+  const currentClaim = target.customClaims?.role;
+  const currentRole: Role = isRole(currentClaim) ? currentClaim : "customer";
+
+  if (currentRole === "vendor" && target.customClaims?.vendorId === vendorId) return;
+  if (!canSystemGrant(currentRole, "vendor")) {
+    throw new RoleAssignmentError("protected_target", "This account can't become a merchant");
+  }
+
+  await auth.setCustomUserClaims(targetUid, { role: "vendor", vendorId });
+  await db
+    .collection("users")
+    .doc(targetUid)
+    .set({ role: "vendor", vendorId, updatedAt: new Date() }, { merge: true });
+  await auth.revokeRefreshTokens(targetUid);
+
+  await writeAuditLog({
+    actor: { uid: targetUid, role: currentRole, email: target.email ?? null },
+    action: "merchants.register",
+    target: { type: "user", id: targetUid },
+    before: { role: currentRole },
+    after: { role: "vendor", vendorId },
   });
 }

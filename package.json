@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-texora-rules \"vitest run -c vitest.rules.config.mts\"",
+    "test:rules": "firebase emulators:exec --only firestore,storage --project demo-texora-rules \"vitest run -c vitest.rules.config.mts\"",
     "test:integration": "firebase emulators:exec --only firestore,auth --project demo-texora-it \"vitest run -c vitest.integration.config.mts\"",
     "e2e": "playwright test",
     "e2e:visual": "playwright test --grep @visual",

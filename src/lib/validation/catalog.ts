@@ -8,6 +8,7 @@ import {
   imageSchema,
   moneySchema,
   publishStatusSchema,
+  PUBLISH_STATUSES,
   seoSchema,
   sizeTypeSchema,
   slugSchema,
@@ -53,6 +54,24 @@ export const priceRangeSchema = z
   .refine((r) => r.min <= r.max, { message: "min must be ≤ max", path: ["max"] });
 export type PriceRange = z.infer<typeof priceRangeSchema>;
 
+/**
+ * Product lifecycle: the shared publish states plus the merchant review states
+ * (D-067). Only `live` products are ever shown to shoppers.
+ */
+export const PRODUCT_STATUSES = [...PUBLISH_STATUSES, "in_review", "changes_requested"] as const;
+/** One product status. */
+export const productStatusSchema = z.enum(PRODUCT_STATUSES);
+export type ProductStatus = z.infer<typeof productStatusSchema>;
+
+/** Shop display fields copied onto merchant products, so cards and PDPs need no extra read. */
+export const productShopSchema = z.object({
+  id: idSchema,
+  slug: slugSchema,
+  name: z.string().min(1).max(60),
+  logo: imageSchema.optional(),
+});
+export type ProductShop = z.infer<typeof productShopSchema>;
+
 /** A product (style): content, categories, fits, colours, prices and status. */
 export const productSchema = z.object({
   id: idSchema,
@@ -83,11 +102,14 @@ export const productSchema = z.object({
   }),
   completeTheLook: z.array(idSchema).max(8),
   salesRank: z.number().int().nonnegative(),
-  status: publishStatusSchema,
+  status: productStatusSchema,
   publishAt: timestampSchema.optional(),
   seo: seoSchema,
   searchKeywords: z.array(z.string().max(60)),
   vendorId: idSchema.optional(),
+  /** The merchant shop selling this product; absent for Texora's own catalog. */
+  shopId: idSchema.optional(),
+  shop: productShopSchema.optional(),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
 });
@@ -117,6 +139,7 @@ export const variantSchema = z.object({
   backorder: z.boolean(),
   lowStockThreshold: z.number().int().nonnegative(),
   vendorId: idSchema.optional(),
+  shopId: idSchema.optional(),
   updatedAt: timestampSchema,
 });
 export type Variant = z.infer<typeof variantSchema>;

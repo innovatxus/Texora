@@ -30,6 +30,22 @@ Requirement: 4.5:1 for normal text (SC 1.4.3), 3:1 for non-text UI such as focus
 | `focus` #2b5cd6 | `surface` #ffffff | Focus ring on cards (non-text) | 5.83:1 | 3:1 | Pass |
 | `line-strong` #1a1a1a | `canvas` #faf8f5 | Selected swatch/size outline | 16.42:1 | 3:1 | Pass |
 | `ink-subtle` #6e6963 | `canvas` #faf8f5 | Input border alternative (non-text) | 5.13:1 | 3:1 | Pass |
+| `shop-ink` #1f2a44 | `canvas` #faf8f5 | Shop accent (ink) as text on page | 13.45:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-ink` #1f2a44 | Button label on shop accent (ink) | 14.26:1 | 4.5:1 | Pass |
+| `shop-moss` #3d5a3a | `canvas` #faf8f5 | Shop accent (moss) as text on page | 7.28:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-moss` #3d5a3a | Button label on shop accent (moss) | 7.71:1 | 4.5:1 | Pass |
+| `shop-clay` #94472a | `canvas` #faf8f5 | Shop accent (clay) as text on page | 6.20:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-clay` #94472a | Button label on shop accent (clay) | 6.58:1 | 4.5:1 | Pass |
+| `shop-harbour` #1d566a | `canvas` #faf8f5 | Shop accent (harbour) as text on page | 7.64:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-harbour` #1d566a | Button label on shop accent (harbour) | 8.10:1 | 4.5:1 | Pass |
+| `shop-plum` #5e3a5c | `canvas` #faf8f5 | Shop accent (plum) as text on page | 8.86:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-plum` #5e3a5c | Button label on shop accent (plum) | 9.39:1 | 4.5:1 | Pass |
+| `shop-saffron` #7f5400 | `canvas` #faf8f5 | Shop accent (saffron) as text on page | 6.25:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-saffron` #7f5400 | Button label on shop accent (saffron) | 6.62:1 | 4.5:1 | Pass |
+| `shop-rose` #9b3656 | `canvas` #faf8f5 | Shop accent (rose) as text on page | 6.48:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-rose` #9b3656 | Button label on shop accent (rose) | 6.87:1 | 4.5:1 | Pass |
+| `shop-slate` #45505b | `canvas` #faf8f5 | Shop accent (slate) as text on page | 7.76:1 | 4.5:1 | Pass |
+| `surface` #ffffff | `shop-slate` #45505b | Button label on shop accent (slate) | 8.23:1 | 4.5:1 | Pass |
 
 ## Rules that follow from this table
 

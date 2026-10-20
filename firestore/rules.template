@@ -69,21 +69,25 @@ service cloud.firestore {
         || can('catalog.publish');
     }
 
-    function vendorOwnsIncoming() {
-      return can('vendor.catalog.write')
-        && vendorId() != ''
-        && incoming().get('vendorId', '') == vendorId()
-        && (resource == null || resource.data.get('vendorId', '') == vendorId());
+    // A merchant acting on its own data: the vendor permission plus a matching vendorId claim.
+    function isVendor(id) {
+      return can('vendor.catalog.write') && vendorId() != '' && id == vendorId();
+    }
+
+    function ownsShop(shopId) {
+      return isVendor(get(/databases/$(database)/documents/shops/$(shopId)).data.vendorId);
     }
 
     // -------------------------------------------------------------- catalog
 
     match /products/{productId} {
       allow get, list: if isLive() || can('catalog.read_drafts')
-        || (can('vendor.catalog.write') && vendorId() != '' && resource.data.get('vendorId', '') == vendorId());
-      allow create: if (can('catalog.write') || vendorOwnsIncoming()) && publishAllowed();
+        || isVendor(resource.data.get('vendorId', ''));
+      // Merchant products are written only by Server Actions, which validate,
+      // denormalise the shop and maintain counters (D-062).
+      allow create: if can('catalog.write') && publishAllowed();
       // Display prices are denormalised from variants; only pricing may change them.
-      allow update: if (can('catalog.write') || vendorOwnsIncoming())
+      allow update: if can('catalog.write')
         && publishAllowed()
         && (!changedKeys().hasAny(['priceRange']) || can('pricing.write'));
       allow delete: if can('catalog.write');
@@ -91,13 +95,13 @@ service cloud.firestore {
 
     match /variants/{sku} {
       allow get, list: if true;
-      allow create: if can('catalog.write') || vendorOwnsIncoming();
+      allow create: if can('catalog.write');
       allow update: if
         (changedKeys().hasOnly(['stockByLocation', 'availableOnline', 'backorder', 'lowStockThreshold', 'updatedAt'])
           && can('inventory.write'))
         || (changedKeys().hasOnly(['price', 'compareAtPrice', 'updatedAt']) && can('pricing.write'))
         || (!changedKeys().hasAny(['price', 'compareAtPrice', 'stockByLocation'])
-          && (can('catalog.write') || vendorOwnsIncoming()));
+          && can('catalog.write'));
       allow delete: if can('catalog.write');
     }
 
@@ -239,6 +243,70 @@ service cloud.firestore {
         && !('sentAt' in incoming());
       allow delete: if isUser(resource.data.get('userId', ''));
       allow update: if false;
+    }
+
+    // ------------------------------------------------------------ merchants
+    //
+    // Merchant accounts, shops and locations change only through Server
+    // Actions (status, trust level, counters and slugs are server-owned, D-062).
+    // Merchants may write only their own product drafts.
+
+    match /merchants/{merchantId} {
+      allow get: if isVendor(merchantId) || can('merchants.review');
+      allow list: if can('merchants.review');
+      allow create, update, delete: if false;
+    }
+
+    // Uniqueness locks, claimed in server transactions; availability is a Server Action.
+    match /usernames/{username} {
+      allow get, list, create, update, delete: if false;
+    }
+
+    match /shopSlugs/{slug} {
+      allow get, list, create, update, delete: if false;
+    }
+
+    match /shops/{shopId} {
+      allow get, list: if resource.data.status == 'approved'
+        || isVendor(resource.data.vendorId)
+        || can('merchants.review');
+      allow create, update, delete: if false;
+
+      // Shoppers see a shop's active locations once the shop is approved.
+      match /locations/{locationId} {
+        allow get, list: if (resource.data.status == 'active'
+            && get(/databases/$(database)/documents/shops/$(shopId)).data.status == 'approved')
+          || isVendor(resource.data.vendorId)
+          || can('merchants.review');
+        allow create, update, delete: if false;
+      }
+    }
+
+    match /productDrafts/{productId} {
+      allow get, list: if isVendor(resource.data.vendorId);
+      allow create: if isVendor(incoming().vendorId)
+        && ownsShop(incoming().shopId)
+        && incoming().keys().hasOnly(['vendorId', 'shopId', 'version', 'data', 'updatedBy', 'updatedAt'])
+        && incoming().version == 0
+        && incoming().updatedBy == request.auth.uid
+        && incoming().updatedAt == request.time;
+      // Each save bumps the version, so a stale tab can't overwrite newer work.
+      allow update: if isVendor(resource.data.vendorId)
+        && changedKeys().hasOnly(['version', 'data', 'updatedBy', 'updatedAt'])
+        && incoming().version == resource.data.version + 1
+        && incoming().updatedBy == request.auth.uid
+        && incoming().updatedAt == request.time;
+      allow delete: if isVendor(resource.data.vendorId);
+    }
+
+    // Created and updated by the media pipeline after server-side validation.
+    match /merchantMedia/{mediaId} {
+      allow get, list: if isVendor(resource.data.vendorId) || can('merchants.review');
+      allow create, update, delete: if false;
+    }
+
+    match /rateLimits/{limitId} {
+      allow get, list, create, update, delete: if false;
     }
 
     // ------------------------------------------------------- administration

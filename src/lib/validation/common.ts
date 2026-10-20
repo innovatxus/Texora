@@ -31,13 +31,20 @@ export const departmentSchema = z.enum(DEPARTMENTS);
 export type Department = z.infer<typeof departmentSchema>;
 
 /** Fit families a style can be cut in. */
-export const FIT_FAMILIES = ["regular", "petite", "tall"] as const;
+export const FIT_FAMILIES = ["regular", "petite", "tall", "plus"] as const;
 /** One fit family. */
 export const fitFamilySchema = z.enum(FIT_FAMILIES);
 export type FitFamily = z.infer<typeof fitFamilySchema>;
+/** Shopper-facing fit names. */
+export const FIT_LABELS: Readonly<Record<FitFamily, string>> = {
+  regular: "Regular",
+  petite: "Petite",
+  tall: "Tall",
+  plus: "Plus",
+};
 
 /** How a product is sized. */
-export const SIZE_TYPES = ["alpha", "numeric", "waist_inseam", "shoe"] as const;
+export const SIZE_TYPES = ["alpha", "numeric", "waist_inseam", "shoe", "one_size"] as const;
 /** One size type. */
 export const sizeTypeSchema = z.enum(SIZE_TYPES);
 export type SizeType = z.infer<typeof sizeTypeSchema>;

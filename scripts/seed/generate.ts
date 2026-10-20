@@ -839,7 +839,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
       birthdayRewardPoints: 500,
     },
     features: {
-      vendorMarketplace: false,
+      vendorMarketplace: true,
       quickView: false,
       cashOnDelivery: true,
       expressPay: false,

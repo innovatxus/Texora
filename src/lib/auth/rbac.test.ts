@@ -1,6 +1,8 @@
 import {
   canAssignRole,
+  canSystemGrant,
   hasPermission,
+  isStaffRole,
   PERMISSIONS,
   permissionsFor,
   requiredPermissionForPath,
@@ -22,7 +24,13 @@ describe("role bundles", () => {
   it("grant every permission to super_admin", () => {
     expect([...permissionsFor("super_admin")].sort()).toEqual(
       [...PERMISSIONS]
-        .filter((p) => !p.startsWith("vendor.") && p !== "loyalty.earn" && p !== "loyalty.redeem")
+        .filter(
+          (p) =>
+            !p.startsWith("vendor.") &&
+            !p.startsWith("merchant.") &&
+            p !== "loyalty.earn" &&
+            p !== "loyalty.redeem",
+        )
         .sort(),
     );
   });
@@ -48,6 +56,17 @@ describe("role bundles", () => {
     // Vendor scope stays separate from the store catalog.
     expect(hasPermission("vendor", "catalog.write")).toBe(false);
     expect(hasPermission("admin", "vendor.catalog.write")).toBe(false);
+
+    // Merchants run their own shop but never enter the back office (D-060).
+    expect(hasPermission("vendor", "admin.access")).toBe(false);
+    expect(hasPermission("vendor", "merchant.shop.write")).toBe(true);
+    expect(hasPermission("vendor", "merchants.review")).toBe(false);
+    expect(rolesWith("merchants.manage")).toEqual(["admin", "super_admin"]);
+    expect(rolesWith("merchants.review")).toEqual(["merchandiser", "admin", "super_admin"]);
+  });
+
+  it("let merchants shop like customers", () => {
+    expect(permissionsFor("customer").every((p) => hasPermission("vendor", p))).toBe(true);
   });
 
   it("layer guest < customer < loyalty member", () => {
@@ -65,12 +84,13 @@ describe("role bundles", () => {
       "pricing_manager",
       "inventory_manager",
       "fulfillment",
-      "vendor",
       "admin",
       "super_admin",
     ] as const) {
       expect(hasPermission(role, "admin.access")).toBe(true);
+      expect(isStaffRole(role)).toBe(true);
     }
+    expect(isStaffRole("vendor")).toBe(false);
     expect(hasPermission("loyalty_member", "admin.access")).toBe(false);
   });
 });
@@ -127,6 +147,17 @@ describe("canAssignRole", () => {
   });
 });
 
+describe("canSystemGrant", () => {
+  it("only turns shoppers into merchants", () => {
+    expect(canSystemGrant("customer", "vendor")).toBe(true);
+    expect(canSystemGrant("loyalty_member", "vendor")).toBe(true);
+    expect(canSystemGrant("customer", "admin")).toBe(false);
+    expect(canSystemGrant("merchandiser", "vendor")).toBe(false);
+    expect(canSystemGrant("admin", "vendor")).toBe(false);
+    expect(canSystemGrant("vendor", "vendor")).toBe(false);
+  });
+});
+
 describe("requiredPermissionForPath", () => {
   it.each([
     ["/", null],
@@ -138,6 +169,15 @@ describe("requiredPermissionForPath", () => {
     ["/admin/audit", "audit.read"],
     ["/administrator", null],
     ["/accounting", null],
+    ["/admin/merchants", "merchants.review"],
+    ["/merchant", "vendor.catalog.write"],
+    ["/merchant/products/p1", "vendor.catalog.write"],
+    ["/merchant/register", null],
+    ["/merchant/sign-in", null],
+    ["/merchant/reset-password", null],
+    ["/merchant/verify-email", null],
+    ["/merchants", null],
+    ["/merchant/registered", "vendor.catalog.write"],
   ])("%s → %s", (path, expected) => {
     expect(requiredPermissionForPath(path)).toBe(expected);
   });

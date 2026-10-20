@@ -61,10 +61,17 @@ export const PERMISSIONS = [
   "fulfillment.write",
   "returns.receive",
 
-  // Marketplace (feature-flagged)
+  // Marketplace merchants (internal role name: vendor)
   "vendor.catalog.write",
   "vendor.orders.read",
   "vendor.payouts.read",
+  "merchant.shop.write",
+  "merchant.locations.write",
+  "merchant.media.write",
+
+  // Marketplace oversight (back office)
+  "merchants.review",
+  "merchants.manage",
 
   // Administration
   "reports.read",
@@ -98,14 +105,13 @@ export const ROLES = [
 
 export type Role = (typeof ROLES)[number];
 
-/** Roles that work in the back office. */
+/** Roles that work in the back office. Merchants (`vendor`) are not staff (D-060). */
 export const STAFF_ROLES = [
   "customer_service",
   "merchandiser",
   "pricing_manager",
   "inventory_manager",
   "fulfillment",
-  "vendor",
   "admin",
   "super_admin",
 ] as const satisfies readonly Role[];
@@ -151,6 +157,7 @@ const MERCHANDISER: readonly Permission[] = [
   "content.write",
   "reviews.moderate",
   "inventory.read",
+  "merchants.review",
 ];
 
 const PRICING_MANAGER: readonly Permission[] = [
@@ -178,11 +185,15 @@ const FULFILLMENT: readonly Permission[] = [
   "inventory.read",
 ];
 
+/** Merchants shop like customers and run their own shop; no back-office access (D-060). */
 const VENDOR: readonly Permission[] = [
-  ...STAFF_BASE,
+  ...CUSTOMER,
   "vendor.catalog.write",
   "vendor.orders.read",
   "vendor.payouts.read",
+  "merchant.shop.write",
+  "merchant.locations.write",
+  "merchant.media.write",
 ];
 
 const ADMIN: readonly Permission[] = [
@@ -201,6 +212,7 @@ const ADMIN: readonly Permission[] = [
     "users.assign_role",
     "users.revoke_sessions",
     "audit.read",
+    "merchants.manage",
   ] as const),
 ];
 
@@ -233,7 +245,7 @@ export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   pricing_manager: "Pricing manager",
   inventory_manager: "Inventory manager",
   fulfillment: "Fulfilment",
-  vendor: "Vendor",
+  vendor: "Merchant",
   admin: "Admin",
   super_admin: "Super admin",
 };
@@ -310,6 +322,26 @@ export function canAssignRole(change: RoleChange): RoleChangeDecision {
   return { allowed: true };
 }
 
+/**
+ * Merchant pages anyone may open: signing up, signing in and account recovery.
+ * Everything else under `/merchant` needs the merchant role.
+ */
+export const MERCHANT_PUBLIC_PATHS = [
+  "/merchant/register",
+  "/merchant/sign-in",
+  "/merchant/forgot-password",
+  "/merchant/reset-password",
+  "/merchant/verify-email",
+] as const;
+
+/**
+ * The only role change server code may make without a signed-in admin:
+ * a shopper becoming a merchant when they register a shop (D-061).
+ */
+export function canSystemGrant(currentRole: Role, nextRole: Role): boolean {
+  return nextRole === "vendor" && (currentRole === "customer" || currentRole === "loyalty_member");
+}
+
 /** Route prefixes and the permission each requires. Longest prefix wins. */
 export const ROUTE_PERMISSIONS: ReadonlyArray<{ prefix: string; permission: Permission }> = [
   { prefix: "/account", permission: "account.manage" },
@@ -325,11 +357,12 @@ export const ROUTE_PERMISSIONS: ReadonlyArray<{ prefix: string; permission: Perm
   { prefix: "/admin/promotions", permission: "promotions.write" },
   { prefix: "/admin/inventory", permission: "inventory.read" },
   { prefix: "/admin/fulfillment", permission: "fulfillment.write" },
-  { prefix: "/admin/vendor", permission: "vendor.catalog.write" },
+  { prefix: "/admin/merchants", permission: "merchants.review" },
   { prefix: "/admin/reports", permission: "reports.read" },
   { prefix: "/admin/users", permission: "users.read" },
   { prefix: "/admin/settings", permission: "settings.read" },
   { prefix: "/admin/audit", permission: "audit.read" },
+  { prefix: "/merchant", permission: "vendor.catalog.write" },
 ];
 
 function matchesPrefix(pathname: string, prefix: string): boolean {
@@ -338,6 +371,7 @@ function matchesPrefix(pathname: string, prefix: string): boolean {
 
 /** The permission a path requires, or null for public routes. */
 export function requiredPermissionForPath(pathname: string): Permission | null {
+  if (MERCHANT_PUBLIC_PATHS.some((prefix) => matchesPrefix(pathname, prefix))) return null;
   let best: { prefix: string; permission: Permission } | null = null;
   for (const rule of ROUTE_PERMISSIONS) {
     if (

@@ -18,14 +18,15 @@ type Params = PageProps<"/help/[[...slug]]">["params"];
 async function resolve(params: Params): Promise<{ topic: HelpTopic | null } | null> {
   const { slug } = await params;
   if (!slug || slug.length === 0) return { topic: null };
-  if (slug.length > 1) return null;
-  const topic = getHelpTopic(slug[0] ?? "");
+  // Topics can nest one level, e.g. merchants/terms.
+  if (slug.length > 2) return null;
+  const topic = getHelpTopic(slug.join("/"));
   return topic ? { topic } : null;
 }
 
 /** Prerenders the help centre home and every topic. */
 export function generateStaticParams() {
-  return [{ slug: [] }, ...HELP_TOPICS.map((t) => ({ slug: [t.slug] }))];
+  return [{ slug: [] }, ...HELP_TOPICS.map((t) => ({ slug: t.slug.split("/") }))];
 }
 
 /** Title, description and canonical URL for the help home or a topic. */

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ACCESS_DENIED_PATH, decideAccess, SIGN_IN_PATH } from "@/lib/auth/access";
+import { ACCESS_DENIED_PATH, decideAccess, signInPathFor } from "@/lib/auth/access";
 import { requiredPermissionForPath } from "@/lib/auth/rbac";
 import { SESSION_COOKIE, verifySessionCookie } from "@/lib/auth/session";
 import { isKnownPath } from "@/config/routes";
@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
   const decision = decideAccess(pathname, search, session?.role ?? null);
 
   if (decision.type === "sign_in") {
-    const url = new URL(SIGN_IN_PATH, request.url);
+    const url = new URL(signInPathFor(pathname), request.url);
     url.searchParams.set("next", decision.next);
     const response = NextResponse.redirect(url);
     if (cookie && !session) response.cookies.delete(SESSION_COOKIE);

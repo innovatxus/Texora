@@ -1,4 +1,4 @@
-import { decideAccess, safeNextPath } from "./access";
+import { decideAccess, safeNextPath, signInPathFor } from "./access";
 
 describe("decideAccess", () => {
   it("allows public routes for everyone", () => {
@@ -24,6 +24,27 @@ describe("decideAccess", () => {
     expect(decideAccess("/admin/catalog/p1", "", "merchandiser")).toEqual({ type: "allow" });
     expect(decideAccess("/admin/orders", "", "fulfillment")).toEqual({ type: "allow" });
     expect(decideAccess("/admin/audit", "", "admin")).toEqual({ type: "allow" });
+  });
+});
+
+describe("merchant routes", () => {
+  it("keeps the sign-up and recovery pages public", () => {
+    expect(decideAccess("/merchant/register", "", null)).toEqual({ type: "allow" });
+    expect(decideAccess("/merchant/sign-in", "", null)).toEqual({ type: "allow" });
+  });
+
+  it("lets merchants in and keeps everyone else out", () => {
+    expect(decideAccess("/merchant", "", "vendor")).toEqual({ type: "allow" });
+    expect(decideAccess("/merchant/products", "", "customer")).toEqual({ type: "deny" });
+    expect(decideAccess("/merchant/products", "", "admin")).toEqual({ type: "deny" });
+    expect(decideAccess("/admin", "", "vendor")).toEqual({ type: "deny" });
+  });
+
+  it("sends signed-out merchants to the merchant sign-in page", () => {
+    expect(signInPathFor("/merchant/products")).toBe("/merchant/sign-in");
+    expect(signInPathFor("/merchant")).toBe("/merchant/sign-in");
+    expect(signInPathFor("/merchants")).toBe("/auth/signin");
+    expect(signInPathFor("/admin")).toBe("/auth/signin");
   });
 });
 
