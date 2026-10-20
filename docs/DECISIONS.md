@@ -309,3 +309,63 @@ Products (about 130), variants (a few thousand), users and categories are read i
 
 **Date:** 2026-10-20 · **Phase:** 8
 Two production-only issues surfaced once the back office was tested against a build. First, the proxy's rewrite to `/access-denied` with `status: 403` was served as 200, because the prerendered target page set its own status; the page now calls `forbidden()`, which renders `forbidden.tsx` with a real 403 (and Next.js adds `noindex`). Second, a signed-in visitor's prefetch of a static page prerendered the member-targeted CMS modules, and verifying the session cookie read the clock during that pass. `getSession()` (and `createSession()`) now call `connection()`, so any session read is request-time by definition and every caller is covered.
+
+## D-060 — Merchants are not back-office staff
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+The `vendor` role (shown as "Merchant") inherited `admin.access` and was listed as staff, so a merchant could open `/admin`. It now gets customer permissions plus the vendor and merchant permissions, leaves `STAFF_ROLES`, and lands in `/merchant` after sign-in. The internal name stays `vendor`.
+
+## D-061 — A system actor grants the merchant role at registration
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+`assignRole` checks that the actor may assign roles, and a self-registering merchant has no such actor. Server code uses a fixed system actor that the policy allows for exactly one change, `customer → vendor` with a `vendorId`, so registration still goes through `assignRole` (claim, profile mirror, session revocation, audit log) without widening anyone's rights.
+
+## D-062 — Merchant catalog writes go through Server Actions only
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+The rules let vendors write their own products and variants directly, which would skip publish validation, shop denormalisation and counters. Vendors keep read access to their own documents, but every product, variant, shop and location write happens in a Server Action with the Admin SDK. The only client-writable merchant data is the merchant's own `productDrafts` and temporary uploads.
+
+## D-063 — Rate limiting with Firestore fixed windows
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+There was no rate limiter. `src/lib/security/rate-limit.ts` counts attempts per action and key (hashed IP, email or uid) in fixed windows stored in Firestore, inside a transaction, with documents that expire by TTL. That works across server instances without new infrastructure. Phase 9 hardening can swap the store for Redis behind the same interface.
+
+## D-064 — Merchant media is served through the app
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Next 16 won't optimise images from local IPs, which includes the Storage emulator, and a public bucket would expose unprocessed uploads. Processed files are streamed from Storage by an app route under `/media/m/` with immutable caching, and `next/image` treats them as local images (`localPatterns`). The bucket stays private, and production and development behave the same.
+
+## D-065 — Merchant stock sells as the online total
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Checkout, reservations and listings count `stockByLocation.online`. Merchant stock is kept per location (`m_{shopId}_{locationId}`), and every write also sets `online` to the sum over the merchant's active ship-from locations. The storefront's stock logic is unchanged, and per-location stock is still recorded for merchant reporting.
+
+## D-066 — Merchant locations reuse the store hours logic
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Merchant locations have their own collection (`shops/{id}/locations`) so they never mix with Texora's stores. Their weekly hours use the same shape as `storeSchema.hours`, so `openStatus` and `weeklyHours` in `src/lib/stores/hours.ts` serve both, extended for special-hours dates.
+
+## D-067 — Products get their own status enum
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Review states (`in_review`, `changes_requested`) apply only to products. `productStatusSchema` extends the shared publish statuses with them. Pages, categories and collections keep `draft / scheduled / live / archived`. Storefront queries already filter on `live`, so nothing public changes.
+
+## D-068 — Pluggable geocoding
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Address autocomplete and geocoding need an external provider, and none is configured. Addresses are entered with US validation and geocoded through an interface. Development and tests use a built-in ZIP-prefix table, which gives a city-level position and a timezone. Production sets a provider key. Without a position, the map preview is hidden; it is never faked.
+
+## D-069 — Merchant fulfilment uses the existing shipments
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+Orders already group SKUs into `shipments` with carrier and tracking, which is per-line fulfilment. A merchant marks its own lines shipped by adding a shipment that holds only its SKUs. The order becomes "shipped" once every line is in a shipment, so no separate fulfilment-group model is needed.
+
+## D-070 — Marketplace flag; no TOTP in this pass
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+The existing `settings.features.vendorMarketplace` flag gates the merchant entry points: the footer column, registration, and the shop facet. TOTP two-factor needs Firebase Identity Platform, and the Auth emulator can't complete TOTP enrolment, so it can't be tested. It is recorded as a known limitation instead of shipping an untested setting.
+
+## D-071 — No pickup for merchants
+
+**Date:** 2026-10-20 · **Phase:** Merchant 0
+The merchant prompt includes pickup points, pickup settings and PDP pickup availability. At the owner's request there is no pickup anywhere (D-044), so merchant locations are retail stores or ship-from warehouses, at least one active ship-from location is required, and the PDP shows shipping only.
