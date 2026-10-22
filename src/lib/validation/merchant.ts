@@ -449,6 +449,8 @@ export const merchantMediaSchema = z.object({
   status: z.enum(["tmp", "attached", "orphaned"]),
   createdAt: timestampSchema,
   processedAt: timestampSchema.optional(),
+  /** When it stopped being used; the cleanup job counts its grace period from here. */
+  orphanedAt: timestampSchema.optional(),
 });
 export type MerchantMedia = z.infer<typeof merchantMediaSchema>;
 

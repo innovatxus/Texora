@@ -384,3 +384,13 @@ Email clients, link previews and router prefetches can open a link before the pe
 
 **Date:** 2026-10-20 · **Phase:** Merchant 2
 Per-IP limits use the first `X-Forwarded-For` address, falling back to `X-Real-IP`. The hosting proxy (Firebase App Hosting, or any load balancer in front of `next start`) overwrites these headers, so clients can't choose their own key. Per-account limits (sign-in lockout, verification resends) don't depend on the IP at all. End-to-end tests send a distinct forwarded address per test, as separate visitors would.
+
+## D-075 — Uploads authenticate with an in-memory custom token
+
+**Date:** 2026-10-20 · **Phase:** Merchant 3
+Sessions are HTTP-only cookies, so the browser has no Firebase sign-in for Storage rules to check. Before the first upload, the portal asks a Server Action for a custom token and signs the Firebase client in with it, using in-memory persistence, so nothing is written to disk and closing the tab ends it. The Storage rules check the role and vendorId claims on the user record and allow only write-once files in the merchant's own tmp folder. Every upload is then re-validated on the server.
+
+## D-076 — How uploaded media is processed
+
+**Date:** 2026-10-20 · **Phase:** Merchant 3
+The server decides the file type from its bytes, never from the name or Content-Type. Images are decoded with a pixel limit, auto-rotated, cropped to the merchant's crop, scaled down (logo 1024, product photos 2400, banner 3600 on the long edge) and re-encoded as WebP. Re-encoding drops EXIF, GPS and every other metadata. A 16px blur placeholder and the dominant colour are stored with each image. SVG logos are refused if they contain scripts, event handlers, foreign content, entities or external references, and clean ones are rasterised, so no SVG is ever served. Videos (MP4/WebM, up to 30 seconds, read from the container header) are stored as uploaded, because stripping their metadata would mean transcoding, which needs a video service. Raw uploads are deleted as soon as they are processed. The hourly cleanup job removes media that was never attached, or was replaced, more than 24 hours ago.

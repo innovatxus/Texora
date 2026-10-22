@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
   },
   cacheComponents: true,
+  images: {
+    // Product placeholders and processed merchant media are both served from /media (D-064).
+    localPatterns: [{ pathname: "/media/**" }],
+    qualities: [75],
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {

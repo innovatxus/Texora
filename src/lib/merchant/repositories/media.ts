@@ -19,15 +19,26 @@ export async function getOwnedMedia(
   return record && record.vendorId === vendorId ? record : null;
 }
 
-/** Uploads never attached to anything, older than `before` (for the cleanup cron). */
+/**
+ * Media to delete (for the cleanup cron): processed but never attached since
+ * before `before`, or orphaned (replaced or removed) since before `before`.
+ */
 export async function listStaleMedia(before: Date, limit = 200): Promise<MerchantMedia[]> {
-  const snapshot = await media()
-    .where("status", "in", ["tmp", "orphaned"])
-    .where("createdAt", "<", before)
-    .orderBy("createdAt", "asc")
-    .limit(limit)
-    .get();
-  return snapshot.docs
+  const [unused, orphaned] = await Promise.all([
+    media()
+      .where("status", "==", "tmp")
+      .where("createdAt", "<", before)
+      .orderBy("createdAt", "asc")
+      .limit(limit)
+      .get(),
+    media()
+      .where("status", "==", "orphaned")
+      .where("orphanedAt", "<", before)
+      .orderBy("orphanedAt", "asc")
+      .limit(limit)
+      .get(),
+  ]);
+  return [...unused.docs, ...orphaned.docs]
     .map((d) => parseSnapshot(merchantMediaSchema, d))
     .filter((m): m is MerchantMedia => m !== null);
 }

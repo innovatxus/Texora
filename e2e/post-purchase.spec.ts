@@ -196,7 +196,8 @@ test.describe("accessibility", () => {
   ]) {
     test(`${path} has no axe violations`, async ({ page }) => {
       await gotoReady(page, path);
-      await page.waitForLoadState("networkidle");
+      // Stripe keeps background requests open, so "networkidle" isn't reliable here.
+      await page.waitForLoadState("load");
       const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
       expect(results.violations).toEqual([]);
     });

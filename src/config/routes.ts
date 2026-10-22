@@ -16,6 +16,7 @@ export const STATIC_TOP_LEVEL_ROUTES = [
   "collections",
   "gift-cards",
   "help",
+  "media",
   "merchant",
   "merchants",
   "notifications",
