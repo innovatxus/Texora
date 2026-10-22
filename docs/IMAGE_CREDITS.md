@@ -20,3 +20,9 @@ Interim storefront photography for the live-store starter pages (`npm run bootst
 | menPants      | [Pexels 11000250](https://www.pexels.com/photo/man-in-black-long-sleeve-shirt-and-beige-pants-11000250/)                   | A man in a black sweater and stone trousers                                |
 | menJeans      | [Pexels 8474077](https://www.pexels.com/photo/a-handsome-man-in-black-shirt-and-denim-jeans-8474077/)                      | A man in a black tee and dark-wash jeans                                   |
 | menCoats      | [Pexels 6626749](https://www.pexels.com/photo/man-in-white-winter-coat-6626749/)                                           | A man in a cream padded jacket                                             |
+
+## Store photography
+
+| Slot      | Source                                                                                                  | Description                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Home hero | Supplied by the store owner (`public/media/assets/texora hero.png`), framed by `scripts/hero-images.ts` | Three people walking in relaxed neutral tailoring and sneakers |

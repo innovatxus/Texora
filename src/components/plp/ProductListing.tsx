@@ -175,6 +175,7 @@ export async function ProductListing({
           />
         ) : (
           <div className="mt-8">
+            <h2 className="sr-only">Products</h2>
             <TrackListView listName={basePath} items={items.map((p) => listingItem(p))} />
             <DensityGrid>
               {items.flatMap((product, i) => {

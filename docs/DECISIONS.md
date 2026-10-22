@@ -486,3 +486,20 @@ Joining rewards changes the role from `customer` to `loyalty_member`. `canSystem
 
 **Date:** 2026-10-22 · **Phase:** Live readiness
 The demo seed, its commands (`emulators`, `seed`) and the emulator defaults in `.env.example` are gone. The app always uses the configured Firebase project, and `npm run bootstrap` sets up a new one. The emulators remain only as the automated tests' sandbox: rules and integration tests use their own `demo-` projects, and `npm run test:e2e` starts the emulators, seeds the demo catalogue from `tests/fixtures/`, loads `tests/emulator.env` (overriding `.env.local`) and builds into `.next-e2e`. Both env schemas refuse emulator mode unless the project id starts with `demo-`, so a live configuration can't be pointed at fake data, or tests at real data. The illustrated placeholders are now drawn only for the test catalogue; the storefront's menu, sign-up and grid images use the licensed photos.
+
+## D-094 — Storefront hardening
+
+**Date:** 2026-10-22 · **Phase:** 9
+
+- **Content Security Policy without nonces.** Nonces would force every page to render per request and rule out Partial Prerendering. Inline scripts are allowed; every other source is limited to this site, Stripe (payment fields and frames) and Google APIs (direct uploads). HSTS, nosniff, frame blocking, and referrer and permissions policies come with it.
+- **Rate limits** cover every public mutation that can be abused, each per IP or per account. Promo codes count only the first time a wrong code is tried from an IP, so normal re-pricing never locks anyone out.
+- **Analytics:** a typed, GA4-shaped `dataLayer` event layer, gated on analytics consent. Refunds happen in the back office, so they're logged server-side without personal data.
+- **Sitemap and robots:** `sitemap.xml` is built from the same cached reads as the pages; production `robots.txt` links it and keeps private areas out.
+- **Budgets:** every storefront and checkout route stays within 170 KB of route JavaScript beyond the shared runtime, the same measure as D-086.
+- **Production dependencies:** `@grpc/grpc-js` is pinned to a patched 1.x through npm `overrides`; the production audit is clean. The remaining advisories are in development tools only.
+- **Test ordering:** a full `npm run test:e2e` takes the visual baselines last, on a fresh seed, because other tests publish products, refund orders and spend points.
+
+## D-095 — The home hero uses the store's own photograph
+
+**Date:** 2026-10-22 · **Phase:** Live readiness
+`public/media/assets/texora hero.png` is framed by `scripts/hero-images.ts`. On desktop it sits on its own white backdrop, right-aligned, so the headline column stays clear. On phones the group sits in the top half, sized so phones' side cropping never cuts anyone off. The other heroes and tiles stay on licensed stock until the store's own photography replaces them in `/admin/content`.

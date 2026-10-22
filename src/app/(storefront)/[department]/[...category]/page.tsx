@@ -10,6 +10,7 @@ import {
 } from "@/components/plp/ProductListing";
 import { getCategory, getDepartmentCategories } from "@/lib/catalog/queries";
 import { DEPARTMENTS } from "@/lib/validation";
+import { brand } from "@/config/brand";
 
 const DEPARTMENT_LABELS: Record<string, string> = { women: "Women", men: "Men" };
 
@@ -36,7 +37,9 @@ export async function generateMetadata({
   if (!category) return {};
   return {
     title: category.seo.title ?? category.name,
-    description: category.seo.description,
+    description:
+      category.seo.description ??
+      `Shop ${(category.seo.title ?? category.name).toLowerCase()} at ${brand.name}: new arrivals, fit families and free returns.`,
     alternates: { canonical: `/${path.join("/")}` },
   };
 }

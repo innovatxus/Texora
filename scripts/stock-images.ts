@@ -10,7 +10,7 @@
 // studio backdrop, so the dark headline always sits on a calm, light area.
 import { mkdirSync, writeFileSync } from "node:fs";
 import sharp, { type OverlayOptions, type Sharp } from "sharp";
-import { STOCK, stockUrl, type StockKey, type StockSource } from "./stock-catalog";
+import { HOME_HERO, STOCK, stockUrl, type StockKey, type StockSource } from "./stock-catalog";
 
 const OUT = "public/media/stock";
 
@@ -159,6 +159,12 @@ Interim storefront photography for the live-store starter pages (\`npm run boots
 | Slot | Source | Description |
 | --- | --- | --- |
 ${credits.join("\n")}
+
+## Store photography
+
+| Slot | Source | Description |
+| --- | --- | --- |
+| Home hero | Supplied by the store owner (\`public/media/assets/texora hero.png\`), framed by \`scripts/hero-images.ts\` | ${HOME_HERO.alt} |
 `,
   );
 }

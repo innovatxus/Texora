@@ -26,11 +26,21 @@ function masks(page: Page) {
   ];
 }
 
-async function shot(page: Page, path: string, name: string, waitFor?: string) {
+async function shot(
+  page: Page,
+  path: string,
+  name: string,
+  { waitFor, timestamps = false }: { waitFor?: string; timestamps?: boolean } = {},
+) {
   await gotoReady(page, path);
   if (waitFor) await page.waitForSelector(waitFor, { state: "attached" });
   await page.waitForLoadState("networkidle");
-  await expect(page).toHaveScreenshot(`${name}.png`, { mask: masks(page), fullPage: false });
+  await expect(page).toHaveScreenshot(`${name}.png`, {
+    mask: masks(page),
+    fullPage: false,
+    // Seeded times of day vary per run, so masked timestamps change width slightly.
+    ...(timestamps ? { maxDiffPixelRatio: 0.005 } : {}),
+  });
 }
 
 const TEMPLATES: Array<{ name: string; path: () => string; waitFor?: string }> = [
@@ -60,7 +70,7 @@ const TEMPLATES: Array<{ name: string; path: () => string; waitFor?: string }> =
 test.describe("storefront templates", () => {
   for (const t of TEMPLATES) {
     test(`${t.name} @visual`, async ({ page }) => {
-      await shot(page, t.path(), t.name, t.waitFor);
+      await shot(page, t.path(), t.name, t.waitFor ? { waitFor: t.waitFor } : {});
     });
   }
 });
@@ -76,13 +86,13 @@ test.describe("signed-in templates", () => {
 
   test("account overview @visual", async ({ page }) => {
     await signIn(page, "loyalty-member@texora.test", "/account");
-    await shot(page, "/account/rewards", "account-rewards");
+    await shot(page, "/account/rewards", "account-rewards", { timestamps: true });
   });
 
   test("back office @visual", async ({ page }) => {
     test.skip(!order, "Seed has orders");
     await signIn(page, "admin@texora.test", "/admin");
-    await shot(page, "/admin/catalog", "admin-catalog");
-    await shot(page, `/admin/orders/${order?.id ?? ""}`, "admin-order");
+    await shot(page, "/admin/catalog", "admin-catalog", { timestamps: true });
+    await shot(page, `/admin/orders/${order?.id ?? ""}`, "admin-order", { timestamps: true });
   });
 });
