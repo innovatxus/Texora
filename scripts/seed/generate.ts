@@ -49,6 +49,7 @@ import {
   type CategoryDefinition,
 } from "./catalog-definitions";
 import { taxRateFor } from "../../src/lib/pricing/tax";
+import { generateMerchantSeed, type MerchantSeed } from "./merchants";
 import { buildPages } from "./pages";
 
 // ------------------------------------------------------------------ rng
@@ -126,6 +127,8 @@ export interface SeedData {
   demoGiftCardCode: string;
   /** Email on the sample guest orders, for order lookup. */
   demoOrderEmail: string;
+  /** Seed merchants: their accounts, shops, drafts and published products. */
+  merchants: MerchantSeed;
 }
 
 /** Password for every seeded account (local emulators only). */
@@ -848,6 +851,11 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
   });
 
   const pages = buildPages(products, now);
+  const merchants = generateMerchantSeed(
+    now,
+    products.map((p) => p.slug),
+    SEED_PASSWORD,
+  );
 
   return {
     pages,
@@ -868,5 +876,6 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
     settings,
     demoGiftCardCode,
     demoOrderEmail,
+    merchants,
   };
 }

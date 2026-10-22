@@ -1,7 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { asReturningVisitor, gotoReady } from "./support/helpers";
-import { asSeparateVisitor, MERCHANT_PASSWORD, merchantWithShop } from "./support/merchant";
+import {
+  asSeparateVisitor,
+  MERCHANT_PASSWORD,
+  merchantWithShop,
+  verifyEmail,
+} from "./support/merchant";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
@@ -173,7 +178,6 @@ test.describe("merchant portal hardening", () => {
         target.locator("header"),
         target.locator("h1"),
         target.locator('input:not([type="checkbox"]):not([type="radio"]), textarea'),
-        target.getByRole("region", { name: "Email verification" }).locator("strong"),
         target.getByText(/@example\.com/),
       ];
       await expect(target).toHaveScreenshot(`${name}.png`, { mask, fullPage: false });
@@ -183,7 +187,9 @@ test.describe("merchant portal hardening", () => {
     await shot(visitor, "/merchant/sign-in", "sign-in");
     await shot(visitor, "/merchant/register", "register");
 
-    await merchantWithShop(page, testInfo);
+    // Verified, so the verification banner (with a per-run address) isn't in the shots.
+    const { email } = await merchantWithShop(page, testInfo);
+    await verifyEmail(page, email);
     await shot(page, "/merchant/products", "products-empty");
     await shot(page, "/merchant/orders", "orders-empty");
     await shot(page, "/merchant/shop/locations", "shop-locations");

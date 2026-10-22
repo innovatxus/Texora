@@ -53,6 +53,18 @@ Independent shops sell on Texora through the merchant portal. Shoppers find it f
 
 - **Merchants:** register at `/merchant/register`, verify the emailed link (in development, emails land in the `emailOutbox` collection, viewable in the emulator UI), then complete onboarding (basics, branding, contact, locations, review) and submit. Products are built in `/merchant/products`, orders appear in `/merchant/orders`, and account settings are in `/merchant/settings`.
 - **Texora staff:** review shops at `/admin/merchants` and products at `/admin/merchants/products`. Reviewing needs `merchants.review` (merchandiser, admin); pausing, reinstating and trust levels need `merchants.manage` (admin). Trusted merchants publish without review.
+- **Seed merchants** (emulators only; password `Texora-demo-1`, sign in at `/merchant/sign-in` with the email or username):
+
+  | Shop                                                         | Type            | State                                      | Sign in       |
+  | ------------------------------------------------------------ | --------------- | ------------------------------------------ | ------------- |
+  | [Harbor & Pine](http://localhost:3000/shops/harbor-and-pine) | Brand (trusted) | Approved, 12 live products                 | `harborpine`  |
+  | [Maison Rue](http://localhost:3000/shops/maison-rue)         | Boutique        | Approved, 12 live products                 | `maisonrue`   |
+  | [Studio Ines](http://localhost:3000/shops/studio-ines)       | Designer        | Approved, 11 live products                 | `studioines`  |
+  | Northline Supply                                             | Reseller        | Waiting for review (one product in review) | `northline`   |
+  | Petal & Thread                                               | Boutique        | Changes requested                          | `petalthread` |
+
+  Approved shops each have a logo, a banner and two locations (a retail store that also ships, and a ship-from warehouse). Their products are made in 3 colours × 2 fits × 6 sizes. Review the pending shop as `admin@texora.test` at `/admin/merchants`.
+
 - **Delivery only:** merchants ship their own items. There is no store pickup, and payouts are out of scope.
 
 Merchant features use the existing environment variables:

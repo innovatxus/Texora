@@ -3,6 +3,7 @@
  * Typo-tolerant (one edit on words of 4+ letters) with retail synonyms.
  * Pure, so the ranking is unit tested.
  */
+import { compareSalesRank } from "@/lib/catalog/rank";
 
 export interface SearchDocument {
   id: string;
@@ -167,7 +168,7 @@ export function search(index: readonly Indexed[], query: string, limit = 4): Sea
     if (matchedAll) scored.push({ doc: entry.doc, score });
   }
 
-  scored.sort((a, b) => b.score - a.score || a.doc.salesRank - b.doc.salesRank);
+  scored.sort((a, b) => b.score - a.score || compareSalesRank(a.doc, b.doc));
 
   const categoryCounts = new Map<string, { label: string; href: string; count: number }>();
   for (const { doc } of scored) {

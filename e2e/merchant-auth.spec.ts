@@ -143,7 +143,8 @@ test.describe("sign-in", () => {
   });
 
   test("wrong credentials get one generic message", async ({ page }) => {
-    await signInAsMerchant(page, "no-such-merchant", "wrong-password-here");
+    // A fresh identifier each run: failures count towards that identifier's lockout.
+    await signInAsMerchant(page, `no-such-merchant-${Date.now().toString(36)}`, "wrong-password");
     await expect(page.getByText("Email/username or password is incorrect.")).toBeVisible();
   });
 

@@ -3,7 +3,11 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { productSchema, variantSchema, type Product, type Variant } from "@/lib/validation";
 import { paginate, parseSnapshot, type Page, type PageRequest } from "./firestore";
 
-/** Firestore sort orders for product queries. */
+/**
+ * Firestore sort orders for product queries. Firestore can't sort unranked
+ * products (salesRank 0) last, so storefront listings sort in memory with
+ * `compareSalesRank` instead (catalog/listing); these serve repository reads.
+ */
 export const PRODUCT_SORTS = {
   featured: [{ field: "salesRank", direction: "asc" }],
   best_sellers: [{ field: "salesRank", direction: "asc" }],

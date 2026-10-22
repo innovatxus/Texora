@@ -4,6 +4,7 @@
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { CATEGORIES, COLORS } from "./seed/catalog-definitions";
+import { SEED_MERCHANTS } from "./seed/merchant-definitions";
 
 const OUT = fileURLToPath(new URL("../public/media/placeholders/", import.meta.url));
 const W = 1200;
@@ -409,6 +410,36 @@ for (const [name, w, h, pieces, bg, rail] of SCENES) {
     : {};
   writeFileSync(`${OUT}${name}.svg`, scene(w, h, pieces, { bg, rail, ...layout }));
   count += 1;
+}
+
+// Seed merchants' logos (monogram on a disc) and banners (monogram, rule and stripes).
+const escapeXml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+mkdirSync(`${OUT}shops`, { recursive: true });
+for (const { shop } of SEED_MERCHANTS) {
+  const { ground, ink } = shop.palette;
+  const mark = escapeXml(shop.monogram);
+  writeFileSync(
+    `${OUT}shops/${shop.slug}-logo.svg`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">` +
+      `<rect width="800" height="800" fill="${ground}"/>` +
+      `<circle cx="400" cy="400" r="300" fill="none" stroke="${ink}" stroke-width="10"/>` +
+      `<text x="400" y="400" fill="${ink}" font-family="Georgia, serif" font-size="${mark.length > 3 ? 150 : 200}" text-anchor="middle" dominant-baseline="central">${mark}</text>` +
+      `</svg>`,
+  );
+  const stripes = Array.from(
+    { length: 9 },
+    (_, i) =>
+      `<rect x="${1500 + i * 100}" y="0" width="40" height="800" fill="${mix(ground, ink, 0.12 + i * 0.03)}"/>`,
+  ).join("");
+  writeFileSync(
+    `${OUT}shops/${shop.slug}-banner.svg`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 800" width="2400" height="800">` +
+      `<rect width="2400" height="800" fill="${ground}"/>${stripes}` +
+      `<rect x="1200" y="0" width="300" height="800" fill="${mix(ground, "#000000", 0.15)}"/>` +
+      `<text x="1350" y="400" fill="${ink}" font-family="Georgia, serif" font-size="120" text-anchor="middle" dominant-baseline="central">${mark}</text>` +
+      `</svg>`,
+  );
+  count += 2;
 }
 
 console.log(

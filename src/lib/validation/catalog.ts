@@ -101,6 +101,7 @@ export const productSchema = z.object({
     fabricCare: z.array(z.string().max(200)),
   }),
   completeTheLook: z.array(idSchema).max(8),
+  /** 1 is the best seller; 0 means not ranked yet (sorts last, see catalog/rank). */
   salesRank: z.number().int().nonnegative(),
   status: productStatusSchema,
   publishAt: timestampSchema.optional(),

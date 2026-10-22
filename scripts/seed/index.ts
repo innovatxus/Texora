@@ -44,6 +44,9 @@ Sign in as any role with <role>@texora.test, e.g.
   customer@texora.test · loyalty-member@texora.test · customer-service@texora.test
   merchandiser@texora.test · pricing-manager@texora.test · admin@texora.test · super-admin@texora.test
 
+Merchants (sign in at /merchant/sign-in, same password):
+  ${data.merchants.summary.join("\n  ")}
+
 Promo codes: WELCOME15, SPEND200 (EXPIRED10 is inactive)
 Gift card:   ${data.demoGiftCardCode}
 Orders:      ${data.orders

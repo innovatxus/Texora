@@ -5,6 +5,7 @@
  */
 import type { ListingProduct } from "./listing-types";
 import { compareSizes } from "./sizes";
+import { compareSalesRank } from "./rank";
 
 /** Products per page in listings. */
 export const PAGE_SIZE = 24;
@@ -492,8 +493,8 @@ export function sortProducts(
 ): ListingProduct[] {
   const sorted = [...products];
   const by: Record<SortKey, (a: ListingProduct, b: ListingProduct) => number> = {
-    featured: (a, b) => a.salesRank - b.salesRank,
-    best_sellers: (a, b) => a.salesRank - b.salesRank,
+    featured: compareSalesRank,
+    best_sellers: compareSalesRank,
     newest: (a, b) => b.createdAt - a.createdAt,
     price_asc: (a, b) => a.price - b.price,
     price_desc: (a, b) => b.price - a.price,

@@ -9,7 +9,7 @@ function withoutKey<T extends object>(doc: T, key: keyof T): Record<string, unkn
 
 /** Writes generated seed data. Shared by `npm run seed` and the integration tests. */
 export async function writeSeed(db: Firestore, auth: Auth, data: SeedData): Promise<void> {
-  for (const user of data.authUsers) {
+  for (const user of [...data.authUsers, ...data.merchants.authUsers]) {
     await auth.createUser({
       uid: user.uid,
       email: user.email,
@@ -35,7 +35,8 @@ export async function writeSeed(db: Firestore, auth: Auth, data: SeedData): Prom
   for (const v of data.variants) write(`variants/${v.sku}`, withoutKey(v, "sku"));
   for (const s of data.stores) write(`stores/${s.id}`, withoutKey(s, "id"));
   for (const r of data.reviews) write(`reviews/${r.id}`, withoutKey(r, "id"));
-  for (const u of data.profiles) write(`users/${u.uid}`, withoutKey(u, "uid"));
+  for (const u of [...data.profiles, ...data.merchants.profiles])
+    write(`users/${u.uid}`, withoutKey(u, "uid"));
   for (const p of data.promotions) write(`promotions/${p.id}`, withoutKey(p, "id"));
   for (const c of data.promoCodes) write(`promoCodes/${c.code}`, withoutKey(c, "code"));
   for (const g of data.giftCards) write(`giftCards/${g.id}`, withoutKey(g, "id"));
@@ -45,6 +46,9 @@ export async function writeSeed(db: Firestore, auth: Auth, data: SeedData): Prom
   for (const c of data.collections) write(`collections/${c.id}`, withoutKey(c, "id"));
   for (const page of data.pages) write(`pages/${page.slug}`, withoutKey(page, "id"));
   write("settings/store", data.settings);
+  for (const p of data.merchants.products) write(`products/${p.id}`, withoutKey(p, "id"));
+  for (const v of data.merchants.variants) write(`variants/${v.sku}`, withoutKey(v, "sku"));
+  for (const doc of data.merchants.docs) write(doc.path, doc.data);
 
   await writer.close();
   if (failures.length > 0) {

@@ -454,3 +454,13 @@ Settings cover the person, not the shop (shop settings are under Shop). Changing
 
 **Date:** 2026-10-22 · **Phase:** Merchant 8
 The media route logs `MaxListenersExceededWarning` on `PassThrough` streams. It reproduces with a plain `file.download()` outside Next.js and comes from `teeny-request`'s stream mode (used by `@google-cloud/storage`), which adds pipeline listeners for each read. The count is the same for every download and doesn't grow, so it isn't a leak. It is left as is, with no dependency patch and no global listener-limit change, and should be revisited when `@google-cloud/storage` updates its transport.
+
+## D-089 — Seed merchants are built through the portal's own code
+
+**Date:** 2026-10-22 · **Phase:** Merchant 9
+The seed can't call the portal's services, which are server-only and need a request. It builds merchant documents directly instead, but runs them through the same pure code the portal uses: the variant matrix, the publish checks (the seed fails if a live product wouldn't pass them), the shop counters and the storefront document builder. Every document is validated against its schema. Product slugs and SKUs are checked against the catalog. Images use the self-drawn placeholders (logos and banners are drawn per shop). Each image still gets a `merchantMedia` record marked attached, so editing a seeded product attaches and releases media exactly as for uploads. If a seeded image is released, cleanup removes its record as usual; its Storage delete finds nothing and ignores that.
+
+## D-090 — Unranked products sort after best sellers
+
+**Date:** 2026-10-22 · **Phase:** Merchant 9
+`salesRank` 1 is the best seller, and new products, merchant listings included, start at 0. Sorting ascending put every new product ahead of the real best sellers in Featured, Best sellers and search ties. Seeding merchants made this visible. `compareSalesRank` treats 0 as "not ranked yet" and sorts it last; the in-memory listing engine and search both use it. Firestore can't express this order, so the repository's Firestore sorts stay as they are. No storefront page lists through them.

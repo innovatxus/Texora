@@ -77,3 +77,58 @@ describe("seed data", () => {
     }
   });
 });
+
+describe("seed merchants", () => {
+  const { merchants } = data;
+  const shops = merchants.docs
+    .filter((d) => /^shops\/[^/]+$/.test(d.path))
+    .map((d) => d.data as { slug: string; shopType: string; status: string; banner?: unknown });
+  const docsUnder = (prefix: string) => merchants.docs.filter((d) => d.path.startsWith(prefix));
+
+  it("has three approved shops, one per shop type, plus one pending and one with changes", () => {
+    const approved = shops.filter((s) => s.status === "approved");
+    expect(approved.map((s) => s.shopType).sort()).toEqual(["boutique", "brand", "designer"]);
+    expect(shops.filter((s) => s.status === "pending_review")).toHaveLength(1);
+    expect(shops.filter((s) => s.status === "changes_requested")).toHaveLength(1);
+  });
+
+  it("gives approved shops branding, two locations and 10+ live products with full variants", () => {
+    for (const key of ["harbor-pine", "maison-rue", "studio-ines"]) {
+      const shopId = `shop-${key}`;
+      const shop = merchants.docs.find((d) => d.path === `shops/${shopId}`)?.data;
+      expect(shop).toMatchObject({ logo: expect.anything(), banner: expect.anything() });
+      expect(docsUnder(`shops/${shopId}/locations/`)).toHaveLength(2);
+      const live = merchants.products.filter((p) => p.shopId === shopId);
+      expect(live.length).toBeGreaterThanOrEqual(10);
+      for (const p of live) {
+        expect(p.status).toBe("live");
+        const skus = merchants.variants.filter((v) => v.productId === p.id);
+        // Every colour × fit × size is made: 3 colours × 2 fits × 6 sizes.
+        expect(skus).toHaveLength(36);
+      }
+    }
+  });
+
+  it("never reuses a catalog product slug or SKU", () => {
+    const slugs = new Set(data.products.map((p) => p.slug));
+    for (const p of merchants.products) expect(slugs.has(p.slug)).toBe(false);
+    const skus = new Set(data.variants.map((v) => v.sku));
+    const merchantSkus = merchants.variants.map((v) => v.sku);
+    expect(new Set(merchantSkus).size).toBe(merchantSkus.length);
+    for (const sku of merchantSkus) expect(skus.has(sku)).toBe(false);
+  });
+
+  it("records a media document for every image a draft or shop uses", () => {
+    const media = new Set(docsUnder("merchantMedia/").map((d) => d.path.split("/")[1]));
+    const drafts = docsUnder("productDrafts/").map(
+      (d) => d.data as { data: { colors: Array<{ images: Array<{ mediaId: string }> }> } },
+    );
+    for (const draft of drafts)
+      for (const c of draft.data.colors)
+        for (const i of c.images) expect(media.has(i.mediaId)).toBe(true);
+  });
+
+  it("brings the plus fit to the storefront through a merchant", () => {
+    expect(merchants.variants.some((v) => v.fitFamily === "plus")).toBe(true);
+  });
+});

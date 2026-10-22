@@ -58,7 +58,8 @@ describe("product repository", () => {
 
   it("lists a whole department from its root path", async () => {
     const page = await listLiveProducts({ categoryPath: ["women"], sort: "featured", limit: 200 });
-    const expected = seed.products.filter(
+    // Texora's catalog plus the seed merchants' live products.
+    const expected = [...seed.products, ...seed.merchants.products].filter(
       (p) => p.status === "live" && p.department === "women",
     ).length;
     expect(page.items).toHaveLength(expected);
