@@ -352,8 +352,8 @@ Review states (`in_review`, `changes_requested`) apply only to products. `produc
 
 ## D-068 — Pluggable geocoding
 
-**Date:** 2026-10-20 · **Phase:** Merchant 0
-Address autocomplete and geocoding need an external provider, and none is configured. Addresses are entered with US validation and geocoded through an interface. Development and tests use a built-in ZIP-prefix table, which gives a city-level position and a timezone. Production sets a provider key. Without a position, the map preview is hidden; it is never faked.
+**Date:** 2026-10-20 · **Phase:** Merchant 0 (revised in Merchant 4)
+Address autocomplete, street-level geocoding and map tiles need an external provider, and none is configured. Locations are entered as US addresses. The ZIP code is checked against the state's ZIP ranges ("We couldn't find that address. Check the ZIP code and state."), and `src/lib/merchant/geo.ts` fills in the state's default timezone (editable) and an approximate position at the state's centre. Location cards show the address and today's opening status instead of a map. A provider-backed geocoder and map preview plug in behind the same `GeocodeResult` shape when a key is added.
 
 ## D-069 — Merchant fulfilment uses the existing shipments
 
@@ -394,3 +394,13 @@ Sessions are HTTP-only cookies, so the browser has no Firebase sign-in for Stora
 
 **Date:** 2026-10-20 · **Phase:** Merchant 3
 The server decides the file type from its bytes, never from the name or Content-Type. Images are decoded with a pixel limit, auto-rotated, cropped to the merchant's crop, scaled down (logo 1024, product photos 2400, banner 3600 on the long edge) and re-encoded as WebP. Re-encoding drops EXIF, GPS and every other metadata. A 16px blur placeholder and the dominant colour are stored with each image. SVG logos are refused if they contain scripts, event handlers, foreign content, entities or external references, and clean ones are rasterised, so no SVG is ever served. Videos (MP4/WebM, up to 30 seconds, read from the container header) are stored as uploaded, because stripping their metadata would mean transcoding, which needs a video service. Raw uploads are deleted as soon as they are processed. The hourly cleanup job removes media that was never attached, or was replaced, more than 24 hours ago.
+
+## D-077 — Shop accents are always emitted as CSS variables
+
+**Date:** 2026-10-21 · **Phase:** Merchant 4
+A shop's accent is chosen at runtime and applied through an inline `var(--color-shop-…)` style. Tailwind v4 only emits theme variables that a class uses, so the variable was missing and white button text sat on the page background (caught by axe). The eight accents now live in an `@theme static` block, so every one is always defined. `npm run contrast` still checks each pair.
+
+## D-078 — Active shop and onboarding progress live on the server
+
+**Date:** 2026-10-21 · **Phase:** Merchant 4
+Each onboarding step saves to the shop document and records `completedSteps` and `onboardingStep`, so a merchant resumes on any device (`/merchant/onboarding` redirects to the saved step) and Back never loses anything. Merchants with several shops (the UI allows 3) pick one in the header; the choice is an HTTP-only cookie scoped to `/merchant`, checked against ownership on every request.

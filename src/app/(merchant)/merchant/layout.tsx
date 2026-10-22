@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { SignOutButton } from "@/components/admin/SignOutButton";
 import { ResendVerificationButton } from "@/components/merchant/auth/VerifyEmail";
 import { BottomTabBar, SidebarNav } from "@/components/merchant/layout/MerchantNav";
+import { ShopSwitcher } from "@/components/merchant/layout/ShopSwitcher";
 import { SkipLink } from "@/components/navigation/Logo";
 import { Skeleton } from "@/components/primitives";
 import { brand } from "@/config/brand";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 
 async function Shell({ children }: { children: React.ReactNode }) {
   // The proxy gates /merchant; this re-checks the live session and loads the account.
-  const { merchant } = await getMerchantContext();
+  const { merchant, shops, shop } = await getMerchantContext();
 
   return (
     <div className="flex min-h-screen flex-1 flex-col pb-16 lg:flex-row lg:pb-0">
@@ -39,6 +40,12 @@ async function Shell({ children }: { children: React.ReactNode }) {
             {brand.name}
           </NextLink>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:ml-auto">
+            {shops.length > 1 && shop && (
+              <ShopSwitcher
+                shops={shops.map((s) => ({ id: s.id, name: s.name }))}
+                current={shop.id}
+              />
+            )}
             <span className="text-ink-soft">@{merchant.username}</span>
             <NextLink href="/" className="underline underline-offset-4">
               View store

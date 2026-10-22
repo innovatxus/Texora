@@ -87,3 +87,37 @@ describe("distanceMiles", () => {
     expect(distanceMiles({ lat: 1, lng: 1 }, { lat: 1, lng: 1 })).toBe(0);
   });
 });
+
+describe("merchant hours (two ranges, special dates)", () => {
+  // Monday 2026-10-19, New York.
+  const at = (time: string) => new Date(`2026-10-19T${time}:00-04:00`);
+  const location = {
+    timezone: "America/New_York",
+    hours: [
+      { day: 1, open: "09:00", close: "12:00" },
+      { day: 1, open: "13:00", close: "18:00" },
+      { day: 2, open: "10:00", close: "16:00" },
+    ],
+  };
+
+  it("handles a lunch break", () => {
+    expect(openStatus(location, at("10:00"))).toEqual({ open: true, label: "Open until 12pm" });
+    expect(openStatus(location, at("12:30"))).toEqual({ open: false, label: "Closed · opens 1pm" });
+    expect(openStatus(location, at("14:00"))).toEqual({ open: true, label: "Open until 6pm" });
+    expect(openStatus(location, at("19:00")).label).toBe("Closed · opens 10am tomorrow");
+  });
+
+  it("applies special hours for a date", () => {
+    const holiday = { ...location, specialHours: [{ date: "2026-10-19", closed: true }] };
+    expect(openStatus(holiday, at("10:00")).label).toBe("Closed · opens 10am tomorrow");
+    const short = {
+      ...location,
+      specialHours: [{ date: "2026-10-20", closed: false, open: "12:00", close: "14:00" }],
+    };
+    expect(openStatus(short, at("19:00")).label).toBe("Closed · opens 12pm tomorrow");
+  });
+
+  it("lists both ranges for a day", () => {
+    expect(weeklyHours(location)[0]).toEqual({ day: 1, text: "9am – 12pm, 1pm – 6pm" });
+  });
+});

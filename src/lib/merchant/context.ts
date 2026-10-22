@@ -1,4 +1,5 @@
 import "server-only";
+import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 import { cache } from "react";
 import { requirePagePermission } from "@/lib/auth/guard";
@@ -12,7 +13,12 @@ export interface MerchantContext {
   session: Session & { vendorId: string };
   merchant: Merchant;
   shops: Shop[];
+  /** The shop being managed: the one chosen in the shop switcher, else the first. */
+  shop: Shop | null;
 }
+
+/** Cookie remembering which shop a multi-shop merchant is managing. */
+export const ACTIVE_SHOP_COOKIE = "tx_shop";
 
 /**
  * The signed-in merchant, their account and shops, for portal pages. Loaded
@@ -30,5 +36,12 @@ export const getMerchantContext = cache(async (): Promise<MerchantContext> => {
   // A link opened on another device verifies in Firebase Auth first.
   const emailVerified = merchant.emailVerified || (await syncEmailVerified(session.uid, vendorId));
   const shops = await listShopsForVendor(vendorId);
-  return { session: { ...session, vendorId }, merchant: { ...merchant, emailVerified }, shops };
+  const chosen = (await cookies()).get(ACTIVE_SHOP_COOKIE)?.value;
+  const shop = shops.find((s) => s.id === chosen) ?? shops[0] ?? null;
+  return {
+    session: { ...session, vendorId },
+    merchant: { ...merchant, emailVerified },
+    shops,
+    shop,
+  };
 });

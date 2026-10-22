@@ -17,8 +17,11 @@ import {
   type ShopType,
 } from "@/config/merchant";
 import { PASSWORD_MAX_LENGTH, passwordProblem } from "@/lib/auth/password";
+import { productStatusSchema } from "./catalog";
 import {
+  colorFamilySchema,
   departmentSchema,
+  fitFamilySchema,
   geoSchema,
   hexColorSchema,
   idSchema,
@@ -417,6 +420,24 @@ export const productDraftSchema = z.object({
   /** Increments on every save; stale autosaves are rejected. */
   version: z.number().int().nonnegative(),
   data: z.record(z.string(), z.unknown()),
+  /** Mirrors the product's status (server-maintained), so the list needs one query. */
+  status: productStatusSchema.default("draft"),
+  summary: z
+    .object({
+      name: z.string(),
+      categoryKey: z.string(),
+      image: z.string().optional(),
+      colors: z.number().int().nonnegative(),
+      variants: z.number().int().nonnegative(),
+      priceMin: z.number().int().nonnegative().nullable(),
+      priceMax: z.number().int().nonnegative().nullable(),
+      stock: z.number().int().nonnegative(),
+      lowStock: z.boolean(),
+    })
+    .optional(),
+  /** Reviewer notes when changes are requested. */
+  reviewNotes: z.array(z.string().max(500)).max(20).default([]),
+  createdAt: timestampSchema.optional(),
   updatedBy: idSchema,
   updatedAt: timestampSchema,
 });
@@ -535,3 +556,169 @@ export const merchantResetPasswordSchema = z
     },
     { when: alwaysForObjects },
   );
+
+// ---------------------------------------------------------------- shop forms
+
+const focalSchema = z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
+
+/** Onboarding step 2 / Shop › Branding. Media ids come from the upload pipeline. */
+export const shopBrandingInputSchema = z.object({
+  shopId: idSchema,
+  logoMediaId: idSchema.optional(),
+  bannerMediaId: idSchema.optional(),
+  bannerFocal: focalSchema.optional(),
+  accent: z.enum(ACCENT_VALUES),
+});
+export type ShopBrandingInput = z.infer<typeof shopBrandingInputSchema>;
+
+/** Onboarding step 3 / Shop › Policies. Optional fields arrive as "" from forms. */
+export const shopContactInputSchema = z.object({
+  shopId: idSchema,
+  contact: z.object({
+    email: merchantEmailSchema,
+    phone: e164PhoneSchema.optional().or(z.literal("").transform(() => undefined)),
+    website: websiteSchema.optional().or(z.literal("").transform(() => undefined)),
+  }),
+  social: z.object({
+    instagram: handle("instagram")
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+    tiktok: handle("tiktok")
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+    facebook: handle("facebook")
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+  }),
+  returnPolicy: returnPolicySchema,
+  shipping: z.object({
+    shipsFromLocationId: idSchema.optional().or(z.literal("").transform(() => undefined)),
+    processingTime: z.enum(PROCESSING_TIME_VALUES),
+  }),
+});
+export type ShopContactInput = z.infer<typeof shopContactInputSchema>;
+
+/** Onboarding step 4 / Shop › Locations: one location, new or edited. */
+export const locationInputSchema = z
+  .object({
+    shopId: idSchema,
+    locationId: idSchema.optional(),
+    name: z.string().trim().min(1, "Enter a name for this location").max(80),
+    types: z.array(z.enum(LOCATION_TYPE_VALUES)).min(1, "Choose what this location is"),
+    address: locationAddressSchema.omit({ country: true }),
+    timezone: z.string().max(64).optional(),
+    hours: weeklyHoursSchema,
+    specialHours: z.array(specialHoursSchema).max(MERCHANT_LIMITS.location.specialHoursMax),
+    phone: e164PhoneSchema.optional().or(z.literal("").transform(() => undefined)),
+  })
+  .superRefine((value, ctx) => {
+    const [problem] = weeklyHoursProblems(value.hours);
+    if (problem) ctx.addIssue({ code: "custom", path: ["hours"], message: problem });
+    if (value.types.includes("retail") && value.hours.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["hours"],
+        message: "Add opening hours so shoppers know when to visit",
+      });
+    }
+  });
+export type LocationInput = z.infer<typeof locationInputSchema>;
+
+// ---------------------------------------------------------------- product editor
+
+/** One photo in a colour's gallery. `altConfirmed` stays false until the merchant checks the suggestion. */
+export const draftImageSchema = merchantImageSchema.extend({
+  altConfirmed: z.boolean(),
+  focal: z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) }).optional(),
+});
+export type DraftImage = z.infer<typeof draftImageSchema>;
+
+export const draftColorSchema = z.object({
+  /** Stable id, so renaming a colour keeps its variants and photos. */
+  code: z.string().regex(/^[a-z0-9-]{1,40}$/),
+  name: z.string().trim().max(40),
+  family: colorFamilySchema,
+  swatch: hexColorSchema,
+  images: z.array(draftImageSchema).max(MERCHANT_LIMITS.productImage.maxPerColor),
+  video: z
+    .object({ mediaId: idSchema, url: z.string().min(1), durationSeconds: z.number().positive() })
+    .optional(),
+});
+export type DraftColor = z.infer<typeof draftColorSchema>;
+
+const cents = z.number().int().nonnegative();
+
+export const matrixRowSchema = z.object({
+  key: z.string().max(200),
+  color: z.string().max(40),
+  fit: fitFamilySchema,
+  size: z.string().max(20),
+  sku: z.string().trim().max(64),
+  price: cents.nullable(),
+  compareAtPrice: cents.nullable(),
+  stock: z.record(z.string(), z.number().int().nonnegative()),
+  barcode: z.string().trim().max(32),
+  weightGrams: z.number().int().nonnegative().nullable(),
+  availableOnline: z.boolean(),
+  backorder: z.boolean(),
+  lowStockThreshold: z.number().int().nonnegative().max(9999),
+});
+
+/**
+ * Everything the product editor holds. Autosave accepts incomplete work, so
+ * fields are lenient here; submit and publish run the strict checks.
+ */
+export const productDraftDataSchema = z.object({
+  name: z.string().max(MERCHANT_LIMITS.product.nameMax),
+  description: z.string().max(MERCHANT_LIMITS.product.descriptionMax),
+  highlights: z
+    .array(z.string().max(MERCHANT_LIMITS.product.highlightMax))
+    .max(MERCHANT_LIMITS.product.highlightsMax),
+  categoryKey: z.string().max(120),
+  styleId: z.string().trim().max(40),
+  attributes: z.record(z.string(), z.union([z.string(), z.array(z.string())])),
+  composition: z
+    .array(z.object({ material: z.string().max(40), percent: z.number().int().min(0).max(100) }))
+    .max(8),
+  colors: z.array(draftColorSchema).max(30),
+  fits: z.array(fitFamilySchema),
+  sizes: z.array(z.string().max(20)).max(60),
+  excluded: z.array(z.string().max(200)),
+  matrix: z.array(matrixRowSchema).max(MERCHANT_LIMITS.product.maxVariants),
+  parked: z.array(matrixRowSchema).max(MERCHANT_LIMITS.product.maxVariants),
+  details: z.object({
+    fitNotes: z.string().max(500),
+    modelInfo: z.string().max(200),
+    care: z.array(z.string().max(200)).max(8),
+    sizeGuide: z.enum(["platform", "custom"]),
+    customGuide: z.array(z.array(z.string().max(30)).max(10)).max(30),
+  }),
+  shipping: z.object({
+    weightGrams: z.number().int().nonnegative().nullable(),
+    lengthCm: z.number().nonnegative().nullable(),
+    widthCm: z.number().nonnegative().nullable(),
+    heightCm: z.number().nonnegative().nullable(),
+    shipsFromLocationId: z.string().max(128),
+    processingTime: z.enum(["", ...PROCESSING_TIME_VALUES]),
+  }),
+  seo: z.object({ title: z.string().max(70), description: z.string().max(160) }),
+  slug: z.string().max(120),
+  searchKeywords: z.array(z.string().max(60)).max(MERCHANT_LIMITS.product.keywordsMax),
+  /** ISO date-time for a scheduled publish, or "". */
+  publishAt: z.string().max(40),
+});
+export type ProductDraftData = z.infer<typeof productDraftDataSchema>;
+
+/** What the product list shows, maintained by the server on every save. */
+export const draftSummarySchema = z.object({
+  name: z.string(),
+  categoryKey: z.string(),
+  image: z.string().optional(),
+  colors: z.number().int().nonnegative(),
+  variants: z.number().int().nonnegative(),
+  priceMin: cents.nullable(),
+  priceMax: cents.nullable(),
+  stock: z.number().int().nonnegative(),
+  lowStock: z.boolean(),
+});
+export type DraftSummary = z.infer<typeof draftSummarySchema>;

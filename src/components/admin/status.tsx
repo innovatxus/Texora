@@ -40,19 +40,4 @@ export function ReturnStatusPill({ status }: { status: Return["status"] }) {
   );
 }
 
-const dateTime = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-const dateOnly = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
-/** "Oct 19, 3:04 PM" in the server's time zone. */
-export const formatDateTime = (d: Date) => dateTime.format(d);
-/** "Oct 19, 2026". */
-export const formatDate = (d: Date) => dateOnly.format(d);
+export { formatDate, formatDateTime } from "@/lib/format/date";

@@ -20,15 +20,6 @@
   --color-success: #2f5d3a;
   --color-warning: #8a6100;
   --color-focus: #2b5cd6;
-  /* Merchant shop accents (src/config/merchant.ts); AA-checked by npm run contrast. */
-  --color-shop-ink: #1f2a44;
-  --color-shop-moss: #3d5a3a;
-  --color-shop-clay: #94472a;
-  --color-shop-harbour: #1d566a;
-  --color-shop-plum: #5e3a5c;
-  --color-shop-saffron: #7f5400;
-  --color-shop-rose: #9b3656;
-  --color-shop-slate: #45505b;
   --color-scrim: rgb(26 26 26 / 0.4);
 
   /* Typography scale: fixed for UI sizes, fluid for editorial sizes. */
@@ -85,4 +76,20 @@
   --transition-duration-slow: 400ms;
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/*
+ * Merchant shop accents (src/config/merchant.ts), AA-checked by npm run contrast.
+ * "static" so every accent is always emitted as a variable: shop pages pick
+ * one at runtime through an inline style, which Tailwind can't see at build.
+ */
+@theme static {
+  --color-shop-ink: #1f2a44;
+  --color-shop-moss: #3d5a3a;
+  --color-shop-clay: #94472a;
+  --color-shop-harbour: #1d566a;
+  --color-shop-plum: #5e3a5c;
+  --color-shop-saffron: #7f5400;
+  --color-shop-rose: #9b3656;
+  --color-shop-slate: #45505b;
 }

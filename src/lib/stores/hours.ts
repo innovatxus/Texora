@@ -55,37 +55,92 @@ export interface OpenStatus {
   label: string;
 }
 
-type HoursStore = Pick<Store, "hours" | "timezone" | "status">;
+interface Range {
+  open: string;
+  close: string;
+}
 
-/** "Open until 8pm" / "Closed · opens 10am tomorrow", in the store's time zone. */
-export function openStatus(store: HoursStore, now: Date): OpenStatus {
-  if (store.status === "closed") return { open: false, label: "Permanently closed" };
-  if (store.status === "temporarily_closed") return { open: false, label: "Temporarily closed" };
+/** A one-off change for one local date (merchant locations; Texora stores have none). */
+export interface SpecialHours {
+  date: string;
+  closed: boolean;
+  open?: string | undefined;
+  close?: string | undefined;
+}
 
-  const { day, minutes } = localTime(now, store.timezone);
-  const today = store.hours.find((h) => h.day === day);
-  if (today && minutes >= toMinutes(today.open) && minutes < toMinutes(today.close)) {
-    return { open: true, label: `Open until ${formatTime(today.close)}` };
+/**
+ * Anything with weekly hours: Texora stores (one range a day) and merchant
+ * locations (up to two ranges a day, plus special dates), D-066.
+ */
+export interface HoursSource {
+  hours: ReadonlyArray<Range & { day: number }>;
+  timezone: string;
+  status?: Store["status"] | "active" | "archived";
+  specialHours?: readonly SpecialHours[];
+}
+
+/** YYYY-MM-DD for a date `offset` days from now, in the given time zone. */
+function localDate(now: Date, timeZone: string, offset = 0): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(now.getTime() + offset * 86_400_000));
+}
+
+/** Ranges for a day, honouring a special-hours entry for that date. */
+function rangesFor(source: HoursSource, day: number, date: string): Range[] {
+  const special = source.specialHours?.find((s) => s.date === date);
+  if (special) {
+    return special.closed || !special.open || !special.close
+      ? []
+      : [{ open: special.open, close: special.close }];
   }
-  if (today && minutes < toMinutes(today.open)) {
-    return { open: false, label: `Closed · opens ${formatTime(today.open)}` };
-  }
+  return source.hours
+    .filter((h) => h.day === day)
+    .map(({ open, close }) => ({ open, close }))
+    .sort((a, b) => toMinutes(a.open) - toMinutes(b.open));
+}
+
+/** "Open until 8pm" / "Closed · opens 10am tomorrow", in the location's own time zone. */
+export function openStatus(source: HoursSource, now: Date): OpenStatus {
+  if (source.status === "closed") return { open: false, label: "Permanently closed" };
+  if (source.status === "temporarily_closed") return { open: false, label: "Temporarily closed" };
+
+  const { day, minutes } = localTime(now, source.timezone);
+  const today = rangesFor(source, day, localDate(now, source.timezone));
+  const current = today.find((r) => minutes >= toMinutes(r.open) && minutes < toMinutes(r.close));
+  if (current) return { open: true, label: `Open until ${formatTime(current.close)}` };
+  const laterToday = today.find((r) => minutes < toMinutes(r.open));
+  if (laterToday) return { open: false, label: `Closed · opens ${formatTime(laterToday.open)}` };
+
   for (let offset = 1; offset <= 7; offset += 1) {
     const nextDay = (day + offset) % 7;
-    const hours = store.hours.find((h) => h.day === nextDay);
-    if (hours) {
+    const [first] = rangesFor(source, nextDay, localDate(now, source.timezone, offset));
+    if (first) {
       const when = offset === 1 ? "tomorrow" : (DAY_NAMES[nextDay] ?? "");
-      return { open: false, label: `Closed · opens ${formatTime(hours.open)} ${when}` };
+      return { open: false, label: `Closed · opens ${formatTime(first.open)} ${when}` };
     }
   }
   return { open: false, label: "Closed" };
 }
 
-/** Opening hours grouped Monday-first for display, e.g. "Mon–Thu 10am–8pm". */
-export function weeklyHours(store: Pick<Store, "hours">): Array<{ day: number; text: string }> {
+/** Opening hours Monday-first for display, e.g. "10am – 1pm, 2pm – 6pm". */
+export function weeklyHours(
+  source: Pick<HoursSource, "hours">,
+): Array<{ day: number; text: string }> {
   return [1, 2, 3, 4, 5, 6, 0].map((day) => {
-    const h = store.hours.find((x) => x.day === day);
-    return { day, text: h ? `${formatTime(h.open)} – ${formatTime(h.close)}` : "Closed" };
+    const ranges = source.hours
+      .filter((x) => x.day === day)
+      .sort((a, b) => toMinutes(a.open) - toMinutes(b.open));
+    return {
+      day,
+      text:
+        ranges.length > 0
+          ? ranges.map((h) => `${formatTime(h.open)} – ${formatTime(h.close)}`).join(", ")
+          : "Closed",
+    };
   });
 }
 

@@ -49,6 +49,9 @@ export const MERCHANT_LIMITS = {
   tmpMediaMaxAgeHours: 24,
 } as const;
 
+/** Where new shop submissions and merchant questions go. */
+export const MERCHANT_TEAM_EMAIL = "merchants@texora.example";
+
 /** File types accepted per upload kind (checked again from the file's bytes on the server). */
 export const MEDIA_TYPES = {
   logo: ["image/png", "image/jpeg", "image/webp", "image/svg+xml"],
