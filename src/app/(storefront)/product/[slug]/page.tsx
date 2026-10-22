@@ -23,7 +23,10 @@ import { getPublicShopById, returnSummary } from "@/lib/merchant/storefront";
 
 /** Prerenders every live product page. */
 export async function generateStaticParams() {
-  return (await listLiveProductSlugs()).map((slug) => ({ slug }));
+  const slugs = await listLiveProductSlugs();
+  // Cache Components needs at least one entry. A new store has no products yet;
+  // "texora" is a reserved name, never a product, so it renders the not-found page.
+  return (slugs.length ? slugs : ["texora"]).map((slug) => ({ slug }));
 }
 
 /** Title, description, canonical URL and share image for a product. */

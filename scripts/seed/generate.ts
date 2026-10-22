@@ -234,6 +234,39 @@ export function buildStoreSettings(now: Date): StoreSettings {
   return settings;
 }
 
+/**
+ * The storefront's collections (linked from the menu and promotions). The
+ * seed fills them from the catalog; the live-store setup creates them empty.
+ */
+export function buildCollections(live: readonly Product[]): Collection[] {
+  return [
+    {
+      id: "the-linen-edit",
+      slug: "the-linen-edit",
+      name: "The Linen Edit",
+      description: "Breathable, easy pieces in washed linen for warm days and long evenings.",
+      productIds: live.filter((p) => p.attributes.material === "linen").map((p) => p.id),
+    },
+    {
+      id: "new-arrivals",
+      slug: "new-arrivals",
+      name: "New Arrivals",
+      description: "The latest additions to the collection.",
+      productIds: [...live]
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, 24)
+        .map((p) => p.id),
+    },
+    {
+      id: "knitwear",
+      slug: "knitwear",
+      name: "Considered Knitwear",
+      description: "Merino, cashmere and lambswool sweaters made to be worn for years.",
+      productIds: live.filter((p) => p.categoryPath[1] === "sweaters").map((p) => p.id),
+    },
+  ].map((c) => collectionSchema.parse({ ...c, status: "live", seo: { title: c.name } }));
+}
+
 /** Builds the complete, schema-validated seed data set. Deterministic for a given seed number and date. */
 export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedData {
   const rng = createRng(options.seed ?? 20261019);
@@ -648,32 +681,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
 
   // ------------------------------------------------------ collections
   const live = products.filter((p) => p.status === "live");
-  const collections: Collection[] = [
-    {
-      id: "the-linen-edit",
-      slug: "the-linen-edit",
-      name: "The Linen Edit",
-      description: "Breathable, easy pieces in washed linen for warm days and long evenings.",
-      productIds: live.filter((p) => p.attributes.material === "linen").map((p) => p.id),
-    },
-    {
-      id: "new-arrivals",
-      slug: "new-arrivals",
-      name: "New Arrivals",
-      description: "The latest additions to the collection.",
-      productIds: [...live]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-        .slice(0, 24)
-        .map((p) => p.id),
-    },
-    {
-      id: "knitwear",
-      slug: "knitwear",
-      name: "Considered Knitwear",
-      description: "Merino, cashmere and lambswool sweaters made to be worn for years.",
-      productIds: live.filter((p) => p.categoryPath[1] === "sweaters").map((p) => p.id),
-    },
-  ].map((c) => collectionSchema.parse({ ...c, status: "live", seo: { title: c.name } }));
+  const collections = buildCollections(live);
 
   // ----------------------------------------------------------- orders
   // Sample order history for order lookup, tracking and returns demos.

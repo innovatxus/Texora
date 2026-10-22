@@ -109,6 +109,20 @@ describe("serverEnvSchema", () => {
     );
   });
 
+  it("treats a blank service account as unset", () => {
+    const env = parseEnv(
+      serverEnvSchema,
+      {
+        FIREBASE_PROJECT_ID: "demo-texora",
+        FIREBASE_STORAGE_BUCKET: "demo-texora.appspot.com",
+        ORDER_TOKEN_SECRET: "x".repeat(32),
+        FIREBASE_SERVICE_ACCOUNT: "",
+      },
+      "server",
+    );
+    expect(env.FIREBASE_SERVICE_ACCOUNT).toBeUndefined();
+  });
+
   it("rejects a malformed service account", () => {
     expect(() =>
       parseEnv(

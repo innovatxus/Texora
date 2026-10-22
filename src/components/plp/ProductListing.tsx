@@ -148,8 +148,19 @@ export async function ProductListing({
           </div>
         )}
 
-        {items.length === 0 && emptyScope && resolved.products.length === 0 ? (
-          <ErrorState title={emptyScope.title} description={emptyScope.description} />
+        {items.length === 0 && resolved.products.length === 0 ? (
+          // Nothing in this scope at all (not a filter result), e.g. a new collection.
+          <ErrorState
+            title={emptyScope?.title ?? "Nothing here yet"}
+            description={emptyScope?.description ?? "New pieces are on their way. Check back soon."}
+            actions={
+              emptyScope ? undefined : (
+                <ButtonLink href="/" variant="secondary">
+                  Continue shopping
+                </ButtonLink>
+              )
+            }
+          />
         ) : items.length === 0 ? (
           <ErrorState
             title="No products match these filters"

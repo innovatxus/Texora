@@ -35,23 +35,25 @@ export const serverEnvSchema = z
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     FIREBASE_PROJECT_ID: z.string().min(1),
     FIREBASE_STORAGE_BUCKET: z.string().min(1),
-    /** Base64-encoded service-account JSON. Required unless using emulators. */
-    FIREBASE_SERVICE_ACCOUNT: z
-      .string()
-      .min(1)
-      .transform((value, ctx) => {
-        try {
-          const json: unknown = JSON.parse(Buffer.from(value, "base64").toString("utf8"));
-          return serviceAccountSchema.parse(json);
-        } catch {
-          ctx.addIssue({
-            code: "custom",
-            message: "FIREBASE_SERVICE_ACCOUNT must be base64-encoded service-account JSON",
-          });
-          return z.NEVER;
-        }
-      })
-      .optional(),
+    /** Base64-encoded service-account JSON. Required unless using emulators; blank means unset. */
+    FIREBASE_SERVICE_ACCOUNT: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z
+        .string()
+        .transform((value, ctx) => {
+          try {
+            const json: unknown = JSON.parse(Buffer.from(value, "base64").toString("utf8"));
+            return serviceAccountSchema.parse(json);
+          } catch {
+            ctx.addIssue({
+              code: "custom",
+              message: "FIREBASE_SERVICE_ACCOUNT must be base64-encoded service-account JSON",
+            });
+            return z.NEVER;
+          }
+        })
+        .optional(),
+    ),
     USE_FIREBASE_EMULATORS: z.stringbool().default(false),
     FIRESTORE_EMULATOR_HOST: z.string().min(1).optional(),
     FIREBASE_AUTH_EMULATOR_HOST: z.string().min(1).optional(),

@@ -15,7 +15,7 @@ import { getAuth, type UserRecord } from "firebase-admin/auth";
 import { getFirestore, type DocumentReference } from "firebase-admin/firestore";
 import { passwordProblem } from "../src/lib/auth/password";
 import { userSchema } from "../src/lib/validation/customer";
-import { buildCategories, buildStoreSettings } from "./seed/generate";
+import { buildCategories, buildCollections, buildStoreSettings } from "./seed/generate";
 import { buildStarterPages } from "./seed/pages";
 
 loadEnvConfig(process.cwd());
@@ -191,6 +191,12 @@ async function main() {
     if (await createIfMissing(db.collection("pages").doc(p.slug), withoutId(p))) pages++;
   }
 
+  // Collections are linked from the menu and promotions; they start empty.
+  let collections = 0;
+  for (const c of buildCollections([])) {
+    if (await createIfMissing(db.collection("collections").doc(c.id), withoutId(c))) collections++;
+  }
+
   // Order numbers continue from here (the same starting point as the seed).
   await createIfMissing(db.collection("counters").doc("orders"), { value: 100000 });
 
@@ -201,6 +207,7 @@ Done.
   Store settings: ${settings ? "created" : "already set (kept)"}
   Categories:     ${categories} created (existing ones kept)
   Pages:          ${pages} created (existing ones kept)
+  Collections:    ${collections} created (existing ones kept)
   Admin:          ${adminEmail} ${admin}
 
 Sign in at /auth/signin, then open /admin.`);

@@ -47,6 +47,21 @@ A Husky pre-commit hook runs ESLint and Prettier on staged files.
 
 `build`, `verify` and `e2e` need the emulators running and seeded: catalog pages prerender from Firestore.
 
+## Live Firebase project (staging)
+
+Everyday development uses the emulators. To test against a real Firebase project:
+
+1. In the Firebase console, start **Authentication** (enable Email/Password), **Firestore** and **Storage** (production mode).
+2. Put the project's web config and a base64 service-account key in `.env.local` (see `.env.example`), with `USE_FIREBASE_EMULATORS=false` and `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false`. Keep a copy of your emulator `.env.local` to switch back.
+3. Deploy the security rules and indexes before anything connects:
+   `npx firebase deploy --only firestore:rules,firestore:indexes,storage --project <project-id>`
+4. Run the one-time setup: `npm run bootstrap -- --project <project-id> --admin-email you@example.com --name "Your Name"`. It creates the store settings, categories, collections, starter pages (with royalty-free photography, see [`docs/IMAGE_CREDITS.md`](docs/IMAGE_CREDITS.md)) and your super-admin account (password typed at a hidden prompt). It never overwrites existing data and adds no demo customers, orders or products.
+5. `npm run build && npm run start`, then sign in at `/auth/signin` and open `/admin`.
+
+Set `STAGING=true` for any test deployment: every response carries `X-Robots-Tag: noindex` and `robots.txt` blocks crawlers, and without `RESEND_API_KEY` emails go to the `emailOutbox` collection (Firebase console → Firestore) instead of failing the start-up check. The public launch needs `RESEND_API_KEY` and `STAGING` removed.
+
+`npm run seed` and Playwright refuse to run against a non-`demo-` project, and the integration and rules tests always use their own demo projects, so a live `.env.local` can't be filled with test data by accident.
+
 ## Merchant portal
 
 Independent shops sell on Texora through the merchant portal. Shoppers find it from **Sell on Texora** in the footer (`/merchants`).

@@ -17,7 +17,9 @@ async function getStoreBySlug(slug: string): Promise<Store | null> {
 
 /** Prerenders a page for every open store. */
 export async function generateStaticParams() {
-  return (await getStores()).filter((s) => s.status !== "closed").map((s) => ({ slug: s.slug }));
+  const slugs = (await getStores()).filter((s) => s.status !== "closed").map((s) => s.slug);
+  // At least one entry is required; with no stores, "texora" renders the not-found page.
+  return (slugs.length ? slugs : ["texora"]).map((slug) => ({ slug }));
 }
 
 /** Title, description and canonical URL for a store. */

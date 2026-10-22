@@ -106,7 +106,8 @@ async function heroMobile(source: Buffer): Promise<Buffer> {
   const W = 1200;
   const H = 1500;
   const photo = sharp(source);
-  const ph = Math.round(H * 0.66);
+  // The copy starts about halfway down the phone hero, so the photo keeps to the top half.
+  const ph = Math.round(H * 0.5);
   const placed = await photo.clone().resize({ height: ph }).toBuffer();
   const { width: pw = 600 } = await sharp(placed).metadata();
   const soft = await sharp(placed)

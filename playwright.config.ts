@@ -1,4 +1,18 @@
+import { loadEnvConfig } from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
+
+// E2E creates accounts, shops and orders. Load the env the server will use and
+// refuse to run unless it points at the emulators, never a live project.
+loadEnvConfig(process.cwd());
+if (
+  process.env.USE_FIREBASE_EMULATORS !== "true" ||
+  !process.env.FIREBASE_PROJECT_ID?.startsWith("demo-")
+) {
+  throw new Error(
+    "Refusing to run E2E against a real Firebase project. Point your env at the emulators " +
+      "(copy .env.example, or export its values) before running Playwright.",
+  );
+}
 
 const PORT = Number(process.env.PORT ?? 3000);
 const baseURL = `http://localhost:${PORT}`;
