@@ -6,18 +6,18 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.1 Global shell
 
-| Feature          | Behaviour                                                                               | Implementation                       | Phase | Status                                                                  |
-| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------ | ----- | ----------------------------------------------------------------------- |
-| Announcement bar | Rotating CMS messages, dismissible, link, optional countdown                            | `navigation/AnnouncementBar`         | 3     | Done (UI); CMS-driven messages in Phase 8                               |
-| Header           | Logo, department nav, search, stores, account, wishlist, live bag count                 | `navigation/Header`                  | 3     | Done                                                                    |
-| Sticky header    | Shows on scroll-up, hides on scroll-down, compact after 80px                            | `navigation/Header`                  | 3     | Done                                                                    |
-| Mega menu        | 150ms hover intent, keyboard, category/fit columns, featured tile, Esc/outside close    | `navigation/MegaMenu`                | 3     | Done                                                                    |
-| Mobile nav       | Full-height drawer, drill-down panels, recently viewed, account shortcuts               | `navigation/MobileNav`               | 3     | Done                                                                    |
-| Search overlay   | 150ms debounced instant results, suggestions, top 4 hits, recents, no-results fallback  | `navigation/SearchOverlay` + Algolia | 3     | Done (in-process index; Algolia later)                                  |
-| Search relevance | Typo tolerance and synonyms                                                             | Algolia index settings               | 3     | In progress (typos, plurals, synonyms in-process; Algolia config later) |
-| Footer           | Link columns, email signup with consent, social, country/currency, legal, payment icons | `navigation/Footer`                  | 3     | Done                                                                    |
-| Signup modal     | Time/scroll trigger, frequency cap, suppressed in checkout                              | `feedback/SignupModal`               | 3     | Done                                                                    |
-| Cookie consent   | Category toggles; analytics only after consent                                          | `feedback/ConsentBanner`             | 3     | Done (analytics gating applies once analytics lands)                    |
+| Feature          | Behaviour                                                                                       | Implementation                       | Phase | Status                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------ | ----- | ----------------------------------------------------------- |
+| Announcement bar | Rotating CMS messages, dismissible, link, optional countdown                                    | `navigation/AnnouncementBar`         | 3     | Done (UI); CMS-driven messages in Phase 8                   |
+| Header           | Logo, department nav, search, stores, account, wishlist, live bag count                         | `navigation/Header`                  | 3     | Done                                                        |
+| Sticky header    | Shows on scroll-up, hides on scroll-down, compact after 80px                                    | `navigation/Header`                  | 3     | Done                                                        |
+| Mega menu        | 150ms hover intent, keyboard, category/fit columns, featured tile, Esc/outside close            | `navigation/MegaMenu`                | 3     | Done                                                        |
+| Mobile nav       | Full-height drawer, drill-down panels, recently viewed, account shortcuts                       | `navigation/MobileNav`               | 3     | Done                                                        |
+| Search overlay   | 150ms debounced instant results, suggestions, top 4 hits, recents, no-results fallback          | `navigation/SearchOverlay` + Algolia | 3     | Done (in-process index; Algolia later)                      |
+| Search relevance | Typo tolerance (one edit on 4+ letters), plurals, retail synonyms, prefix matching while typing | Algolia index settings               | 3     | Done (in-process; an Algolia index is an optional scale-up) |
+| Footer           | Link columns, email signup with consent, social, country/currency, legal, payment icons         | `navigation/Footer`                  | 3     | Done                                                        |
+| Signup modal     | Time/scroll trigger, frequency cap, suppressed in checkout                                      | `feedback/SignupModal`               | 3     | Done                                                        |
+| Cookie consent   | Category toggles; analytics only after consent                                                  | `feedback/ConsentBanner`             | 3     | Done (analytics gating applies once analytics lands)        |
 
 ## 7.2 Home & editorial
 
@@ -54,7 +54,7 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 | Badges         | Priority-ordered, max 1 visible                        | `primitives/Badge` + resolver              | 4     | Done                                  |
 | Price & rating | Regular/sale/range, % off, stars + count               | `commerce/PriceDisplay`, `commerce/Rating` | 4     | Done                                  |
 | Quick add      | Size buttons on hover, adds and opens bag drawer       | `commerce/AddToBag`                        | 4     | Done                                  |
-| Quick view     | Modal behind feature flag                              | `features.ts` flag                         | 4     | Planned (feature-flagged)             |
+| Quick view     | Modal behind feature flag                              | `features.ts` flag                         | 4     | Excluded (see below)                  |
 | Wishlist heart | Optimistic, animated, accessible label                 | `commerce/WishlistButton`                  | 4     | Done (local; account sync in Phase 7) |
 
 ## 7.5 Product detail page
@@ -92,15 +92,15 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.7 Checkout
 
-| Feature         | Behaviour                                                    | Implementation                         | Phase | Status                                                                      |
-| --------------- | ------------------------------------------------------------ | -------------------------------------- | ----- | --------------------------------------------------------------------------- |
-| Minimal layout  | No mega menu or footer                                       | `checkout/layout`                      | 6     | Done                                                                        |
-| Entry           | Sign in, guest, express pay (Apple/Google Pay via Stripe)    | `checkout/*`                           | 6     | In progress (guest + sign-in link done; express pay needs live Stripe keys) |
-| Steps           | Shipping → delivery → payment → review                       | `checkout/Stepper`                     | 6     | Done                                                                        |
-| Layout          | Desktop sticky summary; mobile collapsible summary           | `checkout/*`                           | 6     | Done                                                                        |
-| Resilience      | Inline Zod errors, step state survives refresh               | Persisted step store                   | 6     | Done                                                                        |
-| Order placement | Idempotency key, inventory transaction, webhook confirmation | Server Action + `api/webhooks`         | 6     | Done                                                                        |
-| Confirmation    | Page + email                                                 | `order-confirmation/[id]`, React Email | 6     | Done                                                                        |
+| Feature         | Behaviour                                                                                                                        | Implementation                         | Phase | Status                               |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----- | ------------------------------------ |
+| Minimal layout  | No mega menu or footer                                                                                                           | `checkout/layout`                      | 6     | Done                                 |
+| Entry           | Sign in, guest checkout, express pay: Apple Pay and Google Pay appear in Stripe's payment form when card payments are configured | `checkout/*`                           | 6     | Done (express pay needs Stripe keys) |
+| Steps           | Shipping → delivery → payment → review                                                                                           | `checkout/Stepper`                     | 6     | Done                                 |
+| Layout          | Desktop sticky summary; mobile collapsible summary                                                                               | `checkout/*`                           | 6     | Done                                 |
+| Resilience      | Inline Zod errors, step state survives refresh                                                                                   | Persisted step store                   | 6     | Done                                 |
+| Order placement | Idempotency key, inventory transaction, webhook confirmation                                                                     | Server Action + `api/webhooks`         | 6     | Done                                 |
+| Confirmation    | Page + email                                                                                                                     | `order-confirmation/[id]`, React Email | 6     | Done                                 |
 
 ## 7.8 Account
 
@@ -153,7 +153,7 @@ Account creation, sign-in and every `account/*` page move to the final phase at 
 | Users & roles        | Invite staff, assign roles (policy-checked), sign out everywhere                              | `admin/users`, `people-service`        | 8     | Done                                                                  |
 | Settings             | Shipping rates, refund limit, reservations, loyalty rules, feature flags, store details       | `admin/settings`, `site-service`       | 8     | Done (tax rules and integration keys: env, D-057)                     |
 | Audit log            | Filters, pagination, CSV export (`audit.export`)                                              | `admin/audit`                          | 8     | Done                                                                  |
-| Marketplace vendor   | Vendor catalog, orders, payouts                                                               | `admin/vendor`                         | 8     | Replaced by the merchant portal build (queued)                        |
+| Marketplace vendor   | Vendor catalog and orders: delivered by the merchant portal (section 10)                      | `admin/vendor`                         | 8     | Done (merchant portal)                                                |
 
 ## 10. Merchant portal (`MERCHANT_PORTAL_BUILD_PROMPT.md`)
 
@@ -177,15 +177,14 @@ Account creation, sign-in and every `account/*` page move to the final phase at 
 | Account settings          | Display name; email change with re-verification; username change once per 30 days; change password (checks current, signs out other devices); sign out everywhere; optional new-order and review emails (shop status emails always on)                                                                                                                                                                                                                                                                            | `(merchant)/merchant/settings`, `lib/merchant/settings-service.ts`                                            | M8    | Done                                 |
 | Portal QA                 | Full journey from the footer to a shipped order (3 colours × 2 fits × 6 sizes with photos; PLP, search and shop page); cross-merchant isolation (UI, actions, rules); axe on every portal route; per-route JS budgets (`npm run budget`); visual baselines at 375/768/1440                                                                                                                                                                                                                                        | `e2e/marketplace.spec.ts`, `e2e/merchant-portal.spec.ts`, `scripts/bundle-budget.mjs`                         | M8    | Done                                 |
 | Seed merchants            | 3 approved shops (brand, boutique, designer) with logo, banner, 2 locations and 11–12 live products each (3 colours × 2 fits × 6 sizes, built through the matrix, publish checks and storefront builder); 1 shop pending review; 1 with changes requested                                                                                                                                                                                                                                                         | `scripts/seed/merchant-definitions.ts`, `scripts/seed/merchants.ts`                                           | M9    | Done                                 |
-| Payouts                   | Stripe Connect payouts                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | —                                                                                                             | —     | Out of scope (prompt 3.9)            |
-| TOTP two-factor           | Optional authenticator-app sign-in                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | —                                                                                                             | —     | Not built (D-070)                    |
-
-## Exclusions
-
-None yet.
+| Payouts                   | Stripe Connect payouts                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | —                                                                                                             | —     | Excluded (see below)                 |
+| TOTP two-factor           | Optional authenticator-app sign-in                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | —                                                                                                             | —     | Excluded (see below)                 |
 
 ## Excluded
 
-| Feature                              | Reason                                                                                                        |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| Buy online, pick up in store (BOPIS) | Owner request: delivery only (D-044). Store stock per location stays in the data model for the store locator. |
+| Feature                              | Reason                                                                                                                                                  |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Buy online, pick up in store (BOPIS) | Owner request: delivery only (D-044). Store stock per location stays in the data model for the store locator.                                           |
+| Quick view                           | Kept behind its feature flag (off). Quick add on cards and the product page cover the need without a second, heavier buy box; can be switched on later. |
+| Merchant payouts (Stripe Connect)    | Out of scope for this build (merchant prompt 3.9); orders record the seller per line, so payouts can be added later.                                    |
+| Two-factor sign-in (TOTP)            | Not built (D-070); sign-in is protected by rate limits, account lockout and strong-password rules.                                                      |

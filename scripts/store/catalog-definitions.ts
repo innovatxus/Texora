@@ -501,7 +501,7 @@ export const FIRST_NAMES = [
   "Theo",
   "Hana",
   "Lucas",
-  "Zara",
+  "Zoe",
   "Owen",
   "Mina",
   "Elias",

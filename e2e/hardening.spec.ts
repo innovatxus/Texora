@@ -95,12 +95,13 @@ test.describe("phase 9 flows", () => {
   });
 
   test("customer service refunds within their limit", async ({ page }) => {
+    // The signed-in customer's delivered order: guest-flow tests use the guest's ones.
     const order = seed.orders.find(
       (o) =>
         o.status === "delivered" &&
+        o.email === "customer@texora.test" &&
         o.payments.some((p) => p.status === "captured") &&
-        o.totals.total >= 2000 &&
-        o.refunds.length === 0,
+        o.totals.total >= 2000,
     );
     if (!order) throw new Error("No refundable seed order");
     await signIn(page, emailFor("customer_service"), "/admin");

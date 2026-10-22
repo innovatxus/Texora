@@ -56,6 +56,18 @@ A Husky pre-commit hook runs ESLint and Prettier on staged files.
 
 The test suites create accounts, shops and orders, so they never use your project. They run against the local Firebase emulators with offline `demo-` projects and the demo catalogue in `tests/fixtures/` (`tests/emulator.env` for e2e), and the e2e build goes to `.next-e2e`, so your live build is untouched. The app refuses emulator mode for anything but a `demo-` project (D-093). Pass Playwright arguments through, e.g. `npm run test:e2e -- e2e/account.spec.ts --project desktop`.
 
+## Deploy
+
+Any Node.js host for Next.js works (for example Vercel or Firebase App Hosting).
+
+1. Set every variable from `.env.example` in the host's environment, never in a committed file. `NEXT_PUBLIC_SITE_URL` is the public `https://` address. Keep `STAGING=true` for a test deployment; for launch, set `RESEND_API_KEY` and remove `STAGING`.
+2. Deploy the Firestore and Storage rules and indexes whenever `firestore/rules.template`, `storage/rules.template` or `firestore.indexes.json` change (`npm run rules:generate` first).
+3. Schedule the background jobs (`POST`, header `Authorization: Bearer $CRON_SECRET`): `/api/cron/release-reservations` and `/api/cron/merchant-publish` every 5 minutes, and `/api/cron/notifications` and `/api/cron/media-cleanup` hourly.
+4. For card payments, add the Stripe keys and point a Stripe webhook at `/api/webhooks/stripe` (events: `payment_intent.succeeded` and `payment_intent.payment_failed`), using its signing secret as `STRIPE_WEBHOOK_SECRET`.
+5. Add the production domain to Firebase Authentication → Settings → Authorized domains.
+
+How the pieces fit together: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
 ## Merchant portal
 
 Independent shops sell on Texora through the merchant portal. Shoppers find it from **Sell on Texora** in the footer (`/merchants`).

@@ -39,4 +39,23 @@ const playwrightArgs = args.filter((a) => a !== "--skip-build" && a !== "--insid
 run("npx", ["tsx", "tests/fixtures/placeholders.ts"]);
 run("npx", ["tsx", "tests/fixtures/seed/index.ts"]);
 if (!skipBuild) run("npx", ["next", "build"]);
-run("npx", ["playwright", "test", ...playwrightArgs]);
+
+// A full run takes the screenshots last, on a fresh seed: other tests change
+// data (publishing, refunds, points) that would otherwise show up in them.
+const selective = playwrightArgs.some((a) => !a.startsWith("--") || a.startsWith("--grep"));
+if (selective) {
+  run("npx", ["playwright", "test", ...playwrightArgs]);
+} else {
+  const main = spawnSync(
+    "npx",
+    ["playwright", "test", "--grep-invert", "@visual", ...playwrightArgs],
+    {
+      stdio: "inherit",
+      shell: true,
+      env: process.env,
+    },
+  );
+  run("npx", ["tsx", "tests/fixtures/seed/index.ts"]);
+  run("npx", ["playwright", "test", "--grep", "@visual", ...playwrightArgs]);
+  if (main.status !== 0) process.exit(main.status ?? 1);
+}
