@@ -15,7 +15,7 @@ import { pointsFor } from "@/lib/pricing/rewards";
 import { estimateDelivery } from "@/lib/catalog/variant-selection";
 import { ONLINE_LOCATION, type OrderLine } from "@/lib/validation";
 import type { PlaceOrderInput } from "./checkout-schema";
-import { sendOrderConfirmation } from "./notifications";
+import { notifyMerchantsOfOrder, sendOrderConfirmation } from "./notifications";
 import { orderAccessToken } from "./token";
 
 export interface PlacedOrder {
@@ -84,6 +84,23 @@ export async function placeOrder(
   const actor =
     session && session.role !== "guest" ? { uid: session.uid, role: session.role } : undefined;
 
+  // Marketplace lines snapshot their merchant and shop name at purchase time.
+  const productSnaps = await db.getAll(
+    ...[...new Set(lines.map((l) => l.productId))].map((id) => db.collection("products").doc(id)),
+  );
+  const sellers = new Map(
+    productSnaps
+      .filter((s) => s.exists && s.get("vendorId"))
+      .map((s) => [
+        s.id,
+        {
+          vendorId: s.get("vendorId") as string,
+          shopId: s.get("shopId") as string,
+          shopName: (s.get("shop.name") as string | undefined) ?? "",
+        },
+      ]),
+  );
+
   const orderLines: OrderLine[] = lines.map((l) => ({
     sku: l.sku,
     productId: l.productId,
@@ -98,7 +115,9 @@ export async function placeOrder(
     discount: l.discount ?? 0,
     lineTotal: l.lineTotal ?? l.unitPrice * l.quantity,
     finalSale: l.finalSale,
+    ...(sellers.get(l.productId) ?? {}),
   }));
+  const vendorIds = [...new Set(orderLines.flatMap((l) => (l.vendorId ? [l.vendorId] : [])))];
 
   const status = paymentMethod === "card" ? "pending_payment" : "placed";
   const merchandise = bag.totals.subtotal - bag.totals.discount;
@@ -176,7 +195,7 @@ export async function placeOrder(
     const orderNumber = `TX-${next}`;
     tx.create(orderRef, {
       number: orderNumber,
-      vendorIds: [],
+      vendorIds,
       userId: actor?.uid ?? null,
       email: input.email,
       status,
@@ -269,6 +288,9 @@ export async function placeOrder(
     await Promise.all([
       sendOrderConfirmation(orderRef.id).catch((error: unknown) =>
         logger.error("order.confirmation_email_failed", { orderId: orderRef.id, error }),
+      ),
+      notifyMerchantsOfOrder(orderRef.id).catch((error: unknown) =>
+        logger.error("order.merchant_email_failed", { orderId: orderRef.id, error }),
       ),
       creditOrderPoints(orderRef.id).catch((error: unknown) =>
         logger.error("loyalty.credit_failed", { orderId: orderRef.id, error }),

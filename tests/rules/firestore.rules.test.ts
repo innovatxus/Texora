@@ -561,7 +561,7 @@ const CASES: Record<string, Case[]> = {
       name: "get another's (with vendor lines)",
       fixtures: ({ id }) => [[`orders/${id}`, { userId: "someone", vendorIds: [VENDOR_ID] }]],
       attempt: ({ db, id }) => getDoc(doc(db, "orders", id)),
-      expected: (p) => can(p, "orders.read") || isOwner(p),
+      expected: (p) => can(p, "orders.read"),
     },
     {
       name: "create",

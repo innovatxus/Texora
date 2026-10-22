@@ -137,6 +137,54 @@ test.describe("marketplace", () => {
       ).toBeVisible();
     });
 
+    // A shopper buys it (pay on delivery)...
+    await gotoReady(shopper, href);
+    await shopper
+      .getByRole("group", { name: /^Size/ })
+      .locator("label")
+      .filter({ hasNotText: "out of stock" })
+      .first()
+      .click();
+    await shopper.getByRole("button", { name: "Add to bag", exact: true }).first().click();
+    await expect(
+      shopper.getByRole("dialog", { name: /^Bag/ }).getByText("Added to your bag"),
+    ).toBeVisible();
+    await gotoReady(shopper, "/checkout");
+    await shopper.getByRole("textbox", { name: "Email", exact: true }).fill("grace@example.com");
+    await shopper.getByRole("button", { name: "Continue to shipping" }).click();
+    const field = (name: string) => shopper.getByRole("textbox", { name, exact: true });
+    await field("First name").fill("Grace");
+    await field("Last name").fill("Hopper");
+    await field("Address").fill("1 Navy Yard");
+    await field("City").fill("Arlington");
+    await shopper.getByRole("combobox", { name: "State", exact: true }).selectOption("VA");
+    await field("ZIP code").fill("22201");
+    await field("Phone").fill("703 555 0100");
+    await shopper.getByRole("button", { name: "Continue to delivery" }).click();
+    await shopper.getByRole("button", { name: "Continue to payment" }).click();
+    await shopper.getByText("Pay on delivery", { exact: true }).click();
+    await shopper.getByRole("button", { name: "Review order" }).click();
+    await shopper.getByRole("button", { name: "Place order" }).click();
+    await expect(shopper.getByRole("heading", { level: 1, name: "Thank you, Grace" })).toBeVisible({
+      timeout: 30_000,
+    });
+    const orderNumber = (
+      (await shopper.getByText(/Your order number is TX-\d{6}/).textContent()) ?? ""
+    ).match(/TX-\d{6}/)?.[0];
+    expect(orderNumber).toBeTruthy();
+
+    // ...and the merchant sees only their part of it and ships it.
+    await gotoReady(page, "/merchant/orders");
+    await page.getByRole("link", { name: orderNumber ?? "" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: orderNumber ?? "" })).toBeVisible();
+    await expect(page.getByText("Grace Hopper")).toBeVisible();
+    await page.waitForSelector("html[data-hydrated]", { state: "attached" });
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption("UPS");
+    await page.getByRole("textbox", { name: "Tracking number" }).fill("1Z999AA10123456784");
+    await page.getByRole("button", { name: "Mark shipped" }).click();
+    await expect(page.getByText(/All your items in this order have shipped/)).toBeVisible();
+    await expect(page.getByText("UPS · 1Z999AA10123456784")).toBeVisible();
+
     // Pausing the shop hides it and its products.
     await gotoReady(staff, "/admin/merchants?status=approved");
     await staff.getByRole("link", { name: shopName }).click();

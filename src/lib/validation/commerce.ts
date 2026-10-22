@@ -48,6 +48,10 @@ export const orderLineSchema = z.object({
   discount: moneySchema,
   lineTotal: moneySchema,
   finalSale: z.boolean(),
+  /** Marketplace lines: the merchant and shop at the time of purchase. */
+  vendorId: idSchema.optional(),
+  shopId: idSchema.optional(),
+  shopName: z.string().max(60).optional(),
 });
 export type OrderLine = z.infer<typeof orderLineSchema>;
 

@@ -197,10 +197,12 @@ service cloud.firestore {
     }
 
     // Orders, returns, payments and stock are written only by the server.
+    // Merchants never read orders from the client: an order holds other
+    // merchants' lines and payment details, so their view is a server-side,
+    // line-scoped query (D-085).
     match /orders/{orderId} {
       allow get, list: if isUser(resource.data.userId)
-        || can('orders.read')
-        || (can('vendor.orders.read') && vendorId() != '' && vendorId() in resource.data.get('vendorIds', []));
+        || can('orders.read');
       allow create, update, delete: if false;
     }
 

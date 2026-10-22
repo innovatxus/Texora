@@ -161,6 +161,8 @@ afterAll(async () => {
 });
 
 let productId = "";
+/** A live merchant product (published by the trusted-merchant test). */
+let liveProductId = "";
 
 describe("review and publishing", () => {
   it("submits a product for review and emails the team", async () => {
@@ -259,6 +261,7 @@ describe("review and publishing", () => {
   it("trusted merchants publish directly, or on schedule", async () => {
     await admin.setTrustLevel(reviewer, vendorId, "trusted", now);
     const direct = await readyProduct("Merino Cardigan Dress", `NWC-${run}`);
+    liveProductId = direct;
     expect(await publishing.submitProduct(actor, direct, now)).toEqual({ status: "live" });
     expect((await productDoc(direct))?.status).toBe("live");
 
@@ -289,5 +292,104 @@ describe("review and publishing", () => {
     const shop = (await db.collection("shops").doc(shopId).get()).data();
     // Live: cardigan dress + slip. Drafts: wrap dress and the tunic.
     expect(shop?.counters).toMatchObject({ live: 2, draft: 2, inReview: 0, changesRequested: 0 });
+  });
+});
+
+describe("merchant orders", () => {
+  const address = {
+    firstName: "Grace",
+    lastName: "Hopper",
+    line1: "1 Navy Yard",
+    city: "Arlington",
+    region: "VA",
+    postalCode: "22201",
+    country: "US" as const,
+    phone: "703 555 0100",
+  };
+  let orderId = "";
+  let merchantSku = "";
+
+  it("snapshots the merchant on order lines and lists the order for them only", async () => {
+    const { placeOrder } = await import("@/lib/orders/place-order");
+    const { generateSeed } = await import("../../scripts/seed/generate");
+    const seed = generateSeed();
+    const live = new Set(seed.products.filter((p) => p.status === "live").map((p) => p.id));
+    const own = seed.variants.find(
+      (v) => live.has(v.productId) && (v.stockByLocation.online ?? 0) > 3,
+    );
+    const merchantVariant = (
+      await db.collection("variants").where("productId", "==", liveProductId).get()
+    ).docs[0];
+    if (!own || !merchantVariant) throw new Error("fixtures missing");
+    merchantSku = merchantVariant.id;
+
+    const placed = await placeOrder(
+      {
+        idempotencyKey: `it-merchant-order-${run}-padding`,
+        email: "grace@example.com",
+        lines: [
+          { sku: own.sku, quantity: 1 },
+          { sku: merchantSku, quantity: 2 },
+        ],
+        promoCodes: [],
+        delivery: { method: "standard" },
+        shippingAddress: address,
+        billingAddress: address,
+        paymentMethod: "cod",
+      },
+      null,
+    );
+    orderId = placed.orderId;
+    const order = (await db.collection("orders").doc(orderId).get()).data();
+    expect(order?.vendorIds).toEqual([vendorId]);
+    const merchantLine = order?.lines.find((l: { sku: string }) => l.sku === merchantSku);
+    expect(merchantLine).toMatchObject({
+      vendorId,
+      shopId,
+      shopName: "Northwind Knits",
+      quantity: 2,
+    });
+    expect(order?.lines.find((l: { sku: string }) => l.sku === own.sku).vendorId).toBeUndefined();
+
+    const { listMerchantOrders, getMerchantOrder } = await import("@/lib/merchant/order-service");
+    const list = await listMerchantOrders(vendorId, { limit: 10 });
+    expect(list.items.map((o) => o.id)).toContain(orderId);
+    const view = await getMerchantOrder(vendorId, orderId);
+    expect(view?.lines.map((l) => l.sku)).toEqual([merchantSku]);
+    expect(await getMerchantOrder("v-someone-else", orderId)).toBeNull();
+
+    const outbox = await db.collection("emailOutbox").where("ref", "==", orderId).get();
+    expect(outbox.docs.map((d) => d.get("kind"))).toEqual(
+      expect.arrayContaining(["order_confirmation", "merchant_new_order"]),
+    );
+  });
+
+  it("ships only the merchant's items and emails the customer", async () => {
+    const { markShipped } = await import("@/lib/merchant/order-service");
+    const other = { session: { ...session, uid: "x", vendorId: "v-other" }, vendorId: "v-other" };
+    await expect(
+      markShipped(other, orderId, { carrier: "UPS", trackingNumber: "1Z999" }, now),
+    ).rejects.toMatchObject({
+      code: "not_found",
+    });
+    const view = await markShipped(
+      actor,
+      orderId,
+      { carrier: "UPS", trackingNumber: "1Z999AA" },
+      now,
+    );
+    expect(view).toMatchObject({ status: "shipped", unshipped: [] });
+    const order = (await db.collection("orders").doc(orderId).get()).data();
+    // Texora's own line is still waiting, so the order is only partly shipped.
+    expect(order?.status).toBe("partially_shipped");
+    expect(order?.shipments).toHaveLength(1);
+    expect(order?.shipments[0]).toMatchObject({ carrier: "UPS", skus: [merchantSku] });
+    await expect(
+      markShipped(actor, orderId, { carrier: "UPS", trackingNumber: "1Z999AA" }, now),
+    ).rejects.toMatchObject({
+      code: "conflict",
+    });
+    const outbox = await db.collection("emailOutbox").where("ref", "==", orderId).get();
+    expect(outbox.docs.map((d) => d.get("kind"))).toContain("merchant_shipped");
   });
 });

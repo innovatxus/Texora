@@ -3,7 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { creditOrderPoints } from "@/lib/loyalty/credit";
 import { logger } from "@/lib/observability/logger";
-import { sendOrderConfirmation } from "./notifications";
+import { notifyMerchantsOfOrder, sendOrderConfirmation } from "./notifications";
 
 interface PaymentRecord {
   provider: string;
@@ -67,6 +67,9 @@ export async function settleCardPayment(
     await Promise.all([
       sendOrderConfirmation(orderId).catch((error: unknown) =>
         logger.error("order.confirmation_email_failed", { orderId, error }),
+      ),
+      notifyMerchantsOfOrder(orderId).catch((error: unknown) =>
+        logger.error("order.merchant_email_failed", { orderId, error }),
       ),
       creditOrderPoints(orderId).catch((error: unknown) =>
         logger.error("loyalty.credit_failed", { orderId, error }),

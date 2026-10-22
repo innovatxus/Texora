@@ -434,3 +434,8 @@ Variant documents are keyed by SKU across the whole catalog, Texora's own includ
 
 **Date:** 2026-10-21 · **Phase:** Merchant 6
 `/shops/[slug]` is prerendered for every approved shop and revalidated by tag (`shops`, `shop:{slug}`). "Open now" is worked out in the browser at the shopper's time, so the page never goes dynamic. Like products, an unknown or unapproved shop shows the not-found page with `noindex` (the PPR soft-404 limitation, D-039). Revalidation uses the "max" profile, so the first visit after a change may still get the previous version while the new one renders.
+
+## D-085 — Merchants see orders only through a scoped server view
+
+**Date:** 2026-10-22 · **Phase:** Merchant 7
+Each order line records the merchant's vendor id, shop id and shop name at purchase time, and the order lists its `vendorIds`. Merchants read orders through a server query on `vendorIds` that returns only their own lines, their part's total and the ship-to address, never payment details or other merchants' items. The Firestore rule that let a vendor read whole order documents from the client was removed. "Mark shipped" adds a parcel holding only the merchant's unshipped SKUs (D-069); the order becomes "shipped" when every seller's lines are in a parcel. The customer is emailed tracking details, and merchants are emailed when an order with their items is placed or paid. Payouts remain out of scope.

@@ -13,6 +13,7 @@ export interface MerchantNavItem {
 export const MERCHANT_NAV: readonly MerchantNavItem[] = [
   { href: "/merchant", label: "Home", mobile: true },
   { href: "/merchant/products", label: "Products", mobile: true },
+  { href: "/merchant/orders", label: "Orders", mobile: true },
   { href: "/merchant/shop", label: "Shop", mobile: true },
-  { href: "/help/merchants", label: "Help", mobile: true },
+  { href: "/help/merchants", label: "Help", mobile: false },
 ];
