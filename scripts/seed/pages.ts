@@ -1,6 +1,7 @@
 // CMS page content for the seed: home, department landings and sale.
 import { cmsPageSchema, type CmsModule, type CmsPage } from "../../src/lib/cms/modules";
 import type { Product } from "../../src/lib/validation";
+import { STOCK, stockUrl, type StockKey } from "../stock-catalog";
 
 const P = "/media/placeholders";
 const everyone = { schedule: {}, audience: ["everyone" as const] };
@@ -312,10 +313,34 @@ export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
   return draftPages(products).map((page) => cmsPageSchema.parse({ ...page, updatedAt: now }));
 }
 
+/** Starter-page photography: each hero by page, each tile by the category it opens. */
+const STARTER_HEROES: Record<string, { key: StockKey; tone: "dark" | "light" }> = {
+  home: { key: "heroHome", tone: "dark" },
+  women: { key: "heroWomen", tone: "dark" },
+  // The men's studio is mid-grey: white copy passes AA there, dark copy doesn't.
+  men: { key: "heroMen", tone: "light" },
+  sale: { key: "heroSale", tone: "dark" },
+};
+const STARTER_TILES: Record<string, StockKey> = {
+  "/women/dresses": "womenDresses",
+  "/women/tops": "womenTops",
+  "/women/sweaters": "womenSweaters",
+  "/women/pants": "womenPants",
+  "/women/jeans": "womenJeans",
+  "/women/outerwear": "womenCoats",
+  "/men/shirts": "menShirts",
+  "/men/tees-polos": "menTees",
+  "/men/sweaters": "menSweaters",
+  "/men/pants": "menPants",
+  "/men/jeans": "menJeans",
+  "/men/outerwear": "menCoats",
+};
+
 /**
- * Pages for a fresh live store with no products yet: the seed's pages without
- * the lookbook (it points at demo products) and without links to the demo
- * collections. Carousels fill themselves as products go live.
+ * Pages for a fresh live store with no products yet: the seed's pages with
+ * royalty-free photography (docs/IMAGE_CREDITS.md), without the lookbook (it
+ * points at demo products) and without links to the demo collections.
+ * Carousels fill themselves as products go live.
  */
 export function buildStarterPages(now: Date): CmsPage[] {
   const toCollection = (href: string | undefined) => href?.startsWith("/collections/") ?? false;
@@ -330,7 +355,31 @@ export function buildStarterPages(now: Date): CmsPage[] {
           const ctas = module.data.ctas.map((c) =>
             toCollection(c.href) ? { ...c, href: `/${page.slug}?sort=newest` } : c,
           );
-          return [{ ...module, data: { ...module.data, ctas } }];
+          const hero = STARTER_HEROES[page.slug];
+          if (!hero) return [{ ...module, data: { ...module.data, ctas } }];
+          const image = {
+            alt: STOCK[hero.key].alt,
+            desktop: {
+              url: stockUrl(hero.key, "desktop"),
+              width: 2400,
+              height: 1200,
+              focal: { x: 0.5, y: 0.5 },
+            },
+            mobile: {
+              url: stockUrl(hero.key, "mobile"),
+              width: 1200,
+              height: 1500,
+              focal: { x: 0.5, y: 0.3 },
+            },
+          };
+          return [{ ...module, data: { ...module.data, ctas, image, tone: hero.tone } }];
+        }
+        if (module.type === "categoryTiles") {
+          const tiles = module.data.tiles.map((t) => {
+            const key = STARTER_TILES[t.href];
+            return key ? { ...t, image: { url: stockUrl(key, "tile"), alt: STOCK[key].alt } } : t;
+          });
+          return [{ ...module, data: { ...module.data, tiles } }];
         }
         if (module.type === "productCarousel" && toCollection(module.data.cta?.href)) {
           const { cta: _cta, ...data } = module.data;
