@@ -34,7 +34,9 @@ describe("product editor helpers", () => {
   });
 
   it("suggests style ids", () => {
-    expect(suggestStyleId("maison-rue", "women/dresses", 7)).toBe("MAISONRU-DRESSES-07");
+    expect(suggestStyleId("maison-rue", "s1aB4f2", "women/dresses", 7)).toBe(
+      "MAISON4F2-DRESSES-07",
+    );
   });
 
   it("defaults new rows to the first price entered", () => {

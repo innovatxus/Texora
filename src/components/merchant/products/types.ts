@@ -26,6 +26,8 @@ export interface EditorContext {
   reviewNotes: readonly string[];
   /** Signed, time-limited preview link. */
   previewHref: string;
+  /** Trusted merchants publish without review. */
+  trusted: boolean;
 }
 
 export interface SectionProps {

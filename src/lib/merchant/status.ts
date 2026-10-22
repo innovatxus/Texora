@@ -68,6 +68,8 @@ export const PRODUCT_TRANSITIONS: Transitions<ProductStatus> = {
   live: [
     { to: "draft", by: ["merchant", "admin"] }, // unpublish
     { to: "archived", by: ["merchant", "admin"] },
+    // Edits to a live product are reviewed while the published version stays on sale.
+    { to: "in_review", by: ["merchant"] },
   ],
   archived: [{ to: "draft", by: ["merchant", "admin"] }],
 };

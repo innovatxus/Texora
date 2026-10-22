@@ -25,6 +25,7 @@ export const STATIC_TOP_LEVEL_ROUTES = [
   "product",
   "sale",
   "search",
+  "shops",
   "stores",
   "styleguide",
 ] as const;

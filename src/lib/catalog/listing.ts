@@ -52,6 +52,8 @@ const FIT_LABELS: Record<string, string> = {
 
 export interface ListingFilters {
   category: string[];
+  /** Merchant shop slugs (the Shop facet). */
+  shop: string[];
   size: string[];
   fit: string[];
   color: string[];
@@ -75,6 +77,7 @@ type Params = Record<string, string | string[] | undefined>;
 /** URL keys owned by built-in filters; attribute facets may never use these. */
 export const RESERVED_FILTER_KEYS = new Set([
   "category",
+  "shop",
   "size",
   "fit",
   "color",
@@ -102,6 +105,7 @@ function list(value: string | string[] | undefined): string[] {
 /** Listing filters with nothing selected. */
 export const EMPTY_FILTERS: ListingFilters = {
   category: [],
+  shop: [],
   size: [],
   fit: [],
   color: [],
@@ -130,6 +134,7 @@ export function parseListingQuery(
   return {
     filters: {
       category: list(params.category),
+      shop: list(params.shop),
       size: list(params.size),
       fit: list(params.fit),
       color: list(params.color),
@@ -151,7 +156,15 @@ export function toSearchParams(
 ): URLSearchParams {
   const params = new URLSearchParams(extra);
   const { filters } = query;
-  for (const key of ["category", "size", "fit", "color", "price", "availability"] as const) {
+  for (const key of [
+    "category",
+    "shop",
+    "size",
+    "fit",
+    "color",
+    "price",
+    "availability",
+  ] as const) {
     for (const value of filters[key]) params.append(key, value);
   }
   for (const [key, values] of Object.entries(filters.attrs).sort(([a], [b]) =>
@@ -173,6 +186,7 @@ export function toSearchParams(
 export function countActiveFilters(filters: ListingFilters): number {
   return (
     filters.category.length +
+    filters.shop.length +
     filters.size.length +
     filters.fit.length +
     filters.color.length +
@@ -188,6 +202,7 @@ export function countActiveFilters(filters: ListingFilters): number {
 
 type FacetKey =
   | "category"
+  | "shop"
   | "size"
   | "fit"
   | "color"
@@ -204,6 +219,7 @@ function matches(p: ListingProduct, f: ListingFilters, now: number, skip?: Facet
   const any = (values: string[], test: (v: string) => boolean) =>
     values.length === 0 || values.some(test);
   if (skip !== "category" && !any(f.category, (c) => p.categoryPath[1] === c)) return false;
+  if (skip !== "shop" && !any(f.shop, (s) => p.shop?.slug === s)) return false;
   if (skip !== "size" && !any(f.size, (s) => p.sizesInStock.includes(s))) return false;
   if (skip !== "fit" && !any(f.fit, (fit) => p.fitFamilies.includes(fit))) return false;
   if (skip !== "color" && !any(f.color, (c) => p.colors.some((col) => col.family === c)))
@@ -324,6 +340,28 @@ export function computeFacets(
     });
   }
 
+  // Shop facet: only when the result mixes more than one merchant shop.
+  const shopScope = without("shop");
+  const shopNames = new Map(
+    shopScope.flatMap((p) => (p.shop ? [[p.shop.slug, p.shop.name] as const] : [])),
+  );
+  if (shopNames.size > 1 || filters.shop.length > 0) {
+    const counts = countBy(shopScope, (p) => (p.shop ? [p.shop.slug] : []));
+    facets.push({
+      key: "shop",
+      label: "Shop",
+      type: "list",
+      options: [...new Set([...shopNames.keys(), ...filters.shop])]
+        .map((slug) => ({
+          value: slug,
+          label: shopNames.get(slug) ?? titleCase(slug),
+          count: counts.get(slug) ?? 0,
+          selected: filters.shop.includes(slug),
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    });
+  }
+
   const sizeCounts = countBy(without("size"), (p) => p.sizesInStock);
   facets.push({
     key: "size",
@@ -345,7 +383,7 @@ export function computeFacets(
       key: "fit",
       label: "Fit family",
       type: "list",
-      options: ["regular", "petite", "tall"]
+      options: ["regular", "petite", "tall", "plus"]
         .filter((f) => fitCounts.has(f) || filters.fit.includes(f))
         .map((f) => ({
           value: f,
@@ -506,7 +544,15 @@ export function describeActiveFilters(
     facets.find((f) => f.key === key)?.options.find((o) => o.value === value)?.label ??
     titleCase(value);
   const chips: Array<{ key: string; value: string; label: string }> = [];
-  for (const key of ["category", "size", "fit", "color", "price", "availability"] as const) {
+  for (const key of [
+    "category",
+    "shop",
+    "size",
+    "fit",
+    "color",
+    "price",
+    "availability",
+  ] as const) {
     for (const value of filters[key]) chips.push({ key, value, label: labelFor(key, value) });
   }
   for (const [key, values] of Object.entries(filters.attrs)) {
@@ -530,6 +576,7 @@ export function toggleFilter(filters: ListingFilters, key: string, value: string
   if (key === "new") return { ...filters, new: !filters.new };
   if (
     key === "category" ||
+    key === "shop" ||
     key === "size" ||
     key === "fit" ||
     key === "color" ||
@@ -551,6 +598,7 @@ export function isFilterSelected(filters: ListingFilters, key: string, value: st
     return value === "sale" ? filters.sale : value === "new" ? filters.new : false;
   if (
     key === "category" ||
+    key === "shop" ||
     key === "size" ||
     key === "fit" ||
     key === "color" ||

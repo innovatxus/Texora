@@ -49,4 +49,6 @@ export interface ListingProduct {
   inStockOnline: boolean;
   /** Store ids holding any stock. */
   storesInStock: string[];
+  /** The merchant shop selling it; absent for Texora's own catalog. */
+  shop?: { id: string; slug: string; name: string };
 }

@@ -30,6 +30,8 @@ export interface ProductListingProps {
   /** Path the filters apply to, e.g. "/women/dresses". */
   basePath: string;
   tiles?: readonly GridTile[];
+  /** Shown when the scope has no products at all (e.g. a new shop), instead of the filter message. */
+  emptyScope?: { title: string; description: string };
 }
 
 /**
@@ -41,6 +43,7 @@ export async function ProductListing({
   searchParams,
   basePath,
   tiles = [],
+  emptyScope,
 }: ProductListingProps) {
   const params = await searchParams;
   const resolved = await resolveScope(scope);
@@ -145,7 +148,9 @@ export async function ProductListing({
           </div>
         )}
 
-        {items.length === 0 ? (
+        {items.length === 0 && emptyScope && resolved.products.length === 0 ? (
+          <ErrorState title={emptyScope.title} description={emptyScope.description} />
+        ) : items.length === 0 ? (
           <ErrorState
             title="No products match these filters"
             description="Try removing a filter or two to see more."

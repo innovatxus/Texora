@@ -10,6 +10,7 @@ import {
   ProductDetailFromParams,
   type PdpProductView,
 } from "@/components/pdp/ProductDetail";
+import { SoldByBlock } from "@/components/merchant/shop/SoldByBlock";
 import { RecentlyViewed } from "@/components/pdp/RecentlyViewed";
 import { Reviews } from "@/components/pdp/Reviews";
 import { brand } from "@/config/brand";
@@ -18,6 +19,7 @@ import { sortProducts } from "@/lib/catalog/listing";
 import { getPdpData, listLiveProductSlugs, type PdpData } from "@/lib/catalog/pdp";
 import { getListingIndex, getProductsForIds } from "@/lib/catalog/queries";
 import { clientEnv } from "@/lib/env/client";
+import { getPublicShopById, returnSummary } from "@/lib/merchant/storefront";
 
 /** Prerenders every live product page. */
 export async function generateStaticParams() {
@@ -124,6 +126,8 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const data = await getPdpData((await params).slug);
   if (!data) notFound();
   const { product, variants, reviews, summary, categoryName } = data;
+  // Merchant products: the shop's "Sold by" block and its own return policy.
+  const merchant = product.shopId ? await getPublicShopById(product.shopId) : null;
   const departmentLabel = product.department === "women" ? "Women" : "Men";
   const categoryHref = `/${product.categoryPath.join("/")}`;
   const defaultColor = product.colors[0]?.code ?? "";
@@ -162,55 +166,60 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       />
     ),
     details: (
-      <DetailsAccordion
-        sections={[
-          {
-            id: "description",
-            title: "Description",
-            content: <p className="max-w-prose">{product.description}</p>,
-          },
-          {
-            id: "fit",
-            title: "Fit & sizing",
-            content: (
-              <ul className="flex flex-col gap-2">
-                {product.details.fitNotes && <li>{product.details.fitNotes}</li>}
-                {product.details.modelInfo && <li>{product.details.modelInfo}</li>}
-                <li>
-                  Available in{" "}
-                  {product.fitFamilies
-                    .map((f) => f.charAt(0).toUpperCase() + f.slice(1))
-                    .join(", ")}
-                  .
-                </li>
-              </ul>
-            ),
-          },
-          {
-            id: "fabric",
-            title: "Fabric & care",
-            content: (
-              <ul className="flex list-disc flex-col gap-1 pl-5">
-                {product.details.fabricCare.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            ),
-          },
-          {
-            id: "shipping",
-            title: "Shipping & returns",
-            content: (
-              <p className="max-w-prose">
-                Free standard shipping on orders over $150. Free returns within 30 days by mail or
-                in store.
-                {product.badges.includes("final_sale") &&
-                  " This item is final sale and can't be returned or exchanged."}
-              </p>
-            ),
-          },
-        ]}
-      />
+      <>
+        {merchant && <SoldByBlock shop={merchant} />}
+        <DetailsAccordion
+          sections={[
+            {
+              id: "description",
+              title: "Description",
+              content: <p className="max-w-prose">{product.description}</p>,
+            },
+            {
+              id: "fit",
+              title: "Fit & sizing",
+              content: (
+                <ul className="flex flex-col gap-2">
+                  {product.details.fitNotes && <li>{product.details.fitNotes}</li>}
+                  {product.details.modelInfo && <li>{product.details.modelInfo}</li>}
+                  <li>
+                    Available in{" "}
+                    {product.fitFamilies
+                      .map((f) => f.charAt(0).toUpperCase() + f.slice(1))
+                      .join(", ")}
+                    .
+                  </li>
+                </ul>
+              ),
+            },
+            {
+              id: "fabric",
+              title: "Fabric & care",
+              content: (
+                <ul className="flex list-disc flex-col gap-1 pl-5">
+                  {product.details.fabricCare.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              ),
+            },
+            {
+              id: "shipping",
+              title: "Shipping & returns",
+              content: (
+                <p className="max-w-prose">
+                  Free standard shipping on orders over $150.{" "}
+                  {merchant
+                    ? `Ships from ${merchant.shop.name} within ${merchant.shop.shipping.processingTime} business days. ${returnSummary(merchant.shop.returnPolicy)}.`
+                    : "Free returns within 30 days by mail or in store."}
+                  {product.badges.includes("final_sale") &&
+                    " This item is final sale and can't be returned or exchanged."}
+                </p>
+              ),
+            },
+          ]}
+        />
+      </>
     ),
   };
 

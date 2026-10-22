@@ -46,14 +46,26 @@ export function suggestProductSlug(productName: string): string {
   return suggestShopSlug(productName).slice(0, MERCHANT_LIMITS.product.nameMax);
 }
 
-/** "MAISON-DRESSES-07": shop, category and a sequence, unique per shop. */
-export function suggestStyleId(shopSlug: string, categoryKey: string, sequence: number): string {
-  const shop = shopSlug.split("-").slice(0, 2).join("").slice(0, 8).toUpperCase();
+/**
+ * "MAISON4F2-DRESSES-07": shop name, a code from the shop id (so similarly
+ * named shops never suggest the same SKUs), category and a sequence.
+ */
+export function suggestStyleId(
+  shopSlug: string,
+  shopId: string,
+  categoryKey: string,
+  sequence: number,
+): string {
+  const shop = shopSlug.replace(/-/g, "").slice(0, 6).toUpperCase();
+  const code = shopId
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(-3)
+    .toUpperCase();
   const category = (categoryKey.split("/").at(-1) ?? "item")
     .replace(/[^a-z]/g, "")
     .slice(0, 7)
     .toUpperCase();
-  return `${shop}-${category}-${String(sequence).padStart(2, "0")}`;
+  return `${shop}${code}-${category}-${String(sequence).padStart(2, "0")}`;
 }
 
 /** The matrix options a draft describes. */

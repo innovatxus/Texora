@@ -437,6 +437,8 @@ export const productDraftSchema = z.object({
     .optional(),
   /** Reviewer notes when changes are requested. */
   reviewNotes: z.array(z.string().max(500)).max(20).default([]),
+  /** Whether a version of this product is on the storefront (it stays there while edits are reviewed). */
+  published: z.boolean().default(false),
   createdAt: timestampSchema.optional(),
   updatedBy: idSchema,
   updatedAt: timestampSchema,

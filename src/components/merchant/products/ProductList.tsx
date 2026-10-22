@@ -154,7 +154,7 @@ export function ProductList({
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const run = (operation: "archive" | "restore" | "duplicate") =>
+  const run = (operation: "archive" | "restore" | "duplicate" | "publish" | "unpublish") =>
     startTransition(async () => {
       const result = await bulkProductAction({ productIds: [...selected], operation });
       if (!result.ok) {
@@ -163,14 +163,22 @@ export function ProductList({
       }
       const n = result.data.changed;
       const noun = `product${n === 1 ? "" : "s"}`;
+      const done = {
+        duplicate: "duplicated",
+        archive: "archived",
+        restore: "restored",
+        publish: "submitted or published",
+        unpublish: "unpublished",
+      }[operation];
+      const failures = result.data.failures;
       setMessage({
-        tone: "success",
-        text:
-          operation === "duplicate"
-            ? `${n} ${noun} duplicated`
-            : operation === "archive"
-              ? `${n} ${noun} archived`
-              : `${n} ${noun} restored`,
+        tone: failures.length > 0 ? "error" : "success",
+        text: [
+          n > 0 || failures.length === 0 ? `${n} ${noun} ${done}` : "",
+          ...failures.map((f) => `Couldn't change ${f}`),
+        ]
+          .filter(Boolean)
+          .join(". "),
       });
       setSelected(new Set());
       router.refresh();
@@ -234,6 +242,26 @@ export function ProductList({
             >
               Archive
             </Button>
+          )}
+          {!showingArchived && (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                loading={pending}
+                onClick={() => run("publish")}
+              >
+                Publish
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                loading={pending}
+                onClick={() => run("unpublish")}
+              >
+                Unpublish
+              </Button>
+            </>
           )}
           <Button
             type="button"

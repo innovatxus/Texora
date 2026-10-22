@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/primitives";
 import type { ProductDraftData } from "@/lib/validation/merchant";
+import { SubmitControls } from "./SubmitControls";
 import type { EditorContext } from "./types";
 
 /** Skeleton matching the editor's layout while its code loads. */
@@ -33,5 +34,19 @@ export function EditorLoader({
   initialData: ProductDraftData;
   context: EditorContext;
 }) {
-  return <ProductEditor initialData={initialData} context={context} />;
+  return (
+    <ProductEditor
+      initialData={initialData}
+      context={context}
+      footerExtra={({ dirty, saveNow }) => (
+        <SubmitControls
+          productId={context.productId}
+          status={context.status}
+          trusted={context.trusted}
+          dirty={dirty}
+          saveNow={saveNow}
+        />
+      )}
+    />
+  );
 }

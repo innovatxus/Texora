@@ -72,6 +72,7 @@ export function buildListingProducts(
       sizesInStock,
       inStockOnline: sizesInStock.length > 0,
       storesInStock,
+      ...(p.shop ? { shop: { id: p.shop.id, slug: p.shop.slug, name: p.shop.name } } : {}),
     };
   });
 }

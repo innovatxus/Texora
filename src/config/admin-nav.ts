@@ -38,6 +38,17 @@ export const ADMIN_NAV: readonly AdminNavGroup[] = [
     ],
   },
   {
+    title: "Marketplace",
+    items: [
+      { href: "/admin/merchants", label: "Merchant shops", permission: "merchants.review" },
+      {
+        href: "/admin/merchants/products",
+        label: "Product reviews",
+        permission: "merchants.review",
+      },
+    ],
+  },
+  {
     title: "Pricing",
     items: [
       { href: "/admin/pricing", label: "Price changes", permission: "pricing.write" },

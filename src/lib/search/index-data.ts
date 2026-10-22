@@ -29,7 +29,8 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
       department: p.department,
       category,
       categoryLabel: `${departmentLabel} ${(categoryNames.get(categoryKey) ?? category).toLowerCase()}`,
-      keywords: p.searchKeywords,
+      // Merchant products are found by their shop's name too.
+      keywords: p.shop ? [...p.searchKeywords, p.shop.name] : p.searchKeywords,
       image: firstImage?.url ?? "",
       imageAlt: firstImage?.alt ?? p.name,
       price: p.priceRange.min,

@@ -20,6 +20,8 @@ export const listingScopeSchema = z.object({
   collection: z.string().max(80).optional(),
   sale: z.boolean().optional(),
   query: z.string().max(80).optional(),
+  /** A merchant shop's products (the shop page grid). */
+  shopId: z.string().max(128).optional(),
 });
 export type ListingScope = z.infer<typeof listingScopeSchema>;
 
@@ -59,6 +61,7 @@ export async function resolveScope(scope: ListingScope): Promise<ResolvedScope> 
       return own === key || own.startsWith(`${key}/`);
     });
   }
+  if (scope.shopId) products = products.filter((p) => p.shop?.id === scope.shopId);
   if (scope.sale)
     products = products.filter((p) => p.compareAtPrice !== undefined && p.compareAtPrice > p.price);
   if (scope.collection) {

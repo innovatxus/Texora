@@ -419,3 +419,18 @@ Search over names and SKUs, category, stock and status filters, and sorting by n
 
 **Date:** 2026-10-21 · **Phase:** Merchant 5
 Colours have stable codes, so renaming one keeps its variants and photos. Variants are keyed by colour, fit and size. When options change, rows that still exist keep everything entered. Removed rows are parked and come back with their values if the option is re-added. Combinations marked "Don't make" are never created. Composition is entered as material and percentage rows that must add up to 100%. At publish it becomes the `material` filter values and a "55% linen, 45% cotton" fabric line, so storefront filters work unchanged.
+
+## D-082 — How merchant products reach the storefront
+
+**Date:** 2026-10-21 · **Phase:** Merchant 6
+Merchant products use the existing `products` and `variants` documents; there is no separate model. They are written only by publishing: trusted merchants publish directly, and everyone else's products are approved by a reviewer with `merchants.review`. The storefront product is live only when the merchant's product is live and the shop is approved. The draft's `published` flag records that a version is on sale. Edits to a live product go through review while the published version stays on sale, and stock edits reach live variants straight away. Shop changes (approval, pause, reinstatement, closing, a new name, address or logo) update the shop fields and visibility on existing storefront products without republishing unreviewed content. Pausing a shop hides its products within one revalidation.
+
+## D-083 — SKUs are global; checks run at submission
+
+**Date:** 2026-10-21 · **Phase:** Merchant 6
+Variant documents are keyed by SKU across the whole catalog, Texora's own included. A merchant SKU that's already used blocks submission with a message pointing to Options, and approval re-checks it. The storefront is written before the status changes, so a clash can never leave a product marked live with nothing on sale. Suggested style ids (the SKU prefix) include a short code from the shop id, so shops with similar names never suggest the same SKUs.
+
+## D-084 — Shop pages are static, with the time-sensitive parts in the browser
+
+**Date:** 2026-10-21 · **Phase:** Merchant 6
+`/shops/[slug]` is prerendered for every approved shop and revalidated by tag (`shops`, `shop:{slug}`). "Open now" is worked out in the browser at the shopper's time, so the page never goes dynamic. Like products, an unknown or unapproved shop shows the not-found page with `noindex` (the PPR soft-404 limitation, D-039). Revalidation uses the "max" profile, so the first visit after a change may still get the previous version while the new one renders.

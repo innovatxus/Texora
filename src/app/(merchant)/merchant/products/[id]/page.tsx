@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "Edit product" };
 /** The product editor for one of the merchant's products. */
 export default async function Page({ params }: PageProps<"/merchant/products/[id]">) {
   const { id } = await params;
-  const { session, shop } = await getMerchantContext();
+  const { session, shop, merchant } = await getMerchantContext();
   if (!shop) notFound();
   const actor = { session, vendorId: session.vendorId };
   let draft;
@@ -64,6 +64,7 @@ export default async function Page({ params }: PageProps<"/merchant/products/[id
             counters.live + counters.draft + counters.inReview + counters.changesRequested,
           reviewNotes: draft.reviewNotes,
           previewHref: productPreviewPath(draft.id),
+          trusted: merchant.trustLevel === "trusted",
         }}
       />
     </div>

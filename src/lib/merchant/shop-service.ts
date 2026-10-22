@@ -30,6 +30,7 @@ import {
 import { geocodeByState, zipMatchesState } from "./geo";
 import { attachMedia, orphanMedia, requireOwnedMedia } from "./media/media-service";
 import { nextStep, shipFromCount, shopBlockers } from "./onboarding";
+import { syncShopProducts } from "./publishing/publish";
 import { getLocation, listLocations } from "./repositories/locations";
 import { getMerchant } from "./repositories/merchants";
 import { claimShopSlug, getOwnedShop, getShop, ShopSlugTakenError } from "./repositories/shops";
@@ -172,6 +173,8 @@ export async function saveShopBasics(
   });
   const saved = (await getShop(ref.id)) as Shop;
   refreshStorefront(saved, existing?.slug !== input.slug ? existing?.slug : undefined);
+  // Products carry the shop's name and address (D-062 denormalisation).
+  if (existing && saved.status === "approved") await syncShopProducts(saved.id);
   return saved;
 }
 
@@ -247,6 +250,7 @@ export async function saveShopBranding(
   });
   const saved = (await getShop(shop.id)) as Shop;
   refreshStorefront(saved);
+  if (logoMedia && saved.status === "approved") await syncShopProducts(saved.id);
   return saved;
 }
 
@@ -587,6 +591,7 @@ export async function closeShop(
     after: { status: "closed" },
   });
   invalidate("shops", `shop:${shop.slug}`, "products");
+  await syncShopProducts(shop.id);
 }
 
 /** Reopens a closed shop within the window: approved shops go straight back live. */
@@ -616,4 +621,5 @@ export async function reopenShop(
     after: { status: to },
   });
   invalidate("shops", `shop:${shop.slug}`, "products");
+  await syncShopProducts(shop.id);
 }

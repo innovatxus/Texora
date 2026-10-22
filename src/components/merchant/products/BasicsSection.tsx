@@ -37,7 +37,14 @@ export function BasicsSection({ data, update, context, errors }: SectionProps) {
           : {}),
         ...(current.styleId
           ? {}
-          : { styleId: suggestStyleId(context.shop.slug, key, context.productCount) }),
+          : {
+              styleId: suggestStyleId(
+                context.shop.slug,
+                context.shop.id,
+                key,
+                context.productCount,
+              ),
+            }),
       };
     });
 
