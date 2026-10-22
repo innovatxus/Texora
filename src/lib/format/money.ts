@@ -20,3 +20,19 @@ export function percentOff(price: number, compareAtPrice: number): number {
   if (compareAtPrice <= 0 || price >= compareAtPrice) return 0;
   return Math.round((1 - price / compareAtPrice) * 100);
 }
+
+/**
+ * Parses a price typed in dollars ("148", "148.5", "$1,048.00") into cents.
+ * Returns null for anything that isn't a non-negative amount with at most two decimals.
+ */
+export function parseDollars(input: string): number | null {
+  const cleaned = input.trim().replace(/[$,\s]/g, "");
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  const [whole = "0", fraction = ""] = cleaned.split(".");
+  return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+}
+
+/** Cents to the plain dollar string an input shows: 14800 → "148.00". */
+export function centsToInput(cents: number | null): string {
+  return cents === null ? "" : (cents / 100).toFixed(2);
+}

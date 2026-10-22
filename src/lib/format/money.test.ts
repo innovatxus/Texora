@@ -1,4 +1,4 @@
-import { formatMoney, percentOff } from "./money";
+import { centsToInput, formatMoney, parseDollars, percentOff } from "./money";
 
 describe("formatMoney", () => {
   it("formats cents as currency", () => {
@@ -19,5 +19,26 @@ describe("percentOff", () => {
     expect(percentOff(9800, 9800)).toBe(0);
     expect(percentOff(9900, 9800)).toBe(0);
     expect(percentOff(100, 0)).toBe(0);
+  });
+});
+
+describe("parseDollars", () => {
+  it.each([
+    ["148", 14800],
+    ["148.5", 14850],
+    ["148.05", 14805],
+    ["$1,048.00", 104800],
+    [" 0.99 ", 99],
+  ])("%s → %s cents", (input, cents) => {
+    expect(parseDollars(input)).toBe(cents);
+  });
+
+  it.each(["", "abc", "-5", "1.234", "1.2.3"])("rejects %s", (input) => {
+    expect(parseDollars(input)).toBeNull();
+  });
+
+  it("formats cents for inputs", () => {
+    expect(centsToInput(14800)).toBe("148.00");
+    expect(centsToInput(null)).toBe("");
   });
 });

@@ -404,3 +404,18 @@ A shop's accent is chosen at runtime and applied through an inline `var(--color-
 
 **Date:** 2026-10-21 · **Phase:** Merchant 4
 Each onboarding step saves to the shop document and records `completedSteps` and `onboardingStep`, so a merchant resumes on any device (`/merchant/onboarding` redirects to the saved step) and Back never loses anything. Merchants with several shops (the UI allows 3) pick one in the header; the choice is an HTTP-only cookie scoped to `/merchant`, checked against ownership on every request.
+
+## D-079 — Drafts are the editor's source of truth
+
+**Date:** 2026-10-21 · **Phase:** Merchant 5
+Every merchant product has a `productDrafts` document from the moment it's started. Autosave writes only there, version-checked so a second tab can't overwrite newer work. Each save also stores a small summary (name, first image, price range, online stock, low-stock flag) and mirrors the product's status, so the product list is a single query that shows drafts and published products together. The storefront `products` and `variants` documents are written only by review and publishing (Phase 6). Photos referenced by a draft are marked attached on save and released when removed, so the cleanup job never deletes something in use.
+
+## D-080 — The merchant product list pages in memory
+
+**Date:** 2026-10-21 · **Phase:** Merchant 5
+Search over names and SKUs, category, stock and status filters, and sorting by name or price can't all be served by one Firestore index. A shop's drafts are read in one query and filtered, sorted and paged on the server ("Load more" grows the page in the URL). It is fast at merchant catalogue sizes (hundreds of products) and follows D-058. Beyond a few thousand products per shop, the list should move to the search index.
+
+## D-081 — Colour codes, composition and the variant matrix
+
+**Date:** 2026-10-21 · **Phase:** Merchant 5
+Colours have stable codes, so renaming one keeps its variants and photos. Variants are keyed by colour, fit and size. When options change, rows that still exist keep everything entered. Removed rows are parked and come back with their values if the option is re-added. Combinations marked "Don't make" are never created. Composition is entered as material and percentage rows that must add up to 100%. At publish it becomes the `material` filter values and a "55% linen, 45% cotton" fabric line, so storefront filters work unchanged.

@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { serverEnv } from "@/lib/env/server";
 
 /** What a signed link unlocks. The purpose is part of the signature, so tokens can't be reused across them. */
-export type TokenPurpose = "order" | "gift-card-purchase" | "unsubscribe";
+export type TokenPurpose = "order" | "gift-card-purchase" | "unsubscribe" | "product-preview";
 
 /** Signed, non-expiring capability token for links in emails and guest pages. */
 export function signToken(purpose: TokenPurpose, id: string): string {
@@ -32,4 +32,25 @@ export function orderAccessToken(orderId: string): string {
 /** Checks the token on a guest order link. */
 export function verifyOrderAccessToken(orderId: string, token: string | null | undefined): boolean {
   return verifyToken("order", orderId, token);
+}
+
+const PREVIEW_TTL_MS = 60 * 60 * 1000;
+
+/** A signed preview link for a merchant's draft, valid for an hour. */
+export function productPreviewPath(productId: string, now = Date.now()): string {
+  const expires = now + PREVIEW_TTL_MS;
+  const token = signToken("product-preview", `${productId}:${expires}`);
+  return `/merchant/products/${productId}/preview?e=${expires}&t=${token}`;
+}
+
+/** Whether a preview link is genuine and unexpired. */
+export function verifyProductPreview(
+  productId: string,
+  expires: string | undefined,
+  token: string | undefined,
+  now = Date.now(),
+): boolean {
+  const at = Number(expires);
+  if (!Number.isFinite(at) || at < now) return false;
+  return verifyToken("product-preview", `${productId}:${at}`, token);
 }

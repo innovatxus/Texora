@@ -41,3 +41,31 @@ export async function verifyEmail(page: Page, email: string) {
   await gotoReady(page, linkIn(mail.html, "/merchant/verify-email"));
   await expect(page.getByText("Email verified. You can now submit your shop.")).toBeVisible();
 }
+
+/**
+ * Registers a merchant and sets up the minimum shop through the UI (basics
+ * and one ship-from location), returning the shop name.
+ */
+export async function merchantWithShop(page: Page, testInfo: { project: { name: string } }) {
+  const { email, username } = newMerchant(testInfo);
+  await registerMerchant(page, email, username);
+  await gotoReady(page, "/merchant/onboarding/basics");
+  const shopName = `Shop ${username}`;
+  await page.getByRole("textbox", { name: "Shop name" }).fill(shopName);
+  await expect(page.getByText("Available", { exact: true })).toBeVisible();
+  await page.getByRole("checkbox", { name: "Women" }).check();
+  await page.getByRole("checkbox", { name: "Dresses" }).check();
+  await page.getByRole("button", { name: "Save and continue" }).click();
+  await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/branding", {
+    timeout: 30_000,
+  });
+  await gotoReady(page, "/merchant/onboarding/locations");
+  await page.getByRole("textbox", { name: "Location name" }).fill("Warehouse");
+  await page.getByRole("textbox", { name: "Street address" }).fill("1 Dock Rd");
+  await page.getByRole("textbox", { name: "City" }).fill("Portland");
+  await page.getByRole("combobox", { name: "State" }).selectOption("OR");
+  await page.getByRole("textbox", { name: "ZIP code" }).fill("97201");
+  await page.getByRole("button", { name: "Add location" }).click();
+  await expect(page.getByText("Location added.")).toBeVisible({ timeout: 30_000 });
+  return { email, username, shopName };
+}

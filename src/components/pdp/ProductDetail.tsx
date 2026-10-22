@@ -55,6 +55,8 @@ interface ProductDetailProps {
   /** Server-rendered breadcrumbs and the details accordion. */
   breadcrumbs: ReactNode;
   details: ReactNode;
+  /** Merchant preview of a draft: everything renders, but nothing can be bought or saved. */
+  preview?: boolean;
 }
 
 /** PDP gallery and buy box: colour, fit and size selection, stock messages, add to bag and alerts. */
@@ -65,6 +67,7 @@ export function ProductDetail({
   initialColor,
   breadcrumbs,
   details,
+  preview = false,
 }: ProductDetailProps) {
   const [color, setColor] = useState(initialColor);
   const fits = fitsForColor(variants, color, product.fitFamilies);
@@ -253,23 +256,25 @@ export function ProductDetail({
               ref={addButton}
               size="lg"
               fullWidth
-              disabled={outOfStock}
+              disabled={outOfStock || preview}
               onClick={onAdd}
               className="flex-1"
             >
-              {outOfStock ? "Out of stock" : "Add to bag"}
+              {preview ? "Preview — not for sale yet" : outOfStock ? "Out of stock" : "Add to bag"}
             </Button>
-            <WishlistButton
-              variant="inline"
-              productId={product.id}
-              productName={product.name}
-              color={color}
-              price={product.priceRange.min}
-              className="size-14"
-            />
+            {!preview && (
+              <WishlistButton
+                variant="inline"
+                productId={product.id}
+                productName={product.name}
+                color={color}
+                price={product.priceRange.min}
+                className="size-14"
+              />
+            )}
           </div>
 
-          <PriceDropAlert productId={product.id} />
+          {!preview && <PriceDropAlert productId={product.id} />}
 
           <Fulfilment />
 
@@ -289,8 +294,8 @@ export function ProductDetail({
           <p className="truncate text-sm">{product.name}</p>
           <PriceDisplay size="sm" showPercent={false} {...price} />
         </div>
-        <Button tabIndex={showSticky ? 0 : -1} disabled={outOfStock} onClick={onAdd}>
-          {outOfStock ? "Out of stock" : "Add to bag"}
+        <Button tabIndex={showSticky ? 0 : -1} disabled={outOfStock || preview} onClick={onAdd}>
+          {preview ? "Preview only" : outOfStock ? "Out of stock" : "Add to bag"}
         </Button>
       </div>
     </div>
