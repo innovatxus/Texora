@@ -311,7 +311,7 @@ describe("merchant orders", () => {
 
   it("snapshots the merchant on order lines and lists the order for them only", async () => {
     const { placeOrder } = await import("@/lib/orders/place-order");
-    const { generateSeed } = await import("../../scripts/seed/generate");
+    const { generateSeed } = await import("../fixtures/seed/generate");
     const seed = generateSeed();
     const live = new Set(seed.products.filter((p) => p.status === "live").map((p) => p.id));
     const own = seed.variants.find(

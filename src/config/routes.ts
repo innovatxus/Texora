@@ -8,6 +8,7 @@ import { DEPARTMENTS } from "@/lib/validation/common";
  */
 export const STATIC_TOP_LEVEL_ROUTES = [
   "access-denied",
+  "account",
   "admin",
   "api",
   "auth",

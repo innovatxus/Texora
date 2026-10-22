@@ -1,90 +1,86 @@
 "use client";
 
-import { FirebaseError } from "firebase/app";
-import { signInWithEmailAndPassword, signOut as clientSignOut } from "firebase/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { ErrorSummary, FormMessage } from "@/components/merchant/forms/ErrorSummary";
+import { PasswordField } from "@/components/merchant/onboarding/PasswordField";
 import { Button, Input } from "@/components/primitives";
-import { signInWithIdToken } from "@/lib/auth/actions";
-import { getFirebaseClient } from "@/lib/firebase/client";
+import { signInCustomerAction } from "@/lib/account/actions/auth";
+import { customerSignInSchema } from "@/lib/validation/account";
 
-/** Firebase errors in plain words; wrong email and wrong password share one message. */
-function message(error: unknown): string {
-  const code = error instanceof FirebaseError ? error.code : "";
-  if (code === "auth/too-many-requests") {
-    return "Too many attempts. Wait a few minutes, then try again.";
-  }
-  if (code === "auth/user-disabled") return "This account has been disabled.";
-  if (code === "auth/network-request-failed") return "We couldn't connect. Check your connection.";
-  return "That email and password don't match. Check them and try again.";
-}
+const IDS = { email: "signin-email", password: "signin-password" } as const;
 
 /**
- * Email + password sign-in. Firebase verifies the password in the browser;
- * the resulting ID token is exchanged for an HTTP-only session cookie and
- * the client-side Firebase session is dropped again.
+ * Email and password sign-in, checked on the server (rate-limited, with a
+ * per-account lockout) and exchanged for an HTTP-only session cookie.
  */
-export function SignInForm({ next }: { next: string | null }) {
+export function SignInForm({ next, notice }: { next: string | null; notice?: string }) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<z.input<typeof customerSignInSchema>>({
+    resolver: zodResolver(customerSignInSchema),
+    mode: "onTouched",
+    defaultValues: { email: "", password: "", ...(next ? { next } : {}) },
+  });
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !password) {
-      setError("Enter your email and password.");
-      return;
-    }
-    setPending(true);
-    setError(null);
-    try {
-      const { auth } = getFirebaseClient();
-      const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-      const idToken = await credential.user.getIdToken();
-      const result = await signInWithIdToken({ idToken, ...(next ? { next } : {}) });
-      // The server session is the source of truth from here on.
-      await clientSignOut(auth);
-      if (!result.ok) {
-        setError(result.error.message);
-        setPending(false);
+  const onSubmit = handleSubmit(
+    async (values) => {
+      setFormError(null);
+      const result = await signInCustomerAction(values);
+      if (result.ok) {
+        router.replace(result.data.redirectTo);
+        router.refresh();
         return;
       }
-      router.replace(result.data.redirectTo);
-      router.refresh();
-    } catch (err) {
-      setError(message(err));
-      setPending(false);
-    }
-  };
+      setFormError(result.error.message);
+    },
+    () => setSubmitted(true),
+  );
+
+  const summary = submitted
+    ? (["email", "password"] as const)
+        .filter((k) => errors[k]?.message)
+        .map((k) => ({ fieldId: IDS[k], message: errors[k]?.message ?? "" }))
+    : [];
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+      {notice && <FormMessage tone="success">{notice}</FormMessage>}
+      <ErrorSummary errors={summary} />
       <Input
-        id="signin-email"
+        id={IDS.email}
         label="Email"
         type="email"
         autoComplete="email"
         required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        error={errors.email?.message}
+        {...register("email")}
       />
-      <Input
-        id="signin-password"
+      <PasswordField
+        id={IDS.password}
         label="Password"
-        type="password"
         autoComplete="current-password"
         required
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        error={errors.password?.message}
+        {...register("password")}
       />
-      {error && (
-        <p role="alert" className="text-sm text-sale">
-          {error}
-        </p>
-      )}
-      <Button type="submit" size="lg" loading={pending}>
+      <NextLink
+        href="/auth/forgot-password"
+        className="-mt-3 self-start text-sm underline underline-offset-4"
+      >
+        Forgot your password?
+      </NextLink>
+      {formError && <FormMessage>{formError}</FormMessage>}
+      <Button type="submit" size="lg" loading={isSubmitting}>
         Sign in
       </Button>
     </form>

@@ -7,6 +7,7 @@ import { RETURN_REASON_VALUES } from "@/lib/validation";
 import { requestReturn } from "@/lib/returns/request-return";
 import { getAuthorisedOrder } from "./access";
 import { orderAccessToken } from "./token";
+import { clientIp, enforceRateLimit } from "@/lib/security/rate-limit";
 
 /**
  * Guest order lookup by order number + email. Both must match; the error
@@ -26,6 +27,7 @@ export async function lookupOrder(input: unknown) {
     }),
     access: { public: true },
     handler: async ({ orderNumber, email }) => {
+      await enforceRateLimit("orderLookup", await clientIp());
       const order = await getOrderByNumberAndEmail(orderNumber, email);
       if (!order) {
         throw new ActionError(

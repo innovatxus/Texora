@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { generateSeed } from "../../scripts/seed/generate";
-import { clearEmulators, writeSeed } from "../../scripts/seed/write";
+import { generateSeed } from "../fixtures/seed/generate";
+import { clearEmulators, writeSeed } from "../fixtures/seed/write";
 import { INTEGRATION_PROJECT_ID } from "./env";
 
 /** Seeds the emulators once with exactly what `npm run seed` writes. */

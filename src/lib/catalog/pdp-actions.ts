@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth/session";
 import { getUserProfile } from "@/lib/data/admin-records";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { reviewInputSchema } from "@/lib/validation";
+import { clientIp, enforceRateLimit } from "@/lib/security/rate-limit";
 
 /**
  * Review submission: signed-in customers only. Identity, verification,
@@ -21,6 +22,7 @@ export async function submitReview(input: unknown) {
     }),
     access: { permission: "reviews.write" },
     handler: async (review, { session }) => {
+      if (session) await enforceRateLimit("review", session.uid);
       if (!session) throw new ActionError("unauthenticated", "Please sign in to write a review");
       const { db } = getFirebaseAdmin();
       const product = await db.collection("products").doc(review.productId).get();
@@ -65,6 +67,7 @@ export async function voteHelpful(input: unknown) {
     schema: z.object({ reviewId: z.string().min(1).max(128) }),
     access: { public: true },
     handler: async ({ reviewId }) => {
+      await enforceRateLimit("reviewVote", await clientIp());
       const ref = getFirebaseAdmin().db.collection("reviews").doc(reviewId);
       const snapshot = await ref.get();
       if (!snapshot.exists || snapshot.get("status") !== "approved") {
@@ -88,6 +91,7 @@ export async function notifyBackInStock(input: unknown) {
     }),
     access: { public: true },
     handler: async ({ email, productId, sku }) => {
+      await enforceRateLimit("alerts", await clientIp());
       const session = await getSession();
       const id = `bis:${sku}:${email}`.replace(/[/]/g, "_");
       await getFirebaseAdmin()
@@ -117,6 +121,7 @@ export async function notifyPriceDrop(input: unknown) {
     schema: z.object({ email: alertEmail, productId: z.string().min(1).max(128) }),
     access: { public: true },
     handler: async ({ email, productId }) => {
+      await enforceRateLimit("alerts", await clientIp());
       const { db } = getFirebaseAdmin();
       const session = await getSession();
       const product = await db.collection("products").doc(productId).get();

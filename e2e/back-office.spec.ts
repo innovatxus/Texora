@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { generateSeed } from "../scripts/seed/generate";
+import { generateSeed } from "../tests/fixtures/seed/generate";
 import { asReturningVisitor, gotoReady } from "./support/helpers";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -14,7 +14,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 async function signIn(page: Page, email: string, next = "/admin") {
   await gotoReady(page, `/auth/signin?next=${encodeURIComponent(next)}`);
   await page.getByRole("textbox", { name: "Email", exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: false }).fill(PASSWORD);
+  await page.getByRole("textbox", { name: "Password", exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   // The session cookie is set by a Server Action, then the app navigates.
   await expect(page).toHaveURL((u) => u.pathname === next.split("?")[0], { timeout: 30_000 });
@@ -24,8 +24,11 @@ async function signIn(page: Page, email: string, next = "/admin") {
 test.describe("sign-in", () => {
   test("wrong credentials get one generic message", async ({ page }) => {
     await gotoReady(page, "/auth/signin");
-    await page.getByRole("textbox", { name: "Email", exact: true }).fill("admin@texora.test");
-    await page.getByLabel("Password", { exact: false }).fill("not-the-password");
+    // A throwaway address: failures count towards that account's lockout.
+    await page
+      .getByRole("textbox", { name: "Email", exact: true })
+      .fill(`nobody-${Date.now().toString(36)}@example.com`);
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("not-the-password");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(
       page.getByText("That email and password don't match. Check them and try again."),

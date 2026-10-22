@@ -156,6 +156,13 @@ describe("canSystemGrant", () => {
     expect(canSystemGrant("admin", "vendor")).toBe(false);
     expect(canSystemGrant("vendor", "vendor")).toBe(false);
   });
+
+  it("lets a customer join rewards, and nothing else become a member", () => {
+    expect(canSystemGrant("customer", "loyalty_member")).toBe(true);
+    expect(canSystemGrant("vendor", "loyalty_member")).toBe(false);
+    expect(canSystemGrant("merchandiser", "loyalty_member")).toBe(false);
+    expect(canSystemGrant("loyalty_member", "loyalty_member")).toBe(false);
+  });
 });
 
 describe("requiredPermissionForPath", () => {
@@ -164,6 +171,8 @@ describe("requiredPermissionForPath", () => {
     ["/women/dresses", null],
     ["/account", "account.manage"],
     ["/account/orders/123", "account.manage"],
+    ["/account/wishlist", null],
+    ["/account/wishlists", "account.manage"],
     ["/admin", "admin.access"],
     ["/admin/orders/TX-1", "orders.read"],
     ["/admin/audit", "audit.read"],

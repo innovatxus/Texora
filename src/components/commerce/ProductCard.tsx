@@ -3,6 +3,8 @@
 import NextLink from "next/link";
 import { useRef, useState } from "react";
 import { Badge } from "@/components/primitives";
+import { dollars, track } from "@/lib/analytics/events";
+import { listingItem } from "@/lib/analytics/items";
 import type { ListingProduct } from "@/lib/catalog/listing-types";
 import { cn } from "@/lib/utils/cn";
 import { useBagStore } from "@/stores/bag";
@@ -24,6 +26,8 @@ export interface ProductCardProps {
   quickAdd?: boolean;
   /** Active colour-family filters: the card opens on the first matching colour. */
   preferColorFamilies?: readonly string[];
+  /** The list it appears in, for analytics (e.g. "Women / Dresses"). */
+  listName?: string;
   className?: string;
 }
 
@@ -34,6 +38,7 @@ export function ProductCard({
   sizes = "(min-width: 1024px) 25vw, 50vw",
   quickAdd = true,
   preferColorFamilies = [],
+  listName = "Product list",
   className,
 }: ProductCardProps) {
   const [colorIndex, setColorIndex] = useState(() =>
@@ -57,6 +62,14 @@ export function ProductCard({
 
   const onQuickAdd = (size: string, sku: string) => {
     addToBag({ sku, productId: product.id });
+    track({
+      name: "add_to_cart",
+      params: {
+        currency: "USD",
+        value: dollars(product.price),
+        items: [listingItem(product, { variant: sku, quantity: 1 })],
+      },
+    });
     showAdded({
       productId: product.id,
       slug: product.slug,
@@ -70,7 +83,19 @@ export function ProductCard({
   };
 
   return (
-    <article className={cn("group/card relative flex flex-col", className)}>
+    <article
+      className={cn("group/card relative flex flex-col", className)}
+      // Any link to the product counts as choosing it from the list.
+      onClickCapture={(e) => {
+        const link = (e.target as HTMLElement).closest("a");
+        if (link?.getAttribute("href")?.startsWith("/product/")) {
+          track({
+            name: "select_item",
+            params: { item_list_name: listName, items: [listingItem(product)] },
+          });
+        }
+      }}
+    >
       <div className="relative">
         {/* Touch: swipe between views. Hover devices: crossfade on hover. */}
         <div

@@ -1,7 +1,7 @@
 // CMS page content for the seed: home, department landings and sale.
 import { cmsPageSchema, type CmsModule, type CmsPage } from "../../src/lib/cms/modules";
 import type { Product } from "../../src/lib/validation";
-import { STOCK, stockUrl, type StockKey } from "../stock-catalog";
+import { HOME_HERO, STOCK, stockUrl, type StockKey } from "../stock-catalog";
 
 const P = "/media/placeholders";
 const everyone = { schedule: {}, audience: ["everyone" as const] };
@@ -357,16 +357,18 @@ export function buildStarterPages(now: Date): CmsPage[] {
           );
           const hero = STARTER_HEROES[page.slug];
           if (!hero) return [{ ...module, data: { ...module.data, ctas } }];
+          // The home page uses the store's own photograph; the others, licensed photos.
+          const own = page.slug === "home";
           const image = {
-            alt: STOCK[hero.key].alt,
+            alt: own ? HOME_HERO.alt : STOCK[hero.key].alt,
             desktop: {
-              url: stockUrl(hero.key, "desktop"),
+              url: own ? HOME_HERO.desktop : stockUrl(hero.key, "desktop"),
               width: 2400,
               height: 1200,
               focal: { x: 0.5, y: 0.5 },
             },
             mobile: {
-              url: stockUrl(hero.key, "mobile"),
+              url: own ? HOME_HERO.mobile : stockUrl(hero.key, "mobile"),
               width: 1200,
               height: 1500,
               focal: { x: 0.5, y: 0.3 },

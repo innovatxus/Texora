@@ -146,7 +146,7 @@ export async function onboardSubmittedShop(page: Page, testInfo: { project: { na
 export async function staffSignIn(page: Page, email: string) {
   await gotoReady(page, "/auth/signin?next=%2Fadmin");
   await page.getByRole("textbox", { name: "Email", exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: false }).fill("Texora-demo-1");
+  await page.getByRole("textbox", { name: "Password", exact: true }).fill("Texora-demo-1");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL((u) => u.pathname === "/admin", { timeout: 30_000 });
   await page.waitForSelector("html[data-hydrated]", { state: "attached" });

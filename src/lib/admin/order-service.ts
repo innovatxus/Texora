@@ -14,6 +14,7 @@ import { cardPaymentsEnabled, stripeProvider } from "@/lib/payments/provider";
 import { pointsFor } from "@/lib/pricing/rewards";
 import { ONLINE_LOCATION, orderSchema, type Order } from "@/lib/validation";
 import { invalidate } from "./revalidate";
+import { logger } from "@/lib/observability/logger";
 
 const actorOf = (s: Session) => ({ uid: s.uid, role: s.role });
 const orders = () => getFirebaseAdmin().db.collection("orders");
@@ -155,6 +156,12 @@ export async function refundOrder(
       },
       tx,
     );
+  });
+  // Refunds happen in the back office, so the analytics event is server-side (no personal data).
+  logger.info("analytics.refund", {
+    transaction_id: order.number,
+    currency: "USD",
+    value: amount / 100,
   });
   return { refundId, manual: split.manual };
 }

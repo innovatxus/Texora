@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { runAction } from "@/lib/actions/run-action";
+import { clientIp, consumeRateLimit, isRateLimited } from "@/lib/security/rate-limit";
 import { compareSizes } from "@/lib/catalog/sizes";
 import { getProductById, getVariantsForProduct } from "@/lib/data/products";
 import { ONLINE_LOCATION } from "@/lib/validation";
@@ -13,7 +14,30 @@ export async function getPricedBag(input: unknown) {
   return runAction(input, {
     schema: bagRequestSchema,
     access: { public: true },
-    handler: (request) => priceBag(request),
+    handler: async (request) => {
+      if (request.promoCodes.length === 0) return priceBag(request);
+      // Guessing codes: each wrong code counts once per IP; past the limit, codes stop applying.
+      const ip = await clientIp();
+      if (await isRateLimited("promoGuess", ip)) {
+        const bag = await priceBag({ ...request, promoCodes: [] });
+        return {
+          ...bag,
+          codes: request.promoCodes.map((code) => ({
+            code,
+            status: "rejected" as const,
+            message: "Too many codes tried. Wait 15 minutes and try again.",
+          })),
+        };
+      }
+      const bag = await priceBag(request);
+      for (const c of bag.codes) {
+        if (c.status !== "rejected") continue;
+        if ((await consumeRateLimit("promoCodeSeen", `${ip}:${c.code}`)).allowed) {
+          await consumeRateLimit("promoGuess", ip);
+        }
+      }
+      return bag;
+    },
   });
 }
 

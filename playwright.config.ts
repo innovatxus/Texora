@@ -1,9 +1,13 @@
-import { loadEnvConfig } from "@next/env";
+import { readFileSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
-// E2E creates accounts, shops and orders. Load the env the server will use and
-// refuse to run unless it points at the emulators, never a live project.
-loadEnvConfig(process.cwd());
+// E2E creates accounts, shops and orders, so it always runs against the local
+// emulators with tests/emulator.env (overriding .env.local, which holds the
+// live project). Run it with `npm run test:e2e`, which starts and seeds them.
+for (const line of readFileSync("tests/emulator.env", "utf8").split(/\r?\n/)) {
+  const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+  if (match?.[1]) process.env[match[1]] = match[2] ?? "";
+}
 if (
   process.env.USE_FIREBASE_EMULATORS !== "true" ||
   !process.env.FIREBASE_PROJECT_ID?.startsWith("demo-")

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { TrackPurchase } from "@/components/analytics/TrackPurchase";
 import { ClearAfterOrder } from "@/components/checkout/ClearAfterOrder";
 import { PendingCardPayment } from "@/components/checkout/PendingCardPayment";
 import { CheckIcon } from "@/components/icons";
 import { AddressBlock, OrderLineList, OrderTotals } from "@/components/orders/OrderParts";
 import { ButtonLink, Skeleton } from "@/components/primitives";
+import { dollars } from "@/lib/analytics/events";
 import { getSession } from "@/lib/auth/session";
 import { getOrder } from "@/lib/data/orders";
 import { clientEnv } from "@/lib/env/client";
@@ -43,6 +45,22 @@ async function Confirmation({ params, searchParams }: PageProps<"/order-confirma
   return (
     <div className="container-page pt-10 pb-24">
       {order.status !== "cancelled" && <ClearAfterOrder />}
+      {!awaitingPayment && order.status !== "cancelled" && (
+        <TrackPurchase
+          number={order.number}
+          value={dollars(order.totals.total)}
+          tax={dollars(order.totals.tax)}
+          shipping={dollars(order.totals.shipping)}
+          items={order.lines.map((l) => ({
+            item_id: l.productId,
+            item_name: l.name,
+            item_variant: l.sku,
+            price: dollars(l.unitPrice),
+            quantity: l.quantity,
+            ...(l.shopName ? { item_brand: l.shopName } : {}),
+          }))}
+        />
+      )}
       <div className="max-w-2xl">
         {awaitingPayment ? (
           <>

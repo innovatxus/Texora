@@ -18,7 +18,7 @@ const { createSession, getSession, SESSION_COOKIE, verifySessionCookie } =
   await import("@/lib/auth/session");
 const { requirePermission, AuthorizationError } = await import("@/lib/auth/guard");
 const { getFirebaseAdmin } = await import("@/lib/firebase/admin");
-const { SEED_PASSWORD } = await import("../../scripts/seed/generate");
+const { SEED_PASSWORD } = await import("../fixtures/seed/generate");
 
 /** Signs in against the Auth emulator's REST API and returns a fresh ID token. */
 async function signIn(email: string, password = SEED_PASSWORD): Promise<string> {

@@ -1,19 +1,22 @@
-// Checks the merchant portal's per-route JavaScript budgets after `next build`
-// (D-086): the product editor may ship 250 KB gzipped, every other portal route
-// 120 KB. A route's JS is every chunk its layouts and page load (from the
-// client reference manifest) beyond the framework runtime every page shares
+// Checks per-route JavaScript budgets after `next build` (D-086): the
+// product editor may ship 250 KB gzipped, every other merchant portal route
+// 120 KB, and storefront and checkout routes 170 KB (spec 10). A route's JS
+// is every chunk its layouts and page load (from the client reference manifest) beyond the framework runtime every page shares
 // (React and the Next.js router, reported separately). Polyfills are
 // `nomodule`, so modern browsers never download them. Run with `npm run budget`.
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { gzipSync } from "node:zlib";
 
-const NEXT = ".next";
+// The build folder (the test suite builds into .next-e2e).
+const NEXT = process.env.NEXT_DIST_DIR ?? ".next";
 const KB = 1024;
 const EDITOR = 250 * KB;
 const DEFAULT = 120 * KB;
+/** Storefront and checkout pages (spec 10: JS per route < 170 KB gz). */
+const STOREFRONT = 170 * KB;
 /** Routes under these prefixes are budgeted. */
-const SCOPES = ["(merchant)", "(merchant-auth)"];
+const SCOPES = ["(merchant)", "(merchant-auth)", "(storefront)", "(checkout)"];
 
 const buildManifest = JSON.parse(readFileSync(join(NEXT, "build-manifest.json"), "utf8"));
 const rootFiles = buildManifest.rootMainFiles ?? [];
@@ -61,7 +64,11 @@ for (const scope of SCOPES) {
       entries.flatMap(([, list]) => list).filter((f) => !rootFiles.includes(f)),
     );
     const bytes = [...files].reduce((sum, f) => sum + gz(f), 0);
-    const budget = /^\/merchant\/products\/\[id\]$/.test(route) ? EDITOR : DEFAULT;
+    const budget = /^\/merchant\/products\/\[id\]$/.test(route)
+      ? EDITOR
+      : scope === "(storefront)" || scope === "(checkout)"
+        ? STOREFRONT
+        : DEFAULT;
     rows.push({ route, bytes, budget });
   }
 }

@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -15,7 +16,10 @@ interface WishlistState {
   remove: (productId: string) => void;
 }
 
-/** Guest wishlist in localStorage; merged into the account on sign-in (Phase 7). */
+/**
+ * Wishlist in localStorage. For signed-in shoppers it mirrors the account's
+ * list (AccountSync merges on sign-in and saves each change).
+ */
 export const useWishlistStore = create<WishlistState>()(
   persist(
     (set, get) => ({
@@ -40,3 +44,15 @@ export const useWishlistStore = create<WishlistState>()(
     },
   ),
 );
+
+const subscribeHydration = (onChange: () => void) =>
+  useWishlistStore.persist.onFinishHydration(onChange);
+
+/** False until the persisted wishlist has loaded, so pages never flash "empty". */
+export function useWishlistHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeHydration,
+    () => useWishlistStore.persist.hasHydrated(),
+    () => false,
+  );
+}

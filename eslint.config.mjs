@@ -20,11 +20,12 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["scripts/**"],
+    files: ["scripts/**", "tests/fixtures/**", "tests/e2e-run.ts"],
     rules: { "no-console": "off" },
   },
   globalIgnores([
     ".next/**",
+    ".next-e2e/**",
     "out/**",
     "build/**",
     "coverage/**",

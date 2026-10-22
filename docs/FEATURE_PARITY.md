@@ -80,15 +80,15 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 ## 7.6 Bag
 
-| Feature             | Behaviour                                                        | Implementation                        | Phase | Status                                |
-| ------------------- | ---------------------------------------------------------------- | ------------------------------------- | ----- | ------------------------------------- |
-| Bag drawer          | Confirmation, lines, subtotal, free-shipping progress, CTAs      | `bag/BagDrawer`                       | 6     | Done                                  |
-| Bag page edits      | Size/colour/qty inline, remove, move to wishlist, save for later | `bag/BagLineItem`                     | 6     | Done                                  |
-| Promo codes         | Error/success states, stacking rules                             | `bag/PromoCodeField` + pricing engine | 6     | Done                                  |
-| Gift card / rewards | Redemption in bag                                                | Pricing engine                        | 6     | Done                                  |
-| Order summary       | Subtotal, discounts, shipping, tax, total                        | `bag/OrderSummary`                    | 6     | Done                                  |
-| Cross-device bag    | Server sync; guest bag merged on sign-in                         | Bag repository                        | 7     | Planned (local persistence done in 6) |
-| Server revalidation | Price and stock rechecked on every load                          | Bag Server Action                     | 6     | Done                                  |
+| Feature             | Behaviour                                                        | Implementation                        | Phase | Status |
+| ------------------- | ---------------------------------------------------------------- | ------------------------------------- | ----- | ------ |
+| Bag drawer          | Confirmation, lines, subtotal, free-shipping progress, CTAs      | `bag/BagDrawer`                       | 6     | Done   |
+| Bag page edits      | Size/colour/qty inline, remove, move to wishlist, save for later | `bag/BagLineItem`                     | 6     | Done   |
+| Promo codes         | Error/success states, stacking rules                             | `bag/PromoCodeField` + pricing engine | 6     | Done   |
+| Gift card / rewards | Redemption in bag                                                | Pricing engine                        | 6     | Done   |
+| Order summary       | Subtotal, discounts, shipping, tax, total                        | `bag/OrderSummary`                    | 6     | Done   |
+| Cross-device bag    | Merged on sign-in, saved on change                               | Bag repository                        | A     | Done   |
+| Server revalidation | Price and stock rechecked on every load                          | Bag Server Action                     | 6     | Done   |
 
 ## 7.7 Checkout
 
@@ -106,32 +106,32 @@ Status: `Planned` · `In progress` · `Done` · `Excluded` (reason required)
 
 Account creation, sign-in and every `account/*` page move to the final phase at the owner's request (D-050). The server-side pieces they rely on (orders keyed by `userId`, loyalty engine and ledger, owner access to orders) are already in place.
 
-| Feature                     | Behaviour                                                        | Implementation        | Phase | Status                                     |
-| --------------------------- | ---------------------------------------------------------------- | --------------------- | ----- | ------------------------------------------ |
-| Sign in / register / reset  | Email + password, session cookie                                 | `auth/*`              | Final | Planned                                    |
-| Overview dashboard          | Summary of orders, rewards, wishlist                             | `account/`            | Final | Planned                                    |
-| Orders                      | List, detail, tracking timeline, invoice, reorder                | `account/orders`      | Final | Planned (tracking page done for guests, 7) |
-| Returns                     | Pick items + reason, label/QR or drop-off, status, refund method | `account/returns`     | Final | Planned (guest flow done, 7)               |
-| Addresses & payment methods | Saved addresses; tokenised cards only                            | `account/*`           | Final | Planned                                    |
-| Rewards                     | Tier, points, progress, history, available rewards               | `account/rewards`     | Final | Planned (engine and ledger done, 7)        |
-| Wishlist                    | Move to bag, share, price-drop indicator                         | `account/wishlist`    | Final | Planned                                    |
-| Saved sizes & preferences   | Pre-select fit and size on PDP                                   | `account/preferences` | Final | Planned                                    |
-| Communication & security    | Email/SMS preferences, password, sessions, delete/export         | `account/*`           | Final | Planned                                    |
+| Feature                     | Behaviour                                                                                                         | Implementation        | Phase | Status |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------- | ----- | ------ |
+| Sign in / register / reset  | Register (rewards opt-in), server-checked sign-in with lockout, forgot and reset password                         | `auth/*`              | A     | Done   |
+| Overview dashboard          | Recent orders, rewards tier and points with progress, default address                                             | `account/`            | A     | Done   |
+| Orders                      | List with paging, order page with tracking, invoice (print/PDF) and buy it again                                  | `account/orders`      | A     | Done   |
+| Returns                     | Account returns list with status and refund; start from the order                                                 | `account/returns`     | A     | Done   |
+| Addresses & payment methods | Address book with default shipping/billing, used at checkout; Stripe-saved cards (list, remove, save at checkout) | `account/*`           | A     | Done   |
+| Rewards                     | Join from the account, tier, points, progress, history, how it works                                              | `account/rewards`     | A     | Done   |
+| Wishlist                    | Synced across devices, price-drop notes, quick add, share link; guests keep a device list                         | `account/wishlist`    | A     | Done   |
+| Saved sizes & preferences   | Fit family and sizes per size type, pre-selected on product pages                                                 | `account/preferences` | A     | Done   |
+| Communication & security    | Email/SMS consent, change password, sign out everywhere, data export, delete account                              | `account/*`           | A     | Done   |
 
 ## 7.9 Other
 
-| Feature            | Behaviour                                                        | Implementation                                        | Phase | Status                                          |
-| ------------------ | ---------------------------------------------------------------- | ----------------------------------------------------- | ----- | ----------------------------------------------- |
-| Guest order lookup | Email + order number                                             | `orders/lookup`, signed order links                   | 7     | Done                                            |
-| Order tracking     | Timeline, shipments, tracking numbers                            | `orders/[id]`, `lib/orders/tracking`                  | 7     | Done                                            |
-| Returns            | Items + reason, mail label with QR or store drop-off, refund to  | `orders/[id]/return`, `lib/returns/*`                 | 7     | Done (guests; receive/refund in back office, 8) |
-| Loyalty engine     | Points per dollar × tier multiplier, tiers from period spend     | `lib/loyalty/*`, credited on placement/settlement     | 7     | Done                                            |
-| Store locator      | List, search, service filters, near me, hours, open now, details | `stores/`, `stores/[slug]`                            | 7     | Done (map needs a maps key, D-048)              |
-| Gift cards         | Buy e-gift card, check balance                                   | `gift-cards/*`, Stripe webhook, scheduled delivery    | 7     | Done (purchase needs live Stripe keys)          |
-| Help centre        | FAQ search, shipping, returns, size guides, contact form         | `help/[[...slug]]`, `config/help.ts`                  | 7     | Done                                            |
-| Notifications      | Back in stock, price drop, one-click stop                        | `notifications` collection + `api/cron/notifications` | 7     | Done                                            |
-| Recently viewed    | Local + synced                                                   | `stores/recentlyViewed`                               | 5     | Done (local; account sync in final phase)       |
-| Error pages        | Branded 404 / 500                                                | `not-found.tsx`, `error.tsx`                          | 3     | Done                                            |
+| Feature            | Behaviour                                                         | Implementation                                        | Phase | Status                                    |
+| ------------------ | ----------------------------------------------------------------- | ----------------------------------------------------- | ----- | ----------------------------------------- |
+| Guest order lookup | Email + order number                                              | `orders/lookup`, signed order links                   | 7     | Done                                      |
+| Order tracking     | Timeline, shipments, tracking numbers                             | `orders/[id]`, `lib/orders/tracking`                  | 7     | Done                                      |
+| Returns            | Account returns list with status and refund; start from the order | `orders/[id]/return`, `lib/returns/*`                 | A     | Done                                      |
+| Loyalty engine     | Points per dollar × tier multiplier, tiers from period spend      | `lib/loyalty/*`, credited on placement/settlement     | 7     | Done                                      |
+| Store locator      | List, search, service filters, near me, hours, open now, details  | `stores/`, `stores/[slug]`                            | 7     | Done (map needs a maps key, D-048)        |
+| Gift cards         | Buy e-gift card, check balance                                    | `gift-cards/*`, Stripe webhook, scheduled delivery    | 7     | Done (purchase needs live Stripe keys)    |
+| Help centre        | FAQ search, shipping, returns, size guides, contact form          | `help/[[...slug]]`, `config/help.ts`                  | 7     | Done                                      |
+| Notifications      | Back in stock, price drop, one-click stop                         | `notifications` collection + `api/cron/notifications` | 7     | Done                                      |
+| Recently viewed    | Local + synced                                                    | `stores/recentlyViewed`                               | 5     | Done (local; account sync in final phase) |
+| Error pages        | Branded 404 / 500                                                 | `not-found.tsx`, `error.tsx`                          | 3     | Done                                      |
 
 ## 9. Back office
 
@@ -140,9 +140,9 @@ Account creation, sign-in and every `account/*` page move to the final phase at 
 | Staff sign-in        | Email + password, session cookie, staff land in `/admin`                                      | `auth/signin`                          | 8     | Done (customer accounts in final phase, D-052)                        |
 | Shell                | Role-filtered navigation, request-time guard on every page                                    | `(admin)/admin/layout.tsx`             | 8     | Done                                                                  |
 | Dashboard            | Revenue, orders, AOV, daily revenue chart, top products, low stock, work queues               | `admin/page.tsx`, `lib/admin/metrics`  | 8     | Done (conversion needs analytics, Phase 9)                            |
-| Orders               | Search/filter, detail and timeline, notes, cancel, limit-checked refunds, resend email        | `admin/orders`, `order-service`        | 8     | Done (editing line items before fulfilment: no, D-054)                |
+| Orders               | List with paging, order page with tracking, invoice (print/PDF) and buy it again              | `admin/orders`, `order-service`        | 8     | Done                                                                  |
 | Fulfilment           | Queue, start preparing, parcels with carrier and tracking, delivered                          | `admin/fulfillment`                    | 8     | Done                                                                  |
-| Returns              | Queue, approve/deny, receive and inspect, restock, refund or store credit                     | `admin/returns`, `return-service`      | 8     | Done                                                                  |
+| Returns              | Account returns list with status and refund; start from the order                             | `admin/returns`, `return-service`      | 8     | Done                                                                  |
 | Customers            | Profile, orders, rewards and history, audited points adjustments, notes                       | `admin/customers`, `people-service`    | 8     | Done                                                                  |
 | Catalog              | List, bulk status, CSV import/export, editor (content, SEO, schedule, variant matrix, images) | `admin/catalog`, `catalog-service`     | 8     | Done (creating products and uploading images: merchant portal, D-055) |
 | Categories & merch   | Tree, details, pin (ordered) / boost / bury, default sort, applied on the storefront          | `admin/categories`                     | 8     | Done                                                                  |

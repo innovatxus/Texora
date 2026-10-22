@@ -335,10 +335,20 @@ export const MERCHANT_PUBLIC_PATHS = [
 ] as const;
 
 /**
- * The only role change server code may make without a signed-in admin:
- * a shopper becoming a merchant when they register a shop (D-061).
+ * Pages under protected prefixes that anyone may open: merchant sign-up and
+ * recovery, and the wishlist (guests see this device's list, members their
+ * synced one).
+ */
+const PUBLIC_PATHS: readonly string[] = [...MERCHANT_PUBLIC_PATHS, "/account/wishlist"];
+
+/**
+ * The only role changes server code may make without a signed-in admin: a
+ * shopper becoming a merchant when they register a shop (D-061), and a
+ * customer joining rewards from their own account (D-091).
  */
 export function canSystemGrant(currentRole: Role, nextRole: Role): boolean {
+  // A shopper joining rewards, from their own account.
+  if (nextRole === "loyalty_member") return currentRole === "customer";
   return nextRole === "vendor" && (currentRole === "customer" || currentRole === "loyalty_member");
 }
 
@@ -371,7 +381,7 @@ function matchesPrefix(pathname: string, prefix: string): boolean {
 
 /** The permission a path requires, or null for public routes. */
 export function requiredPermissionForPath(pathname: string): Permission | null {
-  if (MERCHANT_PUBLIC_PATHS.some((prefix) => matchesPrefix(pathname, prefix))) return null;
+  if (PUBLIC_PATHS.some((prefix) => matchesPrefix(pathname, prefix))) return null;
   let best: { prefix: string; permission: Permission } | null = null;
   for (const rule of ROUTE_PERMISSIONS) {
     if (

@@ -3,14 +3,14 @@
 // variant matrix, the publish checks and the storefront document builder, so
 // seeded products look exactly like ones a merchant published.
 import { createHash } from "node:crypto";
-import { productConfigFor } from "../../src/config/product-attributes";
-import { counterDelta, summarize } from "../../src/lib/merchant/drafts";
-import { colorCode, suggestAlt, suggestStyleId } from "../../src/lib/merchant/editor";
-import { chooseSlug, toStorefrontDocs } from "../../src/lib/merchant/publishing/storefront-docs";
-import { publishProblems } from "../../src/lib/merchant/publishing/validate";
-import { buildMatrix } from "../../src/lib/merchant/variants/matrix";
-import type { Product, Variant } from "../../src/lib/validation/catalog";
-import { userSchema, type User } from "../../src/lib/validation/customer";
+import { productConfigFor } from "../../../src/config/product-attributes";
+import { counterDelta, summarize } from "../../../src/lib/merchant/drafts";
+import { colorCode, suggestAlt, suggestStyleId } from "../../../src/lib/merchant/editor";
+import { chooseSlug, toStorefrontDocs } from "../../../src/lib/merchant/publishing/storefront-docs";
+import { publishProblems } from "../../../src/lib/merchant/publishing/validate";
+import { buildMatrix } from "../../../src/lib/merchant/variants/matrix";
+import type { Product, Variant } from "../../../src/lib/validation/catalog";
+import { userSchema, type User } from "../../../src/lib/validation/customer";
 import {
   EMPTY_SHOP_COUNTERS,
   merchantLocationSchema,
@@ -24,8 +24,8 @@ import {
   type DraftColor,
   type ProductDraftData,
   type Shop,
-} from "../../src/lib/validation/merchant";
-import { COLORS } from "./catalog-definitions";
+} from "../../../src/lib/validation/merchant";
+import { COLORS } from "../../../scripts/store/catalog-definitions";
 import type { SeedAuthUser } from "./generate";
 import { SEED_MERCHANTS, type SeedMerchant } from "./merchant-definitions";
 

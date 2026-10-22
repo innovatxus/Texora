@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 /** Limits per action: attempts allowed per fixed window (D-063). Pure, so it is unit tested. */
 export const RATE_LIMITS = {
-  /** Merchant registrations per IP. */
+  /** Account registrations (customers and merchants) per IP. */
   register: { limit: 5, windowSeconds: 60 * 60 },
   /** Sign-in attempts per IP. */
   signInIp: { limit: 30, windowSeconds: 15 * 60 },
@@ -18,6 +18,24 @@ export const RATE_LIMITS = {
   upload: { limit: 300, windowSeconds: 60 * 60 },
   /** Publish or submit-for-review attempts per merchant. */
   publish: { limit: 120, windowSeconds: 60 * 60 },
+  /** Distinct wrong promo codes per IP before codes stop applying (guessing). */
+  promoGuess: { limit: 10, windowSeconds: 15 * 60 },
+  /** Marks a wrong code as already counted for an IP (one count per code). */
+  promoCodeSeen: { limit: 1, windowSeconds: 15 * 60 },
+  /** Guest order lookups (number + email) per IP. */
+  orderLookup: { limit: 10, windowSeconds: 15 * 60 },
+  /** Gift card balance checks per IP (codes are guessable otherwise). */
+  giftCardBalance: { limit: 10, windowSeconds: 15 * 60 },
+  /** Newsletter sign-ups per IP. */
+  signup: { limit: 10, windowSeconds: 60 * 60 },
+  /** Back-in-stock and price-drop alerts per IP. */
+  alerts: { limit: 20, windowSeconds: 60 * 60 },
+  /** Reviews written per account. */
+  review: { limit: 5, windowSeconds: 60 * 60 },
+  /** "Helpful" votes per IP. */
+  reviewVote: { limit: 30, windowSeconds: 60 * 60 },
+  /** Orders and gift card purchases started per IP (stock is reserved for each). */
+  placeOrder: { limit: 20, windowSeconds: 60 * 60 },
 } as const satisfies Record<string, { limit: number; windowSeconds: number }>;
 
 export type RateLimitAction = keyof typeof RATE_LIMITS;

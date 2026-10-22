@@ -464,3 +464,25 @@ The seed can't call the portal's services, which are server-only and need a requ
 
 **Date:** 2026-10-22 · **Phase:** Merchant 9
 `salesRank` 1 is the best seller, and new products, merchant listings included, start at 0. Sorting ascending put every new product ahead of the real best sellers in Featured, Best sellers and search ties. Seeding merchants made this visible. `compareSalesRank` treats 0 as "not ranked yet" and sorts it last; the in-memory listing engine and search both use it. Firestore can't express this order, so the repository's Firestore sorts stay as they are. No storefront page lists through them.
+
+## D-091 — Shoppers can join rewards themselves
+
+**Date:** 2026-10-22 · **Phase:** Accounts
+Joining rewards changes the role from `customer` to `loyalty_member`. `canSystemGrant` now allows exactly that change (and still customer or member → vendor) without an admin. It sets the claim, adds a Core membership to the profile, audits it as the shopper's own action and re-mints this device's session so the new role applies straight away. Sign-up offers it as a ticked-by-default checkbox.
+
+## D-092 — Customer accounts
+
+**Date:** 2026-10-22 · **Phase:** Accounts
+
+- **Sign-in:** all email-and-password sign-in is checked on the server, rate-limited per IP and locked for 15 minutes after 5 failures on an account. The Firebase client SDK is no longer needed on the sign-in page.
+- **Orders:** the account lists a shopper's orders, and each links to the existing order page, which already lets the signed-in owner in. That page gained an invoice (printable or saved as PDF) and "Buy it again", which puts the lines back in the bag for re-pricing.
+- **Wishlist:** `/account/wishlist` is public. Guests see this device's list; members see their synced one, and anyone can open a shared list.
+- **Bag:** the bag follows the shopper across devices. On sign-in, guest items merge into the account (larger quantity wins, never doubled); after that the account's copy loads on each visit and changes are saved.
+- **Saved sizes:** a browser copy of fit and sizes pre-selects them on cached product pages without a request.
+- **Saved cards:** cards are saved with Stripe through a customer per shopper and Stripe's own "save this card"; only brand, last four digits and expiry are shown.
+- **Deletion:** deleting an account removes the sign-in, profile, addresses, wishlist, saved bag and rewards history. Orders and returns are kept unlinked.
+
+## D-093 — The app runs on real data only
+
+**Date:** 2026-10-22 · **Phase:** Live readiness
+The demo seed, its commands (`emulators`, `seed`) and the emulator defaults in `.env.example` are gone. The app always uses the configured Firebase project, and `npm run bootstrap` sets up a new one. The emulators remain only as the automated tests' sandbox: rules and integration tests use their own `demo-` projects, and `npm run test:e2e` starts the emulators, seeds the demo catalogue from `tests/fixtures/`, loads `tests/emulator.env` (overriding `.env.local`) and builds into `.next-e2e`. Both env schemas refuse emulator mode unless the project id starts with `demo-`, so a live configuration can't be pointed at fake data, or tests at real data. The illustrated placeholders are now drawn only for the test catalogue; the storefront's menu, sign-up and grid images use the licensed photos.

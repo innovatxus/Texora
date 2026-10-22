@@ -3,10 +3,10 @@
 // Self-drawn flat illustrations (no third-party imagery). Runs before dev/build.
 import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { CATEGORIES, COLORS } from "./seed/catalog-definitions";
+import { CATEGORIES, COLORS } from "../../scripts/store/catalog-definitions";
 import { SEED_MERCHANTS } from "./seed/merchant-definitions";
 
-const OUT = fileURLToPath(new URL("../public/media/placeholders/", import.meta.url));
+const OUT = fileURLToPath(new URL("../../public/media/placeholders/", import.meta.url));
 const W = 1200;
 const H = 1600;
 

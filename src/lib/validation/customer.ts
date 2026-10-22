@@ -44,6 +44,8 @@ export const userSchema = z.object({
   /** Preferred size per size type, used to pre-select on the PDP. */
   savedSizes: z.partialRecord(sizeTypeSchema, z.string().max(16)),
   vendorId: idSchema.optional(),
+  /** Stripe customer for saved cards (cards themselves stay with Stripe). */
+  stripeCustomerId: z.string().max(64).optional(),
   disabled: z.boolean(),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,

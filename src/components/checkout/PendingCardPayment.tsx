@@ -1,7 +1,7 @@
 "use client";
 
 import { useStorageItem } from "@/lib/browser/hooks";
-import { CardPayment, CLIENT_SECRET_KEY } from "./CardPayment";
+import { CardPayment, CLIENT_SECRET_KEY, CUSTOMER_SESSION_KEY } from "./CardPayment";
 
 /** Completes a card order: the client secret was handed over by the review step for this tab only. */
 export function PendingCardPayment({
@@ -14,6 +14,7 @@ export function PendingCardPayment({
   returnUrl: string;
 }) {
   const clientSecret = useStorageItem("session", CLIENT_SECRET_KEY(orderId));
+  const customerSession = useStorageItem("session", CUSTOMER_SESSION_KEY(orderId));
   if (clientSecret === undefined) return null;
   if (!clientSecret) {
     return (
@@ -23,5 +24,12 @@ export function PendingCardPayment({
       </p>
     );
   }
-  return <CardPayment clientSecret={clientSecret} amount={amount} returnUrl={returnUrl} />;
+  return (
+    <CardPayment
+      clientSecret={clientSecret}
+      customerSessionClientSecret={customerSession ?? null}
+      amount={amount}
+      returnUrl={returnUrl}
+    />
+  );
 }

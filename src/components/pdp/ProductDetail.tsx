@@ -9,6 +9,7 @@ import { Rating } from "@/components/commerce/Rating";
 import { WishlistButton } from "@/components/commerce/WishlistButton";
 import { Badge, Button } from "@/components/primitives";
 import type { SizeGuide } from "@/config/size-guides";
+import type { SizeType } from "@/lib/validation/common";
 import {
   findVariant,
   fitLabel,
@@ -19,7 +20,9 @@ import {
 } from "@/lib/catalog/variant-selection";
 import { useHydrated } from "@/lib/browser/hooks";
 import { cn } from "@/lib/utils/cn";
+import { dollars, track } from "@/lib/analytics/events";
 import { useBagStore } from "@/stores/bag";
+import { usePreferencesStore } from "@/stores/preferences";
 import { useRecentlyViewedStore } from "@/stores/recentlyViewed";
 import { useUiStore } from "@/stores/ui";
 import { BackInStockForm } from "./BackInStockForm";
@@ -33,6 +36,8 @@ export interface PdpProductView {
   slug: string;
   name: string;
   fitFamilies: string[];
+  /** How the product is sized; picks the shopper's saved size for this type. */
+  sizeType?: SizeType;
   colors: Array<{
     code: string;
     name: string;
@@ -71,9 +76,19 @@ export function ProductDetail({
 }: ProductDetailProps) {
   const [color, setColor] = useState(initialColor);
   const fits = fitsForColor(variants, color, product.fitFamilies);
-  const [fitChoice, setFitChoice] = useState(product.fitFamilies[0] ?? "regular");
+  // A signed-in shopper's saved fit and size are the starting point; their own choice wins.
+  const preferredFit = usePreferencesStore((s) => s.fitFamily);
+  const preferredSize = usePreferencesStore((s) =>
+    product.sizeType ? (s.savedSizes[product.sizeType] ?? null) : null,
+  );
+  const [chosenFit, setFitChoice] = useState<string | null>(null);
+  const fitChoice =
+    chosenFit ??
+    (preferredFit && product.fitFamilies.includes(preferredFit)
+      ? preferredFit
+      : (product.fitFamilies[0] ?? "regular"));
   const fit = fits.includes(fitChoice) ? fitChoice : (fits[0] ?? fitChoice);
-  const [size, setSize] = useState<string | null>(null);
+  const [chosenSize, setSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [sizeError, setSizeError] = useState<string | undefined>();
   const [showSticky, setShowSticky] = useState(false);
@@ -88,6 +103,11 @@ export function ProductDetail({
 
   const colorView = product.colors.find((c) => c.code === color) ?? product.colors[0];
   const options = sizeOptions(variants, color, fit);
+  const size =
+    chosenSize ??
+    (preferredSize && options.some((o) => o.size === preferredSize && o.inStock)
+      ? preferredSize
+      : null);
   const sizeAvailable = size !== null && options.some((o) => o.size === size);
   const variant = findVariant(variants, color, fit, sizeAvailable ? size : null);
   const stock = stockMessage(variant);
@@ -99,8 +119,24 @@ export function ProductDetail({
   );
   const fitSummary = fitLabel(product.fitScore);
 
-  // Remember the visit for "recently viewed".
+  // Remember the visit for "recently viewed", and count it (not for merchant previews).
   useEffect(() => {
+    if (!preview) {
+      track({
+        name: "view_item",
+        params: {
+          currency: "USD",
+          value: dollars(product.priceRange.min),
+          items: [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              price: dollars(product.priceRange.min),
+            },
+          ],
+        },
+      });
+    }
     const image = product.colors[0]?.images[0]?.url;
     if (!image) return;
     record({
@@ -113,7 +149,7 @@ export function ProductDetail({
         ? { compareAtPrice: product.priceRange.compareAtMin }
         : {}),
     });
-  }, [product, record]);
+  }, [product, record, preview]);
 
   // Sticky mobile bar appears when the main button scrolls out of view.
   useEffect(() => {
@@ -144,6 +180,24 @@ export function ProductDetail({
     }
     if (outOfStock) return;
     addToBag({ sku: variant.sku, productId: product.id, quantity });
+    if (!preview) {
+      track({
+        name: "add_to_cart",
+        params: {
+          currency: "USD",
+          value: dollars(variant.price * quantity),
+          items: [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              item_variant: variant.sku,
+              price: dollars(variant.price),
+              quantity,
+            },
+          ],
+        },
+      });
+    }
     showAdded({
       productId: product.id,
       slug: product.slug,

@@ -17,13 +17,21 @@ import { ONLINE_LOCATION, type OrderLine } from "@/lib/validation";
 import type { PlaceOrderInput } from "./checkout-schema";
 import { notifyMerchantsOfOrder, sendOrderConfirmation } from "./notifications";
 import { orderAccessToken } from "./token";
+import { customerSessionSecret, ensureStripeCustomer } from "@/lib/payments/customers";
 
 export interface PlacedOrder {
   orderId: string;
   number: string;
   status: "placed" | "pending_payment";
   accessToken: string;
-  payment: { kind: "card"; clientSecret: string } | { kind: "cod" | "none" };
+  payment:
+    | {
+        kind: "card";
+        clientSecret: string;
+        /** Signed-in shoppers: lets the payment form show and save cards. */
+        customerSessionClientSecret?: string;
+      }
+    | { kind: "cod" | "none" };
 }
 
 const RESERVATION_MS = 15 * 60 * 1000;
@@ -252,7 +260,10 @@ export async function placeOrder(
 
   let payment: PlacedOrder["payment"] = { kind: paymentMethod === "cod" ? "cod" : "none" };
   if (paymentMethod === "card") {
+    // Signed-in shoppers pay as their provider customer, so cards can be saved and reused.
+    const customer = actor ? await ensureStripeCustomer(actor.uid, input.email) : null;
     const intent = await stripeProvider.createPayment({
+      customer: customer ?? undefined,
       amount: total,
       currency: "USD",
       email: input.email,
@@ -268,7 +279,11 @@ export async function placeOrder(
         status: "pending",
       }),
     });
-    payment = { kind: "card", clientSecret: intent.clientSecret };
+    payment = {
+      kind: "card",
+      clientSecret: intent.clientSecret,
+      ...(customer ? { customerSessionClientSecret: await customerSessionSecret(customer) } : {}),
+    };
   }
 
   const result: PlacedOrder = {

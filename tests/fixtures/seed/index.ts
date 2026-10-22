@@ -1,5 +1,6 @@
-// Seeds the local Firebase emulators. Start them first: `npm run emulators`,
-// then `npm run seed`. Refuses to run against anything but the emulators.
+// Seeds the Firebase emulators with the demo catalogue for the browser tests.
+// Run by tests/e2e-run.ts (`npm run test:e2e`), never by hand; refuses to run
+// against anything but the emulators with a demo- project.
 import { loadEnvConfig } from "@next/env";
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
@@ -17,7 +18,7 @@ async function main() {
   if (!firestoreHost || !authHost || !projectId.startsWith("demo-")) {
     console.error(
       "Refusing to seed: FIRESTORE_EMULATOR_HOST and FIREBASE_AUTH_EMULATOR_HOST must be set " +
-        "and FIREBASE_PROJECT_ID must be a demo- project. Copy .env.example to .env.local.",
+        "and FIREBASE_PROJECT_ID must be a demo- project (see tests/emulator.env).",
     );
     process.exit(1);
   }

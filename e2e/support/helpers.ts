@@ -7,8 +7,13 @@ export async function gotoReady(page: Page, path: string) {
   return response;
 }
 
-/** A returning visitor: cookie choice made, newsletter popup already seen. */
+/**
+ * A returning visitor: cookie choice made, newsletter popup already seen, and
+ * its own forwarded IP, so per-IP rate limits never collide between tests.
+ */
 export async function asReturningVisitor(context: BrowserContext, baseURL: string | undefined) {
+  const octet = () => Math.floor(Math.random() * 254) + 1;
+  await context.setExtraHTTPHeaders({ "x-forwarded-for": `203.0.${octet()}.${octet()}` });
   await context.addInitScript(() =>
     window.localStorage.setItem("texora-signup-seen", String(Date.now())),
   );

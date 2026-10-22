@@ -6,18 +6,29 @@ import { z } from "zod";
  */
 
 /** Public environment variables (safe in the browser bundle). */
-export const clientEnvSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.url(),
-  NEXT_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1),
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1),
-  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().min(1),
-  NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
-  NEXT_PUBLIC_USE_FIREBASE_EMULATORS: z.stringbool().default(false),
-  NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: z.string().min(1).default("127.0.0.1"),
-  /** Enables card payments (Stripe Elements). Omit to offer only Cash on Delivery. */
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
-});
+export const clientEnvSchema = z
+  .object({
+    NEXT_PUBLIC_SITE_URL: z.url(),
+    NEXT_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1),
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1),
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().min(1),
+    NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
+    /** Automated tests only (tests/emulator.env), and only with a demo- project. */
+    NEXT_PUBLIC_USE_FIREBASE_EMULATORS: z.stringbool().default(false),
+    NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: z.string().min(1).default("127.0.0.1"),
+    /** Enables card payments (Stripe Elements). Omit to offer only Cash on Delivery. */
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
+  })
+  .refine(
+    (env) =>
+      !env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS ||
+      env.NEXT_PUBLIC_FIREBASE_PROJECT_ID.startsWith("demo-"),
+    {
+      path: ["NEXT_PUBLIC_USE_FIREBASE_EMULATORS"],
+      message: "Emulators are for automated tests with a demo- project; turn this off",
+    },
+  );
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
 
@@ -78,6 +89,14 @@ export const serverEnvSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.USE_FIREBASE_EMULATORS) {
+      // Emulators are for the automated tests only, and only with offline demo projects.
+      if (!env.FIREBASE_PROJECT_ID.startsWith("demo-")) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["USE_FIREBASE_EMULATORS"],
+          message: "Emulators are for automated tests with a demo- project; turn this off",
+        });
+      }
       for (const key of ["FIRESTORE_EMULATOR_HOST", "FIREBASE_AUTH_EMULATOR_HOST"] as const) {
         if (!env[key]) {
           ctx.addIssue({
@@ -121,7 +140,9 @@ export function parseEnv<S extends z.ZodType>(
   source: Record<string, string | undefined>,
   label: string,
 ): z.infer<S> {
-  const result = schema.safeParse(source);
+  // A blank `KEY=` line means "not set", as people expect from env files.
+  const present = Object.fromEntries(Object.entries(source).filter(([, value]) => value !== ""));
+  const result = schema.safeParse(present);
   if (!result.success) {
     const details = result.error.issues
       .map((issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`)

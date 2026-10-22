@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { AccountSyncGate } from "@/components/account/AccountSyncGate";
 import { BagDrawer } from "@/components/bag/BagDrawer";
 import { ConsentBanner } from "@/components/marketing/ConsentBanner";
 import { SignupModal } from "@/components/marketing/SignupModal";
@@ -29,6 +30,10 @@ export default function StorefrontLayout({ children }: LayoutProps<"/">) {
       {/* Reads the pathname: under a Suspense boundary so routes with request-time params still prerender their shell. */}
       <Suspense fallback={null}>
         <SignupModal />
+      </Suspense>
+      {/* Request-time (session): its own boundary, so pages still prerender. */}
+      <Suspense fallback={null}>
+        <AccountSyncGate />
       </Suspense>
       <StoreHydration />
     </>

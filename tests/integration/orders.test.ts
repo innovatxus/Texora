@@ -10,7 +10,7 @@ const { getFirebaseAdmin } = await import("@/lib/firebase/admin");
 const { placeOrder } = await import("@/lib/orders/place-order");
 const { releaseExpiredReservations } = await import("@/lib/orders/payments");
 const { verifyOrderAccessToken } = await import("@/lib/orders/token");
-const { generateSeed } = await import("../../scripts/seed/generate");
+const { generateSeed } = await import("../fixtures/seed/generate");
 
 const seed = generateSeed();
 const { db } = getFirebaseAdmin();

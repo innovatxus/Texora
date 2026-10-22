@@ -15,7 +15,7 @@ const { processAlerts, cancelAlerts } = await import("@/lib/notifications/proces
 const { settleGiftCardPurchase, deliverScheduledGiftCards } =
   await import("@/lib/giftcards/service");
 const { getGiftCardByCode } = await import("@/lib/data/promotions");
-const { generateSeed } = await import("../../scripts/seed/generate");
+const { generateSeed } = await import("../fixtures/seed/generate");
 
 const seed = generateSeed();
 const { db } = getFirebaseAdmin();

@@ -1,6 +1,8 @@
 import NextLink from "next/link";
 import { connection } from "next/server";
+import { TrackListView } from "@/components/analytics/TrackListView";
 import { ProductCard } from "@/components/commerce/ProductCard";
+import { listingItem } from "@/lib/analytics/items";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { CloseIcon } from "@/components/icons";
@@ -173,6 +175,7 @@ export async function ProductListing({
           />
         ) : (
           <div className="mt-8">
+            <TrackListView listName={basePath} items={items.map((p) => listingItem(p))} />
             <DensityGrid>
               {items.flatMap((product, i) => {
                 const cells = [
@@ -181,6 +184,7 @@ export async function ProductListing({
                       product={product}
                       priority={i < 4}
                       preferColorFamilies={filters.color}
+                      listName={basePath}
                     />
                   </li>,
                 ];

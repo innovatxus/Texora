@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { runAction } from "@/lib/actions/run-action";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
+import { clientIp, enforceRateLimit } from "@/lib/security/rate-limit";
 
 const subscribeSchema = z.object({
   email: z.email("Enter a valid email address").max(254).toLowerCase(),
@@ -20,6 +21,7 @@ export async function subscribe(input: unknown) {
     schema: subscribeSchema,
     access: { public: true },
     handler: async ({ email, source }) => {
+      await enforceRateLimit("signup", await clientIp());
       const id = createHash("sha256").update(email).digest("hex");
       const now = new Date();
       await getFirebaseAdmin()

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NextLink from "next/link";
 import { Suspense } from "react";
 import { SignInForm } from "@/components/auth/SignInForm";
 import { Skeleton } from "@/components/primitives";
@@ -11,14 +12,28 @@ export const metadata: Metadata = {
 };
 
 async function Form({ searchParams }: PageProps<"/auth/signin">) {
-  const { next } = await searchParams;
-  return <SignInForm next={typeof next === "string" ? next : null} />;
+  const { next, reset } = await searchParams;
+  const nextPath = typeof next === "string" ? next : null;
+  return (
+    <>
+      <SignInForm
+        next={nextPath}
+        {...(reset ? { notice: "Password changed. Sign in with your new password." } : {})}
+      />
+      <p className="mt-8 border-t border-line pt-6 text-sm">
+        New to {brand.name}?{" "}
+        <NextLink
+          href={nextPath ? `/auth/register?next=${encodeURIComponent(nextPath)}` : "/auth/register"}
+          className="font-medium underline underline-offset-4"
+        >
+          Create an account
+        </NextLink>
+      </p>
+    </>
+  );
 }
 
-/**
- * Sign in with email and password. Staff use it to reach the back office;
- * customer registration and account pages arrive in the final phase (D-050).
- */
+/** Sign in with email and password: shoppers, staff and merchants alike. */
 export default function Page(props: PageProps<"/auth/signin">) {
   return (
     <div className="container-page flex justify-center pt-12 pb-24">

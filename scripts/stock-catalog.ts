@@ -97,3 +97,13 @@ export type StockKey = keyof typeof STOCK;
 /** Published path of a composed image. */
 export const stockUrl = (key: StockKey, variant: "tile" | "desktop" | "mobile") =>
   `/media/stock/${key}-${variant}.jpg`;
+
+/**
+ * The home hero: the store's own photograph (public/media/assets), framed for
+ * desktop and phones by scripts/hero-images.ts.
+ */
+export const HOME_HERO = {
+  desktop: "/media/hero/home-desktop.jpg",
+  mobile: "/media/hero/home-mobile.jpg",
+  alt: "Three people walking in relaxed neutral tailoring, wide trousers and sneakers",
+} as const;

@@ -17,6 +17,8 @@ const getStripe = () => {
 
 /** sessionStorage key holding a payment's client secret for this tab only. */
 export const CLIENT_SECRET_KEY = (orderId: string) => `texora-pay-${orderId}`;
+/** Session storage key for the saved-cards secret (signed-in shoppers only). */
+export const CUSTOMER_SESSION_KEY = (orderId: string) => `texora-pay-customer-${orderId}`;
 
 function PayForm({ amount, returnUrl }: { amount: number; returnUrl: string }) {
   const stripe = useStripe();
@@ -56,10 +58,13 @@ function PayForm({ amount, returnUrl }: { amount: number; returnUrl: string }) {
 /** Provider-hosted card fields; card data never touches our servers. */
 export function CardPayment({
   clientSecret,
+  customerSessionClientSecret,
   amount,
   returnUrl,
 }: {
   clientSecret: string;
+  /** Shows the shopper's saved cards and a "save this card" option. */
+  customerSessionClientSecret?: string | null;
   amount: number;
   returnUrl: string;
 }) {
@@ -71,6 +76,7 @@ export function CardPayment({
       stripe={stripe}
       options={{
         clientSecret,
+        ...(customerSessionClientSecret ? { customerSessionClientSecret } : {}),
         appearance: {
           theme: "flat",
           variables: {

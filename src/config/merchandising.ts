@@ -16,8 +16,8 @@ export const GRID_TILES: Record<string, readonly GridTile[]> = {
       eyebrow: "The Linen Edit",
       title: "Easy pieces for warm days",
       href: "/collections/the-linen-edit",
-      image: "/media/placeholders/look-1.svg",
-      imageAlt: "An ivory top with camel trousers",
+      image: "/media/stock/womenTops-tile.jpg",
+      imageAlt: "A woman in a black blouse and cream trousers",
     },
   ],
   men: [
@@ -26,8 +26,8 @@ export const GRID_TILES: Record<string, readonly GridTile[]> = {
       eyebrow: "Knitwear",
       title: "Merino, cashmere and lambswool",
       href: "/collections/knitwear",
-      image: "/media/placeholders/editorial-knitwear.svg",
-      imageAlt: "A forest green sweater on a hanger",
+      image: "/media/stock/menSweaters-tile.jpg",
+      imageAlt: "A man in a beige sweater and black trousers",
     },
   ],
 };

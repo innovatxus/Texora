@@ -123,6 +123,39 @@ describe("serverEnvSchema", () => {
     expect(env.FIREBASE_SERVICE_ACCOUNT).toBeUndefined();
   });
 
+  it("refuses emulator mode for a real project", () => {
+    expect(() =>
+      parseEnv(
+        serverEnvSchema,
+        {
+          FIREBASE_PROJECT_ID: "texora-fashion",
+          FIREBASE_STORAGE_BUCKET: "texora-fashion.firebasestorage.app",
+          ORDER_TOKEN_SECRET: "x".repeat(32),
+          USE_FIREBASE_EMULATORS: "true",
+          FIRESTORE_EMULATOR_HOST: "127.0.0.1:8080",
+          FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
+        },
+        "server",
+      ),
+    ).toThrowError(/Emulators are for automated tests/);
+  });
+
+  it("treats any blank value as unset", () => {
+    const env = parseEnv(
+      serverEnvSchema,
+      {
+        FIREBASE_PROJECT_ID: "demo-texora",
+        FIREBASE_STORAGE_BUCKET: "demo-texora.appspot.com",
+        ORDER_TOKEN_SECRET: "x".repeat(32),
+        RESEND_API_KEY: "",
+        CRON_SECRET: "",
+      },
+      "server",
+    );
+    expect(env.RESEND_API_KEY).toBeUndefined();
+    expect(env.CRON_SECRET).toBeUndefined();
+  });
+
   it("rejects a malformed service account", () => {
     expect(() =>
       parseEnv(

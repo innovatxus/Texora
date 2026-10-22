@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { Button, Input, Select } from "@/components/primitives";
@@ -63,18 +64,29 @@ const STATES = [
 type AddressInput = z.input<typeof checkoutAddressSchema>;
 
 interface AddressFormProps {
-  /** Prefix for field ids and browser autofill sections ("shipping" / "billing"). */
-  section: "shipping" | "billing";
+  /** Prefix for field ids and browser autofill sections ("account" autofills as shipping). */
+  section: "shipping" | "billing" | "account";
   defaultValues?: Partial<CheckoutAddress> | null;
   submitLabel: string;
-  onSubmit: (address: CheckoutAddress) => void;
+  onSubmit: (address: CheckoutAddress) => void | Promise<void>;
+  /** Extra fields shown above the button (e.g. a label and default choices). */
+  children?: ReactNode;
+  /** Shown next to the submit button (e.g. Cancel). */
+  secondaryAction?: ReactNode;
 }
 
 /**
  * Address form shared by shipping and billing. Validation uses the same Zod
  * schema the server enforces; fields carry autofill tokens for one-tap fill.
  */
-export function AddressForm({ section, defaultValues, submitLabel, onSubmit }: AddressFormProps) {
+export function AddressForm({
+  section,
+  defaultValues,
+  submitLabel,
+  onSubmit,
+  children,
+  secondaryAction,
+}: AddressFormProps) {
   const {
     register,
     handleSubmit,
@@ -84,7 +96,8 @@ export function AddressForm({ section, defaultValues, submitLabel, onSubmit }: A
     defaultValues: { country: "US", region: "", ...defaultValues },
     mode: "onBlur",
   });
-  const ac = (token: string) => `section-${section} ${section} ${token}`;
+  const autofill = section === "account" ? "shipping" : section;
+  const ac = (token: string) => `section-${section} ${autofill} ${token}`;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-5 sm:grid-cols-2">
@@ -162,10 +175,12 @@ export function AddressForm({ section, defaultValues, submitLabel, onSubmit }: A
         {...register("phone")}
       />
       <input type="hidden" value="US" {...register("country")} />
-      <div className="sm:col-span-2">
+      {children && <div className="flex flex-col gap-4 sm:col-span-2">{children}</div>}
+      <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
         <Button type="submit" size="lg" loading={isSubmitting}>
           {submitLabel}
         </Button>
+        {secondaryAction}
       </div>
     </form>
   );

@@ -164,6 +164,8 @@ test.describe("marketplace", () => {
 
     // A shopper buys it (pay on delivery)...
     await gotoReady(shopper, href);
+    // The buy box hydrates after the page; pick a size only once it's interactive.
+    await shopper.waitForSelector("[data-interactive]", { state: "attached" });
     await shopper
       .getByRole("group", { name: /^Size/ })
       .locator("label")

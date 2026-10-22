@@ -12,13 +12,15 @@ import { TruckIcon } from "@/components/icons";
 import { Button, ButtonLink, Checkbox, Input, Link, Skeleton } from "@/components/primitives";
 import { estimateDelivery } from "@/lib/catalog/variant-selection";
 import { formatMoney } from "@/lib/format/money";
+import { saveAddressAction } from "@/lib/account/actions/account";
+import { dollars, track } from "@/lib/analytics/events";
 import { getCheckoutOptions, submitOrder } from "@/lib/orders/actions";
 import { cn } from "@/lib/utils/cn";
 import { useBagStore } from "@/stores/bag";
 import { useCheckoutStore, type DeliveryChoice } from "@/stores/checkout";
 import { writeStorage } from "@/lib/browser/storage";
 import { AddressForm } from "./AddressForm";
-import { CLIENT_SECRET_KEY } from "./CardPayment";
+import { CLIENT_SECRET_KEY, CUSTOMER_SESSION_KEY } from "./CardPayment";
 
 type CheckoutOptions = Extract<
   Awaited<ReturnType<typeof getCheckoutOptions>>,
@@ -57,6 +59,30 @@ const contactSchema = z.object({
 export function ContactStep() {
   const router = useRouter();
   const options = useCheckoutOptions();
+  const lines = useBagStore((s) => s.lines);
+  const lineKey = lines.map((l) => `${l.sku}:${l.quantity}`).join(",");
+  // Checkout started: once per visit to this step, with what's in the bag.
+  useEffect(() => {
+    if (!lineKey) return;
+    track({
+      name: "begin_checkout",
+      params: {
+        currency: "USD",
+        items: lineKey.split(",").map((entry) => {
+          const [sku = "", quantity = "1"] = entry.split(":");
+          const line = lines.find((l) => l.sku === sku);
+          return {
+            item_id: line?.productId ?? sku,
+            item_name: line?.productId ?? sku,
+            item_variant: sku,
+            quantity: Number(quantity),
+          };
+        }),
+      },
+    });
+    // Keyed on the bag's contents, not the array identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lineKey]);
   const { email, marketingOptIn, setContact } = useCheckoutStore();
   const {
     register,
@@ -119,20 +145,121 @@ export function ContactStep() {
 
 // ----------------------------------------------------------------- shipping
 
-/** Shipping step: address form validated with the server's schema. */
+/**
+ * Shipping step: signed-in shoppers pick a saved address (default first) or
+ * enter a new one, which they can save to their account; guests fill in the
+ * form. Validated with the server's schema either way.
+ */
 export function ShippingStep() {
   const router = useRouter();
+  const name = useId();
+  const options = useCheckoutOptions();
   const { shippingAddress, setShippingAddress } = useCheckoutStore();
-  return (
+  const saved = options?.addresses ?? [];
+  const [choice, setChoice] = useState<string | null>(null);
+  const [saveNew, setSaveNew] = useState(true);
+  const selected = choice ?? (saved[0]?.id && !shippingAddress ? saved[0].id : "new");
+  const go = (address: Parameters<typeof setShippingAddress>[0]) => {
+    setShippingAddress(address);
+    router.push("/checkout/delivery");
+  };
+
+  if (!options) return <Skeleton className="h-96" />;
+
+  const pick = saved.find((a) => a.id === selected);
+  const form = (
     <AddressForm
+      // Remount when switching between a saved address and a new one.
+      key={pick?.id ?? "new"}
       section="shipping"
-      defaultValues={shippingAddress}
+      defaultValues={pick ? pick.address : shippingAddress}
       submitLabel="Continue to delivery"
-      onSubmit={(address) => {
-        setShippingAddress(address);
-        router.push("/checkout/delivery");
+      onSubmit={async (address) => {
+        if (options.signedIn && saveNew && !pick) {
+          // Saving is a convenience: checkout continues even if it fails.
+          await saveAddressAction(address).catch(() => undefined);
+        }
+        go(address);
       }}
-    />
+    >
+      {options.signedIn && !pick && (
+        <Checkbox
+          label="Save this address to my account"
+          checked={saveNew}
+          onChange={(e) => setSaveNew(e.target.checked)}
+        />
+      )}
+    </AddressForm>
+  );
+
+  if (saved.length === 0) return form;
+
+  const phone = pick?.address.phone;
+  return (
+    <div className="flex flex-col gap-8">
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-2 text-label">Ship to</legend>
+        {saved.map((a) => (
+          <label
+            key={a.id}
+            className={cn(
+              "flex cursor-pointer items-start gap-3 border p-4 text-sm",
+              selected === a.id ? "border-ink" : "border-line",
+            )}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={a.id}
+              checked={selected === a.id}
+              onChange={() => setChoice(a.id)}
+              className="mt-0.5 size-5 accent-ink"
+            />
+            <span>
+              <span className="font-medium">
+                {a.label ?? `${a.address.firstName} ${a.address.lastName}`}
+                {a.isDefaultShipping ? " · Default" : ""}
+              </span>
+              <span className="block text-ink-soft">
+                {a.address.line1}
+                {a.address.line2 ? `, ${a.address.line2}` : ""}, {a.address.city},{" "}
+                {a.address.region} {a.address.postalCode}
+              </span>
+            </span>
+          </label>
+        ))}
+        <label
+          className={cn(
+            "flex cursor-pointer items-center gap-3 border p-4 text-sm",
+            selected === "new" ? "border-ink" : "border-line",
+          )}
+        >
+          <input
+            type="radio"
+            name={name}
+            value="new"
+            checked={selected === "new"}
+            onChange={() => setChoice("new")}
+            className="size-5 accent-ink"
+          />
+          <span className="font-medium">Use a new address</span>
+        </label>
+      </fieldset>
+      {pick && phone ? (
+        <Button size="lg" className="self-start" onClick={() => go({ ...pick.address, phone })}>
+          Continue to delivery
+        </Button>
+      ) : (
+        <>
+          {pick && (
+            <p className="text-sm text-ink-soft">
+              Add a phone number for delivery updates, then continue.
+            </p>
+          )}
+          {form}
+        </>
+      )}
+    </div>
   );
 }
 
@@ -268,6 +395,14 @@ export function PaymentStep() {
       setError("Choose a payment method");
       return;
     }
+    track({
+      name: "add_payment_info",
+      params: {
+        currency: "USD",
+        value: dollars(bag?.totals.total ?? 0),
+        payment_type: chosen === "cod" ? "cash_on_delivery" : "card",
+      },
+    });
     setPayment({ method: chosen, billingSameAsShipping: sameAsShipping, billingAddress: billing });
     router.push("/checkout/review");
   };
@@ -431,6 +566,9 @@ export function ReviewStep() {
     if (payment.kind === "card") {
       // Card details are collected by the payment provider on the confirmation page.
       writeStorage("session", CLIENT_SECRET_KEY(orderId), payment.clientSecret);
+      if (payment.customerSessionClientSecret) {
+        writeStorage("session", CUSTOMER_SESSION_KEY(orderId), payment.customerSessionClientSecret);
+      }
       router.push(`/order-confirmation/${orderId}?t=${encodeURIComponent(accessToken)}`);
       return;
     }

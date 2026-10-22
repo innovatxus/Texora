@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useBagStore } from "./bag";
 import { useCheckoutStore } from "./checkout";
+import { usePreferencesStore } from "./preferences";
 import { useRecentlyViewedStore } from "./recentlyViewed";
 import { useWishlistStore } from "./wishlist";
 
@@ -13,6 +14,7 @@ export function StoreHydration() {
     void useRecentlyViewedStore.persist.rehydrate();
     void useWishlistStore.persist.rehydrate();
     void useCheckoutStore.persist.rehydrate();
+    void usePreferencesStore.persist.rehydrate();
   }, []);
   return null;
 }

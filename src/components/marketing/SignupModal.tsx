@@ -71,8 +71,8 @@ export function SignupModal() {
       aside={
         <span className="relative block h-full min-h-80">
           <ProductImage
-            src="/media/placeholders/editorial-knitwear.svg"
-            alt="A forest green sweater on a hanger"
+            src="/media/stock/womenSweaters-tile.jpg"
+            alt="A woman in an oatmeal knit sweater"
             fill
             sizes="384px"
           />

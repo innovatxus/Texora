@@ -11,7 +11,7 @@ const service = await import("@/lib/merchant/account-service");
 const { emailForUsername, getMerchantByOwner, getUsernameLock } =
   await import("@/lib/merchant/repositories/merchants");
 const { signInWithPassword } = await import("@/lib/auth/identity");
-const { SEED_PASSWORD } = await import("../../scripts/seed/generate");
+const { SEED_PASSWORD } = await import("../fixtures/seed/generate");
 const { getUserProfile } = await import("@/lib/data/admin-records");
 
 const { db, auth } = getFirebaseAdmin();

@@ -10,6 +10,7 @@ import {
   OrderTotals,
   TrackingTimeline,
 } from "@/components/orders/OrderParts";
+import { ReorderButton } from "@/components/orders/ReorderButton";
 import { Badge, ButtonLink, Link, Skeleton } from "@/components/primitives";
 import { listReturnsForOrder } from "@/lib/data/returns";
 import { getAuthorisedOrder } from "@/lib/orders/access";
@@ -127,6 +128,18 @@ async function OrderStatus({ params, searchParams }: PageProps<"/orders/[id]">) 
 
         <aside className="flex flex-col gap-6">
           <OrderTotals order={order} />
+          <div className="flex flex-wrap gap-3">
+            <ReorderButton
+              lines={order.lines.map((l) => ({
+                sku: l.sku,
+                productId: l.productId,
+                quantity: l.quantity,
+              }))}
+            />
+            <ButtonLink href={`/orders/${order.id}/invoice?${signed}`} variant="secondary">
+              Invoice
+            </ButtonLink>
+          </div>
 
           <section aria-labelledby="returns-title" className="bg-surface-muted p-6 text-sm">
             <h2 id="returns-title" className="flex items-center gap-2 text-label">

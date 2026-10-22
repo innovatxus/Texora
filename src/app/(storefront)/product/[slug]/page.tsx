@@ -140,6 +140,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
     slug: product.slug,
     name: product.name,
     fitFamilies: product.fitFamilies,
+    sizeType: product.sizeType,
     colors: product.colors.map((c) => ({
       code: c.code,
       name: c.name,

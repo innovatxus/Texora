@@ -7,6 +7,7 @@ import { getGiftCardByCode } from "@/lib/data/promotions";
 import { addDays, businessDate } from "./codes";
 import { giftCardPurchaseFormSchema } from "./schema";
 import { createGiftCardPurchase } from "./service";
+import { clientIp, enforceRateLimit } from "@/lib/security/rate-limit";
 
 /**
  * Balance check. Reveals only what the card holder needs; unknown and
@@ -23,6 +24,7 @@ export async function checkGiftCardBalance(input: unknown) {
     }),
     access: { public: true },
     handler: async ({ code }) => {
+      await enforceRateLimit("giftCardBalance", await clientIp());
       const card = await getGiftCardByCode(code);
       if (!card || card.status === "disabled") {
         throw new ActionError(
@@ -49,6 +51,7 @@ export async function startGiftCardPurchase(input: unknown) {
     }),
     access: { public: true },
     handler: async (purchase) => {
+      await enforceRateLimit("placeOrder", await clientIp());
       const today = businessDate(new Date());
       if (purchase.deliverOn < today || purchase.deliverOn > addDays(today, 365)) {
         throw new ActionError("conflict", "Choose a delivery date within the next year");

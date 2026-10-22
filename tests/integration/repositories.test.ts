@@ -14,7 +14,7 @@ import {
   type ProductSort,
 } from "@/lib/data/products";
 import { listApprovedReviews, listPendingReviews } from "@/lib/data/reviews";
-import { generateSeed } from "../../scripts/seed/generate";
+import { generateSeed } from "../fixtures/seed/generate";
 
 // The same deterministic data global-setup wrote (ids and statuses do not depend on the clock).
 const seed = generateSeed();

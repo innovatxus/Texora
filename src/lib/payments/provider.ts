@@ -20,13 +20,15 @@ export interface PaymentProvider {
     metadata: Record<string, string>;
     /** Retries with the same key return the same intent. */
     idempotencyKey: string;
+    /** Signed-in shopper's provider customer, so saved cards can be used and saved. */
+    customer?: string | undefined;
   }): Promise<PaymentIntentResult>;
   refund(input: { ref: string; amount: number }): Promise<{ ref: string }>;
 }
 
 let stripe: Stripe | null = null;
 
-function stripeClient(): Stripe {
+export function stripeClient(): Stripe {
   if (!serverEnv.STRIPE_SECRET_KEY) throw new Error("Card payments are not configured");
   stripe ??= new Stripe(serverEnv.STRIPE_SECRET_KEY);
   return stripe;
@@ -37,9 +39,10 @@ export const cardPaymentsEnabled = () => Boolean(serverEnv.STRIPE_SECRET_KEY);
 
 /** Stripe implementation of the payment provider: payment intents and refunds. */
 export const stripeProvider: PaymentProvider = {
-  async createPayment({ amount, currency, email, metadata, idempotencyKey }) {
+  async createPayment({ amount, currency, email, metadata, idempotencyKey, customer }) {
     const intent = await stripeClient().paymentIntents.create(
       {
+        ...(customer ? { customer } : {}),
         amount,
         currency: currency.toLowerCase(),
         receipt_email: email,

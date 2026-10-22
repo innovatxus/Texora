@@ -15,7 +15,7 @@ const merch = await import("@/lib/admin/merch-service");
 const people = await import("@/lib/admin/people-service");
 const site = await import("@/lib/admin/site-service");
 const { requestReturn } = await import("@/lib/returns/request-return");
-const { generateSeed } = await import("../../scripts/seed/generate");
+const { generateSeed } = await import("../fixtures/seed/generate");
 import type { Session } from "@/lib/auth/session";
 import type { Role } from "@/lib/auth/rbac";
 
