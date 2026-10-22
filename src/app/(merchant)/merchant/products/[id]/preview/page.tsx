@@ -31,6 +31,14 @@ export default async function Page({
     searchParams,
     getMerchantContext(),
   ]);
+  // Ownership first: someone else's product is "not found", whatever the link says.
+  let draft;
+  try {
+    draft = await getOwnedDraftRecord({ session, vendorId: session.vendorId }, id);
+  } catch (error) {
+    if (error instanceof ActionError) notFound();
+    throw error;
+  }
   if (
     !verifyProductPreview(
       id,
@@ -50,13 +58,6 @@ export default async function Page({
         </NextLink>
       </div>
     );
-  }
-  let draft;
-  try {
-    draft = await getOwnedDraftRecord({ session, vendorId: session.vendorId }, id);
-  } catch (error) {
-    if (error instanceof ActionError) notFound();
-    throw error;
   }
   const data = draft.parsed;
   const shipFrom = shipFromLocations(await listLocations(draft.shopId)).map((l) => l.id);

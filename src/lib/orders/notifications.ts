@@ -65,7 +65,8 @@ export async function notifyMerchantsOfOrder(orderId: string): Promise<void> {
   for (const vendorId of order.vendorIds) {
     const merchant = await db.collection("merchants").doc(vendorId).get();
     const email = merchant.get("email") as string | undefined;
-    if (!email) continue;
+    // Merchants can turn new-order emails off in settings.
+    if (!email || merchant.get("notifications.newOrders") === false) continue;
     const lines = order.lines.filter((l) => l.vendorId === vendorId);
     const items = lines.reduce((n, l) => n + l.quantity, 0);
     await sendEmail({

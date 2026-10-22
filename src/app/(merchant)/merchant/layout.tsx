@@ -46,7 +46,13 @@ async function Shell({ children }: { children: React.ReactNode }) {
                 current={shop.id}
               />
             )}
-            <span className="text-ink-soft">@{merchant.username}</span>
+            <NextLink
+              href="/merchant/settings"
+              className="text-ink-soft underline-offset-4 hover:underline"
+              aria-label={`Settings for @${merchant.username}`}
+            >
+              @{merchant.username}
+            </NextLink>
             <NextLink href="/" className="underline underline-offset-4">
               View store
             </NextLink>

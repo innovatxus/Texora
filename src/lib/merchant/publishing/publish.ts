@@ -337,7 +337,8 @@ export async function reviewProduct(
     before: { status: "in_review" },
     after: { status: to, ...(reasons.length ? { reasons } : {}) },
   });
-  if (merchant) {
+  // Merchants can turn review-decision emails off in settings.
+  if (merchant && merchant.notifications.productReviews) {
     try {
       await sendEmail({
         to: merchant.email,

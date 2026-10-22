@@ -3,7 +3,7 @@
 import { useId, useRef, useState, type DragEvent, type ReactNode } from "react";
 import type { MediaKind } from "@/config/merchant";
 import { acceptAttribute, cropAspect } from "@/lib/merchant/media/rules";
-import { checkFile, readImageSize } from "@/lib/merchant/media/upload-client";
+import { checkFile, readImageSize } from "@/lib/merchant/media/file-checks";
 import type { CropRect } from "@/lib/merchant/media/rules";
 import { cn } from "@/lib/utils/cn";
 import { useUploadStore } from "@/stores/uploads";

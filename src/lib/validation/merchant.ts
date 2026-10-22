@@ -125,6 +125,10 @@ export const merchantSchema = z.object({
   trustLevel: z.enum(TRUST_LEVELS),
   shopIds: z.array(idSchema).max(S.maxPerMerchant),
   usernameChangedAt: timestampSchema.optional(),
+  /** Optional emails; shop status emails are always sent. */
+  notifications: z
+    .object({ newOrders: z.boolean(), productReviews: z.boolean() })
+    .default({ newOrders: true, productReviews: true }),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
 });
@@ -558,6 +562,49 @@ export const merchantResetPasswordSchema = z
     },
     { when: alwaysForObjects },
   );
+
+// ---------------------------------------------------------------- settings
+
+/** Settings › Account. Email changes are re-verified; usernames change once per 30 days. */
+export const merchantAccountSettingsSchema = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .min(1, "Enter a display name")
+    .max(80, "Use 80 characters or fewer"),
+  email: merchantEmailSchema,
+  username: usernameSchema,
+});
+
+/** Settings › Security. The server also checks the current password. */
+export const merchantChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password").max(PASSWORD_MAX_LENGTH),
+    newPassword: newPasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .superRefine(
+    (value, ctx) => {
+      const password = typeof value.newPassword === "string" ? value.newPassword : "";
+      if (!password) return;
+      const problem = passwordProblem(password);
+      if (problem) ctx.addIssue({ code: "custom", path: ["newPassword"], message: problem });
+      if (password !== value.confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["confirmPassword"],
+          message: "The passwords don't match",
+        });
+      }
+    },
+    { when: alwaysForObjects },
+  );
+
+/** Settings › Notifications: the optional emails. */
+export const merchantNotificationSettingsSchema = z.object({
+  newOrders: z.boolean(),
+  productReviews: z.boolean(),
+});
 
 // ---------------------------------------------------------------- shop forms
 

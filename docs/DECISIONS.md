@@ -439,3 +439,18 @@ Variant documents are keyed by SKU across the whole catalog, Texora's own includ
 
 **Date:** 2026-10-22 · **Phase:** Merchant 7
 Each order line records the merchant's vendor id, shop id and shop name at purchase time, and the order lists its `vendorIds`. Merchants read orders through a server query on `vendorIds` that returns only their own lines, their part's total and the ship-to address, never payment details or other merchants' items. The Firestore rule that let a vendor read whole order documents from the client was removed. "Mark shipped" adds a parcel holding only the merchant's unshipped SKUs (D-069); the order becomes "shipped" when every seller's lines are in a parcel. The customer is emailed tracking details, and merchants are emailed when an order with their items is placed or paid. Payouts remain out of scope.
+
+## D-086 — Portal JS budgets are measured beyond the framework runtime
+
+**Date:** 2026-10-22 · **Phase:** Merchant 8
+`npm run budget` reads each portal route's client reference manifest after `next build` and gzips every chunk its layouts and page load. The React 19 and Next.js 16 runtime that every page shares is about 130 KB gzipped on its own, more than the 120 KB budget, so the budgets (250 KB for the product editor, 120 KB for other portal routes) apply to the route's JavaScript beyond that runtime. First-load totals are printed alongside. Polyfills are `nomodule` and not counted. The Firebase client SDK is loaded only when an upload starts, which brought the branding screens from about 250 KB to under 95 KB. The product editor ships about 75 KB because its heavy sections load on demand.
+
+## D-087 — Merchant account settings
+
+**Date:** 2026-10-22 · **Phase:** Merchant 8
+Settings cover the person, not the shop (shop settings are under Shop). Changing the email updates Firebase Auth and the merchant record, marks the address unverified and sends a new link: submitting and publishing pause until it is opened. Usernames can change once every 30 days (`usernameChangedAt`), and the lock moves in one transaction. Changing the password checks the current one, revokes every other session and signs this device in again; "Sign out everywhere" includes this device. New-order and product-review emails can be turned off; shop status emails (approval, changes requested, pause) can't, because they decide whether the shop can sell. Phones reach Settings from the username in the header; the bottom tab bar keeps four items.
+
+## D-088 — Storage download listener warning is upstream
+
+**Date:** 2026-10-22 · **Phase:** Merchant 8
+The media route logs `MaxListenersExceededWarning` on `PassThrough` streams. It reproduces with a plain `file.download()` outside Next.js and comes from `teeny-request`'s stream mode (used by `@google-cloud/storage`), which adds pipeline listeners for each read. The count is the same for every download and doesn't grow, so it isn't a leak. It is left as is, with no dependency patch and no global listener-limit change, and should be revisited when `@google-cloud/storage` updates its transport.

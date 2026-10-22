@@ -74,6 +74,7 @@ async function attachMerchant(
         emailVerified: false,
         trustLevel: "standard",
         shopIds: [],
+        notifications: { newOrders: true, productReviews: true },
         createdAt: now,
         updatedAt: now,
       };

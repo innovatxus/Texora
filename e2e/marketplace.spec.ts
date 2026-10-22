@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { asReturningVisitor, gotoReady } from "./support/helpers";
 import { asSeparateVisitor, onboardSubmittedShop, staffSignIn } from "./support/merchant";
+import { latestEmail } from "./support/outbox";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
@@ -38,8 +39,14 @@ test.describe("marketplace", () => {
       "One full journey on desktop; other viewports are covered per screen",
     );
 
-    // Merchant: onboarding and one product, submitted for review.
-    const { shopName, shopSlug, png } = await onboardSubmittedShop(page, testInfo);
+    // A would-be merchant finds the programme from the storefront footer.
+    await gotoReady(page, "/");
+    await page.getByRole("contentinfo").getByRole("link", { name: "Sell on Texora" }).click();
+    await expect(page).toHaveURL((u) => u.pathname === "/merchants");
+    await expect(page.locator('main a[href="/merchant/register"]').first()).toBeVisible();
+
+    // Merchant: onboarding and one product (3 colours × 2 fits × 6 sizes), submitted for review.
+    const { email, shopName, shopSlug, png } = await onboardSubmittedShop(page, testInfo);
     await gotoReady(page, "/merchant/products/new");
     await expect(page.getByRole("textbox", { name: "Product name" })).toBeVisible({
       timeout: 30_000,
@@ -56,9 +63,17 @@ test.describe("marketplace", () => {
     await page.getByRole("combobox", { name: "Material 1" }).selectOption("linen");
     await page.getByRole("spinbutton", { name: "Percent" }).fill("100");
     const colour = page.getByRole("textbox", { name: "New colour" });
-    await colour.fill("Navy");
-    await colour.press("Enter");
-    for (const size of ["S", "M"])
+    const colours = [
+      ["Navy", "#1f2a44"],
+      ["Sand", "#c8b48a"],
+      ["Sage", "#8fa58a"],
+    ] as const;
+    for (const [name] of colours) {
+      await colour.fill(name);
+      await colour.press("Enter");
+    }
+    await page.getByRole("checkbox", { name: "Petite" }).check();
+    for (const size of ["XS", "S", "M", "L", "XL", "XXL"])
       await page
         .locator("label")
         .filter({ hasText: new RegExp(`^${size}$`) })
@@ -69,15 +84,20 @@ test.describe("marketplace", () => {
     await bulk.getByRole("button", { name: "Apply price" }).click();
     await bulk.getByRole("textbox", { name: "Stock" }).fill("6");
     await bulk.getByRole("button", { name: "Apply stock" }).click();
-    await page
-      .locator('input[type="file"][accept*="image/jpeg"]')
-      .first()
-      .setInputFiles(await png("navy.png", 1200, 1600, "#1f2a44"));
-    await expect(page.getByRole("list", { name: "Navy photos" }).getByText("Main")).toBeVisible({
-      timeout: 30_000,
-    });
-    await page.getByText("Alt text and focal points").first().click();
-    await page.getByRole("checkbox", { name: "This description is right" }).first().check();
+    await expect(page.getByText("36 of 36 variants")).toBeVisible();
+    for (const [index, [name, hex]] of colours.entries()) {
+      await page
+        .locator('input[type="file"][accept*="image/jpeg"]')
+        .nth(index)
+        .setInputFiles(await png(`${name}.png`, 1200, 1600, hex));
+      await expect(
+        page.getByRole("list", { name: `${name} photos` }).getByText("Main"),
+      ).toBeVisible({ timeout: 30_000 });
+    }
+    const altSections = page.getByText("Alt text and focal points");
+    for (let i = 0; i < colours.length; i++) await altSections.nth(i).click();
+    const confirms = page.getByRole("checkbox", { name: "This description is right" });
+    for (let i = 0; i < colours.length; i++) await confirms.nth(i).check();
     await page.locator("#field-weight").fill("450");
     await page.getByRole("button", { name: "Submit for review" }).click();
     await expect(
@@ -136,6 +156,11 @@ test.describe("marketplace", () => {
         shopper.locator("article").getByRole("link", { name: "Linen Midi Dress" }).first(),
       ).toBeVisible();
     });
+    await eventually(shopper, `/women/dresses?shop=${shopSlug}`, async () => {
+      await expect(
+        shopper.locator("article").getByRole("link", { name: "Linen Midi Dress" }).first(),
+      ).toBeVisible();
+    });
 
     // A shopper buys it (pay on delivery)...
     await gotoReady(shopper, href);
@@ -173,7 +198,9 @@ test.describe("marketplace", () => {
     ).match(/TX-\d{6}/)?.[0];
     expect(orderNumber).toBeTruthy();
 
-    // ...and the merchant sees only their part of it and ships it.
+    // ...the merchant is emailed, sees only their part of it and ships it.
+    const orderMail = await latestEmail(email, "merchant_new_order");
+    expect(orderMail.subject).toContain(orderNumber ?? "");
     await gotoReady(page, "/merchant/orders");
     await page.getByRole("link", { name: orderNumber ?? "" }).click();
     await expect(page.getByRole("heading", { level: 1, name: orderNumber ?? "" })).toBeVisible();

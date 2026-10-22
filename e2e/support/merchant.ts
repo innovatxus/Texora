@@ -10,9 +10,9 @@ export async function asSeparateVisitor(context: BrowserContext) {
   await context.setExtraHTTPHeaders({ "x-forwarded-for": `198.51.${octet()}.${octet()}` });
 }
 
-/** A unique merchant per test and viewport, so parallel runs never collide. */
+/** A unique merchant per test and viewport (fixed length, for stable screenshots). */
 export function newMerchant(testInfo: { project: { name: string } }) {
-  const tag = `${testInfo.project.name.slice(0, 3)}${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`;
+  const tag = `${testInfo.project.name.slice(0, 3)}${Date.now().toString(36)}${String(Math.floor(Math.random() * 1e4)).padStart(4, "0")}`;
   return { email: `m-${tag}@example.com`, username: `m${tag}` };
 }
 

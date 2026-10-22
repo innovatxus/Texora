@@ -4,7 +4,7 @@ import type { MediaKind } from "@/config/merchant";
 import type { FinalizedMedia } from "@/lib/merchant/media/media-service";
 import type { CropRect } from "@/lib/merchant/media/rules";
 import { discardUploadAction, finalizeUploadAction } from "@/lib/merchant/actions/media";
-import { checkFile, ensureUploadAuth, startUpload } from "@/lib/merchant/media/upload-client";
+import { checkFile } from "@/lib/merchant/media/file-checks";
 
 export type UploadStatus = "checking" | "uploading" | "processing" | "done" | "error" | "cancelled";
 
@@ -81,6 +81,8 @@ export const useUploadStore = create<UploadState>()((set, get) => {
     try {
       const problem = await checkFile(item.kind, file);
       if (problem) return patch(item.id, { status: "error", error: problem });
+      // The Firebase SDK loads only once something is actually uploaded.
+      const { ensureUploadAuth, startUpload } = await import("@/lib/merchant/media/upload-client");
       const vendorId = await ensureUploadAuth();
       const { task, done } = startUpload(vendorId, item.shopId, item.id, file, (progress) =>
         patch(item.id, { progress }),
