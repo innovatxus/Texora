@@ -91,6 +91,24 @@ describe("serverEnvSchema", () => {
     expect(env.FIREBASE_SERVICE_ACCOUNT?.client_email).toBe("svc@texora.iam.gserviceaccount.com");
   });
 
+  it("requires Resend in production unless it's a STAGING test deployment", () => {
+    const production = {
+      FIREBASE_PROJECT_ID: "texora",
+      FIREBASE_STORAGE_BUCKET: "texora.appspot.com",
+      ORDER_TOKEN_SECRET: "x".repeat(32),
+      NODE_ENV: "production",
+      FIREBASE_SERVICE_ACCOUNT: encode({
+        project_id: "texora",
+        client_email: "svc@texora.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+    };
+    expect(() => parseEnv(serverEnvSchema, production, "server")).toThrowError(/RESEND_API_KEY/);
+    expect(parseEnv(serverEnvSchema, { ...production, STAGING: "true" }, "server").STAGING).toBe(
+      true,
+    );
+  });
+
   it("rejects a malformed service account", () => {
     expect(() =>
       parseEnv(

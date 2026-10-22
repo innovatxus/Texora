@@ -20,8 +20,8 @@ let resend: Resend | null = null;
 
 /**
  * Sends transactional email through Resend. Without an API key (local
- * development only; production requires one) mail is written to the
- * Firestore `emailOutbox` collection so it can be inspected.
+ * development, or a STAGING test deployment; production requires one) mail
+ * is written to the Firestore `emailOutbox` collection so it can be inspected.
  */
 export async function sendEmail(
   message: EmailMessage,

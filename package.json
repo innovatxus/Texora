@@ -24,6 +24,7 @@
     "e2e:visual:update": "playwright test --grep @visual --update-snapshots",
     "emulators": "firebase emulators:start --project demo-texora",
     "seed": "tsx scripts/seed/index.ts",
+    "bootstrap": "tsx scripts/bootstrap.ts",
     "placeholders": "tsx scripts/generate-placeholders.ts",
     "contrast": "node scripts/contrast.mjs",
     "contrast:check": "node scripts/contrast.mjs --check",

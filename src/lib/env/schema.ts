@@ -65,6 +65,12 @@ export const serverEnvSchema = z
     /** Transactional email via Resend; without it, mail goes to the Firestore outbox (dev only). */
     RESEND_API_KEY: z.string().startsWith("re_").optional(),
     EMAIL_FROM: z.string().min(3).default("Texora <orders@texora.test>"),
+    /**
+     * A test deployment of a production build: search engines are told not to
+     * index anything, and without RESEND_API_KEY emails go to the Firestore
+     * outbox instead of failing the start-up check.
+     */
+    STAGING: z.stringbool().default(false),
     /** Shared secret for scheduled maintenance calls (reservation release). */
     CRON_SECRET: z.string().min(32).optional(),
   })
@@ -81,11 +87,12 @@ export const serverEnvSchema = z
       }
       return;
     }
-    if (env.NODE_ENV === "production" && !env.RESEND_API_KEY) {
+    if (env.NODE_ENV === "production" && !env.RESEND_API_KEY && !env.STAGING) {
       ctx.addIssue({
         code: "custom",
         path: ["RESEND_API_KEY"],
-        message: "RESEND_API_KEY is required in production when emulators are off",
+        message:
+          "RESEND_API_KEY is required in production when emulators are off (or set STAGING=true for a test deployment)",
       });
     }
     if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {

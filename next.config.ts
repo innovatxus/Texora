@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
     qualities: [75],
   },
   partialPrefetching: true,
+  // Test deployments (STAGING=true) must never be indexed, whatever a page's own metadata says.
+  async headers() {
+    if (process.env.STAGING !== "true") return [];
+    return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+  },
   turbopack: {
     rules: {
       "*.css": {

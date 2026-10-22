@@ -44,8 +44,8 @@ function firstIn(products: readonly Product[], categoryKey: string, n: number): 
     .map((p) => p.id);
 }
 
-/** CMS pages (home and department landings) built from the seeded products. */
-export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
+/** CMS page content (home, department landings and sale), before validation. */
+function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedAt">> {
   const womenTop = firstIn(products, "women/tops", 1)[0] ?? "";
   const womenPants = firstIn(products, "women/pants", 1)[0] ?? "";
   const womenSweater = firstIn(products, "women/sweaters", 1)[0] ?? "";
@@ -304,5 +304,42 @@ export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
     },
   ];
 
-  return pages.map((page) => cmsPageSchema.parse({ ...page, updatedAt: now }));
+  return pages;
+}
+
+/** CMS pages (home and department landings) built from the seeded products. */
+export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
+  return draftPages(products).map((page) => cmsPageSchema.parse({ ...page, updatedAt: now }));
+}
+
+/**
+ * Pages for a fresh live store with no products yet: the seed's pages without
+ * the lookbook (it points at demo products) and without links to the demo
+ * collections. Carousels fill themselves as products go live.
+ */
+export function buildStarterPages(now: Date): CmsPage[] {
+  const toCollection = (href: string | undefined) => href?.startsWith("/collections/") ?? false;
+  return draftPages([]).map((page) =>
+    cmsPageSchema.parse({
+      ...page,
+      updatedAt: now,
+      modules: page.modules.flatMap((module): CmsModule[] => {
+        if (module.type === "lookbookGrid") return [];
+        if (module.type === "hero") {
+          // "New arrivals" on a department page becomes the department sorted by newest.
+          const ctas = module.data.ctas.map((c) =>
+            toCollection(c.href) ? { ...c, href: `/${page.slug}?sort=newest` } : c,
+          );
+          return [{ ...module, data: { ...module.data, ctas } }];
+        }
+        if (module.type === "productCarousel" && toCollection(module.data.cta?.href)) {
+          const { cta: _cta, ...data } = module.data;
+          return [{ ...module, data }];
+        }
+        if ("cta" in module.data && toCollection(module.data.cta?.href)) return [];
+        if ("link" in module.data && toCollection(module.data.link?.href)) return [];
+        return [module];
+      }),
+    }),
+  );
 }

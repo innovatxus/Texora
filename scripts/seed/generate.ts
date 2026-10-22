@@ -164,35 +164,8 @@ function describe(def: CategoryDefinition, name: string, attrs: Record<string, s
   );
 }
 
-/** Builds the complete, schema-validated seed data set. Deterministic for a given seed number and date. */
-export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedData {
-  const rng = createRng(options.seed ?? 20261019);
-  const now = options.now ?? new Date();
-  const ago = (days: number) => new Date(now.getTime() - days * DAY);
-  const storeIds = STORES.map((s) => s.id);
-
-  // ----------------------------------------------------------- stores
-  const stores: Store[] = STORES.map((s) =>
-    storeSchema.parse({
-      id: s.id,
-      slug: s.id,
-      name: s.name,
-      address: s.address,
-      geo: s.geo,
-      phone: s.phone,
-      timezone: s.timezone,
-      hours: [0, 1, 2, 3, 4, 5, 6].map((day) => ({
-        day,
-        open: day === 0 ? "11:00" : "10:00",
-        close: day === 0 ? "18:00" : day === 5 || day === 6 ? "21:00" : "20:00",
-      })),
-      services:
-        s.id === "soho" ? ["returns", "alterations", "styling"] : ["returns", "alterations"],
-      status: "open",
-    }),
-  );
-
-  // ------------------------------------------------------- categories
+/** The category tree: two departments and their leaf categories. Shared with the live-project setup. */
+export function buildCategories(): Category[] {
   const categories: Category[] = [];
   const departments = ["women", "men"] as const;
   departments.forEach((department, i) => {
@@ -234,6 +207,62 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
       }),
     );
   });
+  return categories;
+}
+
+/** Default store settings. Shared with the live-project setup. */
+export function buildStoreSettings(now: Date): StoreSettings {
+  const settings = storeSettingsSchema.parse({
+    currency: "USD",
+    freeShippingThreshold: cents(150),
+    shippingRates: { standard: cents(8), express: cents(20) },
+    refundLimits: { customer_service: cents(250) },
+    reservationMinutes: 15,
+    loyalty: {
+      pointsPerCurrencyUnit: 10,
+      tierThresholds: { enthusiast: cents(500), icon: cents(1500) },
+      birthdayRewardPoints: 500,
+    },
+    features: {
+      vendorMarketplace: true,
+      quickView: false,
+      cashOnDelivery: true,
+      expressPay: false,
+    },
+    updatedAt: now,
+  });
+  return settings;
+}
+
+/** Builds the complete, schema-validated seed data set. Deterministic for a given seed number and date. */
+export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedData {
+  const rng = createRng(options.seed ?? 20261019);
+  const now = options.now ?? new Date();
+  const ago = (days: number) => new Date(now.getTime() - days * DAY);
+  const storeIds = STORES.map((s) => s.id);
+
+  // ----------------------------------------------------------- stores
+  const stores: Store[] = STORES.map((s) =>
+    storeSchema.parse({
+      id: s.id,
+      slug: s.id,
+      name: s.name,
+      address: s.address,
+      geo: s.geo,
+      phone: s.phone,
+      timezone: s.timezone,
+      hours: [0, 1, 2, 3, 4, 5, 6].map((day) => ({
+        day,
+        open: day === 0 ? "11:00" : "10:00",
+        close: day === 0 ? "18:00" : day === 5 || day === 6 ? "21:00" : "20:00",
+      })),
+      services:
+        s.id === "soho" ? ["returns", "alterations", "styling"] : ["returns", "alterations"],
+      status: "open",
+    }),
+  );
+
+  const categories = buildCategories();
 
   // -------------------------------------------------- products/variants
   const products: Product[] = [];
@@ -830,25 +859,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
   const orderCounter = orderNumber;
 
   // --------------------------------------------------------- settings
-  const settings = storeSettingsSchema.parse({
-    currency: "USD",
-    freeShippingThreshold: cents(150),
-    shippingRates: { standard: cents(8), express: cents(20) },
-    refundLimits: { customer_service: cents(250) },
-    reservationMinutes: 15,
-    loyalty: {
-      pointsPerCurrencyUnit: 10,
-      tierThresholds: { enthusiast: cents(500), icon: cents(1500) },
-      birthdayRewardPoints: 500,
-    },
-    features: {
-      vendorMarketplace: true,
-      quickView: false,
-      cashOnDelivery: true,
-      expressPay: false,
-    },
-    updatedAt: now,
-  });
+  const settings = buildStoreSettings(now);
 
   const pages = buildPages(products, now);
   const merchants = generateMerchantSeed(
