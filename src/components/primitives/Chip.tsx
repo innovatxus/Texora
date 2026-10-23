@@ -14,7 +14,8 @@ export const chipVariants = cva(
     variants: {
       selected: {
         true: "border-ink bg-ink text-surface",
-        false: "border-transparent bg-surface-muted text-ink not-disabled:hover:border-ink-subtle",
+        false:
+          "border-transparent bg-surface-muted text-ink not-disabled:hover:border-brand not-disabled:hover:text-brand",
       },
     },
     defaultVariants: { selected: false },

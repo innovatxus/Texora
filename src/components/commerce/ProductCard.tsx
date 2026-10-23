@@ -185,7 +185,7 @@ export function ProductCard({
                     className={cn(
                       "h-8 min-w-10 border px-2 text-xs tabular-nums transition-colors duration-fast",
                       s.inStock
-                        ? "border-ink-subtle hover:border-ink hover:bg-ink hover:text-surface"
+                        ? "border-ink-subtle hover:border-brand hover:bg-brand hover:text-surface"
                         : "cursor-not-allowed border-line text-ink-subtle line-through",
                     )}
                   >
@@ -211,9 +211,7 @@ export function ProductCard({
                 onFocus={() => setColorIndex(i)}
                 className={cn(
                   "flex size-6 items-center justify-center rounded-full border",
-                  i === colorIndex
-                    ? "border-line-strong"
-                    : "border-transparent hover:border-ink-subtle",
+                  i === colorIndex ? "border-line-strong" : "border-transparent hover:border-brand",
                 )}
               >
                 <span
@@ -227,7 +225,7 @@ export function ProductCard({
             <li>
               <NextLink
                 href={href}
-                className="text-xs text-ink-subtle hover:text-ink"
+                className="text-xs text-ink-subtle hover:text-brand"
                 aria-label={`${extraColors} more colours`}
               >
                 +{extraColors}
@@ -238,7 +236,7 @@ export function ProductCard({
       )}
 
       <h3 className="mt-2 text-sm">
-        <NextLink href={href} className="underline-offset-4 hover:underline">
+        <NextLink href={href} className="link-sweep transition-colors">
           {product.name}
         </NextLink>
       </h3>

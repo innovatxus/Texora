@@ -66,14 +66,11 @@ export function Footer() {
             {LEGAL_LINKS.map((link) =>
               link.href === "#cookie-settings" ? (
                 <li key={link.href}>
-                  <CookieSettingsButton className="underline-offset-4 hover:text-ink hover:underline" />
+                  <CookieSettingsButton className="link-sweep" />
                 </li>
               ) : (
                 <li key={link.href}>
-                  <NextLink
-                    href={link.href}
-                    className="underline-offset-4 hover:text-ink hover:underline"
-                  >
+                  <NextLink href={link.href} className="link-sweep">
                     {link.label}
                   </NextLink>
                 </li>

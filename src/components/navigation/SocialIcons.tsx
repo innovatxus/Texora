@@ -35,7 +35,7 @@ export function SocialIcons() {
               rel="noopener noreferrer"
               aria-label={link.label}
               title={link.label}
-              className="flex size-11 items-center justify-center rounded-full transition-transform duration-base ease-atelier hover:scale-110"
+              className="flex size-11 items-center justify-center rounded-full transition-transform duration-base ease-atelier hover:scale-110 hover:bg-brand-tint"
             >
               <svg viewBox="0 0 24 24" width={22} height={22} fill={color} aria-hidden="true">
                 <path d={icon.path} />

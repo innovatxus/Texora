@@ -13,6 +13,9 @@
   --color-ink: #1a1a1a;
   /* Brand wordmark: military green. */
   --color-brand: #4b5320;
+  /* Hover/pressed shade and a soft tint for hover backgrounds. */
+  --color-brand-strong: #3a4119;
+  --color-brand-tint: #eef0e4;
   --color-ink-soft: #4a4744;
   --color-ink-subtle: #6e6963;
   --color-line: #ddd7cf;
@@ -68,6 +71,8 @@
   /* Elevation: overlays only. */
   --shadow-*: initial;
   --shadow-overlay: 0 8px 32px rgb(26 26 26 / 0.12);
+  /* Soft green lift under hovered primary buttons. */
+  --shadow-brand: 0 10px 24px -10px rgb(75 83 32 / 0.55);
 
   /* Motion: generates ease-atelier and duration-fast/base/drawer/slow. */
   --ease-*: initial;

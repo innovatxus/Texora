@@ -40,10 +40,7 @@ export function Breadcrumbs({
                 </span>
               ) : (
                 <>
-                  <NextLink
-                    href={item.href}
-                    className="underline-offset-4 hover:text-ink hover:underline"
-                  >
+                  <NextLink href={item.href} className="link-sweep">
                     {item.label}
                   </NextLink>
                   <span aria-hidden>/</span>

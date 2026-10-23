@@ -97,7 +97,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => open("search")}
-            className="mr-2 hidden h-10 w-56 items-center gap-3 border border-ink-subtle px-3 text-sm text-ink-subtle transition-colors duration-fast hover:border-ink xl:flex"
+            className="mr-2 hidden h-10 w-56 items-center gap-3 border border-ink-subtle px-3 text-sm text-ink-subtle transition-colors duration-fast hover:border-brand hover:text-brand xl:flex"
           >
             <SearchIcon />
             <span>Search</span>

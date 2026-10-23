@@ -14,9 +14,10 @@ export const iconButtonVariants = cva(
   {
     variants: {
       variant: {
-        ghost: "bg-transparent not-disabled:hover:bg-surface-muted",
-        outline: "border border-ink-subtle bg-transparent not-disabled:hover:border-ink",
-        solid: "bg-surface not-disabled:hover:bg-surface-muted",
+        ghost: "bg-transparent not-disabled:hover:bg-brand-tint not-disabled:hover:text-brand",
+        outline:
+          "border border-ink-subtle bg-transparent not-disabled:hover:border-brand not-disabled:hover:text-brand",
+        solid: "bg-surface not-disabled:hover:bg-brand-tint not-disabled:hover:text-brand",
       },
       size: {
         sm: "size-9",

@@ -87,10 +87,10 @@ export function MegaMenu({ items, onOpenChange }: MegaMenuProps) {
               <NextLink
                 href={item.href}
                 className={cn(
-                  "flex h-16 items-center px-3 text-label underline-offset-8 hover:underline",
+                  "nav-indicator flex h-16 items-center px-3 text-label transition-colors",
                   item.tone === "sale" ? "text-sale" : "text-ink",
-                  isOpen && "underline",
                 )}
+                data-active={isOpen}
               >
                 {item.label}
               </NextLink>
@@ -145,7 +145,7 @@ export function MegaMenu({ items, onOpenChange }: MegaMenuProps) {
                                   href={link.href}
                                   onClick={() => setOpen(null)}
                                   className={cn(
-                                    "text-sm underline-offset-4 hover:underline",
+                                    "link-sweep text-sm",
                                     link.tone === "sale" ? "text-sale" : "text-ink",
                                   )}
                                 >

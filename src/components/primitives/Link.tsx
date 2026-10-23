@@ -9,11 +9,12 @@ export const linkVariants = cva("transition-colors duration-fast ease-atelier", 
   variants: {
     variant: {
       /** Links inside running text. */
-      inline: "text-ink underline decoration-1 underline-offset-4 hover:text-accent",
+      inline:
+        "text-ink underline decoration-1 underline-offset-4 transition-colors hover:text-brand",
       /** Lists of links (footer, account menus): underline on hover only. */
-      quiet: "text-ink-soft underline-offset-4 hover:text-ink hover:underline",
+      quiet: "link-sweep text-ink-soft",
       /** Primary navigation labels. */
-      nav: "text-label text-ink underline-offset-8 hover:underline",
+      nav: "link-sweep text-label text-ink",
     },
   },
   defaultVariants: { variant: "inline" },
