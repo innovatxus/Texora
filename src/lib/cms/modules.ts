@@ -52,15 +52,25 @@ export const promoStripSchema = z.object({
   tone: z.enum(["muted", "inverse"]),
 });
 
-/** Category tiles: image tiles linking to categories. */
+/**
+ * Category tiles: image tiles linking to categories.
+ * - compact: small label under each tile (quick navigation).
+ * - editorial: large label and a "Shop now" link (a seasonal edit).
+ * - bleed: edge-to-edge photos, each with its own links, e.g. "Shop women · Shop men"
+ *   (one category across departments).
+ */
 export const categoryTilesSchema = z.object({
   heading: z.string().max(60).optional(),
+  subheading: z.string().max(120).optional(),
+  variant: z.enum(["compact", "editorial", "bleed"]).default("compact"),
   tiles: z
     .array(
       z.object({
         label: z.string().min(1).max(40),
         href: z.string().startsWith("/"),
         image: simpleImageSchema,
+        /** Extra links under the tile (bleed and editorial); the label still opens `href`. */
+        links: z.array(ctaSchema).min(1).max(3).optional(),
       }),
     )
     .min(2)
@@ -70,6 +80,8 @@ export const categoryTilesSchema = z.object({
 /** Product carousel: a heading and a product selection rule. */
 export const productCarouselSchema = z.object({
   heading: z.string().min(1).max(60),
+  /** One line under the heading saying why these products, e.g. "Chosen for the season". */
+  subheading: z.string().max(120).optional(),
   cta: ctaSchema.optional(),
   source: z.discriminatedUnion("type", [
     z.object({ type: z.literal("manual"), productIds: z.array(idSchema).min(1).max(24) }),
@@ -100,6 +112,25 @@ export const storyBlockSchema = z.object({
   headline: z.string().min(1).max(120),
   body: z.string().max(600),
   cta: ctaSchema.optional(),
+});
+
+/**
+ * Campaign diptych: two photos side by side, with the headline, copy and up
+ * to three calls to action over the first.
+ * - pair: two full-bleed campaign photos (a seasonal campaign launch).
+ * - framed: the second photo sits in a white frame on limestone, with an
+ *   optional handwritten accent (an occasion or gift promotion).
+ */
+export const campaignDiptychSchema = z.object({
+  eyebrow: z.string().max(40).optional(),
+  headline: z.string().min(1).max(80),
+  body: z.string().max(200).optional(),
+  ctas: z.array(ctaSchema).min(1).max(3),
+  primary: simpleImageSchema,
+  secondary: simpleImageSchema,
+  layout: z.enum(["pair", "framed"]),
+  /** Handwritten accent over the framed photo, e.g. "Wrap it up". */
+  accent: z.string().max(40).optional(),
 });
 
 const hotspotSchema = z.object({
@@ -148,6 +179,7 @@ export const cmsModuleSchema = z.discriminatedUnion("type", [
   z.object({ ...moduleBase, type: z.literal("storyBlock"), data: storyBlockSchema }),
   z.object({ ...moduleBase, type: z.literal("lookbookGrid"), data: lookbookGridSchema }),
   z.object({ ...moduleBase, type: z.literal("shopTheLook"), data: shopTheLookSchema }),
+  z.object({ ...moduleBase, type: z.literal("campaignDiptych"), data: campaignDiptychSchema }),
 ]);
 
 export type CmsModule = z.infer<typeof cmsModuleSchema>;

@@ -26,28 +26,34 @@ export async function resolveCarouselProducts(source: CarouselSource): Promise<L
 /** Scrollable row of products chosen by a CMS rule (collection, category or IDs). */
 export async function ProductCarousel({
   heading,
+  subheading,
   cta,
   source,
 }: z.infer<typeof productCarouselSchema>) {
   const products = await resolveCarouselProducts(source);
   if (products.length === 0) return null;
-  return <ProductRail heading={heading} cta={cta} products={products} />;
+  return <ProductRail heading={heading} subheading={subheading} cta={cta} products={products} />;
 }
 
 /** Presentational rail, also used by PDP recommendations. */
 export function ProductRail({
   heading,
+  subheading,
   cta,
   products,
 }: {
   heading: string;
+  subheading?: string | undefined;
   cta?: { label: string; href: string } | undefined;
   products: readonly ListingProduct[];
 }) {
   return (
     <section className="container-page section-y">
       <div className="flex items-end justify-between gap-4">
-        <h2 className="font-display text-3xl">{heading}</h2>
+        <div>
+          <h2 className="font-display text-3xl">{heading}</h2>
+          {subheading && <p className="mt-2 text-lg text-ink-soft">{subheading}</p>}
+        </div>
         {cta && (
           <Link href={cta.href} className="shrink-0 text-label">
             {cta.label}

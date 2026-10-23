@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("home page renders the brand shell", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/^Texora/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en-EG");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 

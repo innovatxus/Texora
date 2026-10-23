@@ -118,7 +118,7 @@ export function MegaMenu({ items, onOpenChange }: MegaMenuProps) {
                       }
                       if (event.key === "Escape") setOpen(null);
                     }}
-                    className="-ml-2 inline-flex size-6 items-center justify-center text-ink-soft"
+                    className="relative z-10 -ml-2 inline-flex size-6 items-center justify-center text-ink-soft"
                   >
                     <ChevronDownIcon
                       size={20}

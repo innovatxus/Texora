@@ -90,6 +90,7 @@ function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedA
           ...everyone,
           data: {
             heading: "Shop by category",
+            variant: "editorial",
             tiles: [
               tile("Dresses", "/women/dresses", "dress-terracotta-model", "Terracotta dress"),
               tile("Sweaters", "/women/sweaters", "sweater-forest-model", "Forest green sweater"),
@@ -98,14 +99,89 @@ function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedA
             ],
           },
         },
+        // Seasonal campaign: the story that sells this season's new arrivals to both departments.
+        {
+          id: "home-campaign",
+          type: "campaignDiptych",
+          ...everyone,
+          data: {
+            eyebrow: "The evening edit",
+            headline: "Dress Code: Evening",
+            body: "Liquid satin, sharp tailoring and draped black: looks for every invitation this season.",
+            ctas: [
+              { label: "Women's new arrivals", href: "/women?sort=newest" },
+              { label: "Men's new arrivals", href: "/men?sort=newest" },
+              { label: "Explore the edit", href: "/collections/new-arrivals" },
+            ],
+            primary: {
+              url: stockUrl("panelEvening", "panel"),
+              alt: stockAlt("panelEvening"),
+            },
+            secondary: {
+              url: stockUrl("panelEveningAlt", "panel"),
+              alt: stockAlt("panelEveningAlt"),
+            },
+            layout: "pair",
+          },
+        },
         {
           id: "home-new",
           type: "productCarousel",
           ...everyone,
           data: {
             heading: "New arrivals",
+            subheading: "A personal curation of what's new, chosen for the season.",
             cta: { label: "Shop all new", href: "/collections/new-arrivals" },
             source: { type: "rule", sort: "newest", limit: 12 },
+          },
+        },
+        // Cross-department discovery: one category, a link for each department.
+        {
+          id: "home-essentials",
+          type: "categoryTiles",
+          ...everyone,
+          data: {
+            heading: "The essentials, for her and him",
+            subheading: "The pieces everyone reaches for, in cuts for women and men.",
+            variant: "bleed",
+            tiles: [
+              {
+                label: "Knitwear",
+                href: "/collections/knitwear",
+                image: { url: stockUrl("menSweaters", "tile"), alt: stockAlt("menSweaters") },
+                links: [
+                  { label: "Shop women", href: "/women/sweaters" },
+                  { label: "Shop men", href: "/men/sweaters" },
+                ],
+              },
+              {
+                label: "Outerwear",
+                href: "/women/outerwear",
+                image: { url: stockUrl("womenCoats", "tile"), alt: stockAlt("womenCoats") },
+                links: [
+                  { label: "Shop women", href: "/women/outerwear" },
+                  { label: "Shop men", href: "/men/outerwear" },
+                ],
+              },
+              {
+                label: "Denim",
+                href: "/women/jeans",
+                image: { url: stockUrl("crossDenim", "tile"), alt: stockAlt("crossDenim") },
+                links: [
+                  { label: "Shop women", href: "/women/jeans" },
+                  { label: "Shop men", href: "/men/jeans" },
+                ],
+              },
+              {
+                label: "Trousers",
+                href: "/men/pants",
+                image: { url: stockUrl("crossTrousers", "tile"), alt: stockAlt("crossTrousers") },
+                links: [
+                  { label: "Shop women", href: "/women/pants" },
+                  { label: "Shop men", href: "/men/pants" },
+                ],
+              },
+            ],
           },
         },
         {
@@ -142,6 +218,28 @@ function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedA
           data: {
             heading: "Best sellers",
             source: { type: "rule", sort: "best_sellers", limit: 12 },
+          },
+        },
+        // Occasion promotion: gifting, which also sells e-gift cards.
+        {
+          id: "home-gifts",
+          type: "campaignDiptych",
+          ...everyone,
+          data: {
+            eyebrow: "The gift shop",
+            headline: "Most Wanted",
+            body: "Everything worth giving, in one place: knits, leather and e-gift cards for everyone on your list (yourself included).",
+            ctas: [
+              { label: "Send an e-gift card", href: "/gift-cards" },
+              { label: "Shop best sellers", href: "/women?sort=best_sellers" },
+            ],
+            primary: { url: stockUrl("panelGift", "panel"), alt: stockAlt("panelGift") },
+            secondary: {
+              url: stockUrl("panelGiftFramed", "panel"),
+              alt: stockAlt("panelGiftFramed"),
+            },
+            layout: "framed",
+            accent: "Wrap it up",
           },
         },
         {
@@ -215,6 +313,7 @@ function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedA
           type: "categoryTiles",
           ...everyone,
           data: {
+            variant: "compact",
             tiles: [
               tile("Dresses", "/women/dresses", "dress-oat-model", "Oat dress"),
               tile("Tops & shirts", "/women/tops", "top-blush-model", "Blush blouse"),
@@ -260,6 +359,7 @@ function draftPages(products: readonly Product[]): Array<Omit<CmsPage, "updatedA
           type: "categoryTiles",
           ...everyone,
           data: {
+            variant: "compact",
             tiles: [
               tile("Shirts", "/men/shirts", "shirt-chambray-model", "Chambray shirt"),
               tile("Tees & polos", "/men/tees-polos", "tee-navy-model", "Navy tee"),
@@ -341,7 +441,7 @@ const STARTER_TILES: Record<string, StockKey> = {
 
 /**
  * Pages for a fresh live store with no products yet: the seed's pages with
- * royalty-free photography (docs/IMAGE_CREDITS.md), without the lookbook (it
+ * the store's campaign photography (docs/IMAGE_CREDITS.md), without the lookbook (it
  * points at demo products) and without links to the demo collections.
  * Carousels fill themselves as products go live.
  */

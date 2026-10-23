@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { getSession } from "@/lib/auth/session";
 import type { CmsModule } from "@/lib/cms/modules";
 import { getUserProfile } from "@/lib/data/admin-records";
+import { CampaignDiptych } from "./CampaignDiptych";
 import { CategoryTiles, PromoStrip, SplitFeature, StoryBlock } from "./EditorialBlocks";
 import { HeroBanner } from "./HeroBanner";
 import { LookbookGrid, ShopTheLook } from "./Lookbook";
@@ -25,6 +26,8 @@ function renderModule(module: CmsModule, index: number): ReactNode {
       return <LookbookGrid {...module.data} />;
     case "shopTheLook":
       return <ShopTheLook {...module.data} />;
+    case "campaignDiptych":
+      return <CampaignDiptych {...module.data} />;
   }
 }
 

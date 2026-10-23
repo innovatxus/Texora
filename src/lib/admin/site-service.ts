@@ -113,6 +113,48 @@ export async function savePage(
 }
 
 const STARTERS: Partial<Record<CmsModuleType, unknown>> = {
+  campaignDiptych: {
+    eyebrow: "The new campaign",
+    headline: "Campaign headline",
+    body: "One line on the story and what to shop.",
+    ctas: [
+      { label: "Shop women", href: "/women?sort=newest" },
+      { label: "Shop men", href: "/men?sort=newest" },
+    ],
+    primary: {
+      url: "/media/stock/panelEvening-panel.jpg",
+      alt: "A woman in a draped olive satin gown in a sunlit villa",
+    },
+    secondary: {
+      url: "/media/stock/panelEveningAlt-panel.jpg",
+      alt: "A woman in a black one-shoulder draped gown",
+    },
+    layout: "pair",
+  },
+  categoryTiles: {
+    heading: "Shop by category",
+    variant: "bleed",
+    tiles: [
+      {
+        label: "Knitwear",
+        href: "/collections/knitwear",
+        image: { url: "/media/stock/menSweaters-tile.jpg", alt: "A charcoal crew-neck sweater" },
+        links: [
+          { label: "Shop women", href: "/women/sweaters" },
+          { label: "Shop men", href: "/men/sweaters" },
+        ],
+      },
+      {
+        label: "Denim",
+        href: "/women/jeans",
+        image: { url: "/media/stock/crossDenim-tile.jpg", alt: "Wide-leg and straight jeans" },
+        links: [
+          { label: "Shop women", href: "/women/jeans" },
+          { label: "Shop men", href: "/men/jeans" },
+        ],
+      },
+    ],
+  },
   promoStrip: { message: "Free standard delivery on orders over EGP 2,500", tone: "muted" },
   storyBlock: { headline: "A new story", body: "Tell shoppers what's new this season." },
   productCarousel: {
@@ -146,6 +188,8 @@ export function moduleTemplate(type: CmsModuleType): CmsModule {
 
 /** Module types that can be added from the editor with a starter template. */
 export const ADDABLE_MODULES: readonly CmsModuleType[] = [
+  "campaignDiptych",
+  "categoryTiles",
   "promoStrip",
   "storyBlock",
   "productCarousel",

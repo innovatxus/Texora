@@ -3,7 +3,7 @@
 // builders and the live-store starter pages.
 
 /** Published path of a composed image. */
-export const stockUrl = (key: CampaignKey, variant: "tile" | "desktop" | "mobile") =>
+export const stockUrl = (key: CampaignKey, variant: "tile" | "panel" | "desktop" | "mobile") =>
   `/media/stock/${key}-${variant}.jpg`;
 
 /**
@@ -117,6 +117,36 @@ export const CAMPAIGN = {
   menCoats: {
     file: "olive-overcoat.jpg",
     alt: "A man in a long olive wool overcoat",
+  },
+  // Home page sections. "panel*" slots are 1200×1500 campaign panels; "cross*" are tiles.
+  panelEvening: {
+    file: "evening-villa.jpg",
+    crop: { left: 690, top: 0, width: 528, height: 660 },
+    alt: "A woman in a draped olive satin gown in a sunlit villa",
+  },
+  panelEveningAlt: {
+    file: "evening-villa.jpg",
+    crop: { left: 1440, top: 0, width: 476, height: 595 },
+    alt: "A woman in a black one-shoulder draped gown",
+  },
+  panelGift: {
+    file: "olive-trench.jpg",
+    crop: { left: 640, top: 0, width: 753, height: 941 },
+    alt: "A woman in an olive trench coat carrying gift boxes tied with black ribbon",
+  },
+  panelGiftFramed: {
+    file: "olive-trench.jpg",
+    crop: { left: 1150, top: 330, width: 522, height: 611 },
+    alt: "Gift boxes, a black leather tote, a folded scarf and sunglasses on a limestone table",
+  },
+  crossDenim: {
+    file: "denim-pair.jpg",
+    alt: "A woman in wide-leg jeans and a man in straight dark jeans",
+  },
+  crossTrousers: {
+    file: "menswear-motion.jpg",
+    crop: { left: 720, top: 0, width: 595, height: 793 },
+    alt: "A man in pleated charcoal trousers, an olive jacket and white sneakers",
   },
 } satisfies Record<string, CampaignShot>;
 

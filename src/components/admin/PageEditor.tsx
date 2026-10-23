@@ -17,6 +17,7 @@ const TYPE_LABELS: Record<CmsModuleType, string> = {
   storyBlock: "Story block",
   lookbookGrid: "Lookbook grid",
   shopTheLook: "Shop the look",
+  campaignDiptych: "Campaign diptych",
 };
 
 interface Draft {

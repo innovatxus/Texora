@@ -503,3 +503,13 @@ The demo seed, its commands (`emulators`, `seed`) and the emulator defaults in `
 
 **Date:** 2026-10-22 · **Phase:** Live readiness
 `public/media/assets/texora hero.png` is framed by `scripts/hero-images.ts`. On desktop it sits on its own white backdrop, right-aligned, so the headline column stays clear. On phones the group sits in the top half, sized so phones' side cropping never cuts anyone off. The other heroes and tiles stay on licensed stock until the store's own photography replaces them in `/admin/content`.
+
+## D-096 — Egypt: EGP, 14% VAT, governorates, Paymob
+
+**Date:** 2026-10-22 · **Phase:** Live readiness
+Texora trades in Egypt. Market settings live in `src/config/locale.ts`: currency EGP (formatted `en-EG`, whole pounds without decimals), time zone Africa/Cairo, all 27 governorates (ISO 3166-2:EG codes) and Egyptian mobile numbers. VAT of 14% is added at checkout on goods and delivery. Delivery has two zones, Greater Cairo (Cairo, Giza) and the rest of Egypt, each with standard and express prices, a free-delivery threshold, and Friday as the non-delivery day. Paymob replaces Stripe for cards (Visa, Mastercard, Meeza) and mobile wallets through its hosted checkout; the HMAC-verified callback is the only source of truth, and Cash on Delivery stays. Saved cards were dropped with Stripe. English for now; Arabic (RTL) is a later step.
+
+## D-097 — The store's own campaign photography; three new home sections
+
+**Date:** 2026-10-23 · **Phase:** Live readiness
+Every photo slot uses the store's campaign photography (`public/media/assets/campaign`), built by `scripts/campaign-images.ts` into the existing `/media/stock` paths, so live pages update without a content change. The stock photos are gone. The home page gains three CMS sections, each with its own marketing job and editable in `/admin/content`: a **campaign diptych** (`pair`: a seasonal campaign selling new arrivals to both departments), **bleed category tiles** with a link per department (cross-department discovery), and the diptych's **framed** layout (an occasion or gift promotion that also sells e-gift cards). "Shop by category" moves to the **editorial** tile style and carousels gain an optional subheading. Existing pages stay valid: tiles without a variant render as before. The copy on campaign photos sits on a dark fade so light text always passes contrast.

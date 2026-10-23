@@ -8,7 +8,8 @@
 // Desktop heroes (2400×1200) keep a calm area on the left for the headline:
 // wide photos are cropped to 2:1; portrait photos sit on the right and fade
 // into a warm limestone tone. Phone heroes (1200×1500) fill the frame and
-// fade to the same tone at the bottom, where the copy sits.
+// fade to the same tone at the bottom, where the copy sits. Campaign panels
+// (panel*) are 1200×1500; category tiles are 900×1200.
 import { readFileSync, writeFileSync } from "node:fs";
 import sharp, { type Sharp } from "sharp";
 import {
@@ -80,6 +81,14 @@ async function main() {
         `public${stockUrl(key, "mobile")}`,
         await heroMobile(await cropped(source, shot.mobileCrop ?? shot.crop)),
       );
+    } else if (key.startsWith("panel")) {
+      const panel = await jpeg(
+        sharp(await cropped(source, shot.crop)).resize(1200, 1500, {
+          fit: "cover",
+          position: sharp.strategy.attention,
+        }),
+      );
+      writeFileSync(`public${stockUrl(key, "panel")}`, panel);
     } else {
       const tile = await jpeg(
         sharp(await cropped(source, shot.crop)).resize(900, 1200, {
