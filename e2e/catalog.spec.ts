@@ -16,7 +16,7 @@ test.beforeEach(async ({ context, baseURL }) => {
       value: encodeURIComponent(
         JSON.stringify({ version: 1, analytics: false, marketing: false, decidedAt: Date.now() }),
       ),
-      url: baseURL ?? "http://localhost:3000",
+      url: baseURL ?? "http://localhost:3900",
     },
   ]);
 });

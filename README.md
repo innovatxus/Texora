@@ -54,7 +54,7 @@ A Husky pre-commit hook runs ESLint and Prettier on staged files.
 
 ### How the tests stay away from your data
 
-The test suites create accounts, shops and orders, so they never use your project. They run against the local Firebase emulators with offline `demo-` projects and the demo catalogue in `tests/fixtures/` (`tests/emulator.env` for e2e), and the e2e build goes to `.next-e2e`, so your live build is untouched. The app refuses emulator mode for anything but a `demo-` project (D-093). Pass Playwright arguments through, e.g. `npm run test:e2e -- e2e/account.spec.ts --project desktop`.
+The test suites create accounts, shops and orders, so they never use your project. They run against the local Firebase emulators with offline `demo-` projects and the demo catalogue in `tests/fixtures/` (`tests/emulator.env` for e2e), and the e2e build goes to `.next-e2e`, so your live build is untouched. The e2e sandbox runs on **http://localhost:3900** (never 3000) and always starts its own server, so it can't be confused with, or reuse, the store you run on localhost:3000. The app refuses emulator mode for anything but a `demo-` project (D-093). Pass Playwright arguments through, e.g. `npm run test:e2e -- e2e/account.spec.ts --project desktop`.
 
 ## Deploy
 

@@ -18,7 +18,9 @@ if (
   );
 }
 
-const PORT = Number(process.env.PORT ?? 3000);
+// The test sandbox has its own port, so it is never mistaken for the store you
+// run on localhost:3000.
+const PORT = Number(process.env.E2E_PORT ?? 3900);
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -61,7 +63,8 @@ export default defineConfig({
     // E2E always runs against a production build (prefetching does not run in dev).
     command: `npm run start -- --port ${PORT}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    // Always start the sandbox's own server: never test against one already running.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
