@@ -2,7 +2,8 @@
  * One-off: adds the new home page sections to the live home page, in place:
  * the "Dress Code: Evening" campaign diptych, "The essentials, for her and
  * him" tiles and the "Most Wanted" gift shop diptych; switches "Shop by
- * category" to the editorial style and gives "New arrivals" its subheading.
+ * category" to the editorial style, gives "New arrivals" its subheading and
+ * the home hero its video.
  * Only adds what is missing, so it is safe to run again. Edit the sections
  * afterwards in /admin/content/home.
  *
@@ -71,6 +72,13 @@ async function main() {
   if (fresh && !fresh.data.subheading && subheading) {
     fresh.data = { ...fresh.data, subheading };
     changes.push(`"home-new" subheading → "${subheading}"`);
+  }
+  const hero = modules.find((m) => m.id === "home-hero");
+  const starterHero = starter.modules.find((m) => m.id === "home-hero");
+  const video = starterHero?.type === "hero" ? starterHero.data.video : undefined;
+  if (hero && video && JSON.stringify(hero.data.video) !== JSON.stringify(video)) {
+    hero.data = { ...hero.data, video };
+    changes.push(`"home-hero" video → ${video.desktop.webm}`);
   }
 
   if (changes.length === 0) {

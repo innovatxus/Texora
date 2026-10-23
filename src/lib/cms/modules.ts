@@ -31,8 +31,30 @@ export type ResponsiveImage = z.infer<typeof responsiveImageSchema>;
 
 const simpleImageSchema = z.object({ url: z.string().min(1), alt: z.string().max(200) });
 
+const localMedia = z.string().startsWith("/media/");
+
+/**
+ * Optional hero video. It plays muted and looped over its poster (the first
+ * frame), loads only after the page has finished loading, and never plays for
+ * visitors who prefer reduced motion or have data saving on. `backdrop` is the
+ * video's own background colour, so the frame blends into the page seamlessly.
+ */
+export const heroVideoSchema = z.object({
+  desktop: z.object({ webm: localMedia, mp4: localMedia }),
+  mobile: z.object({ webm: localMedia, mp4: localMedia }),
+  poster: z.object({
+    webp: localMedia,
+    jpg: localMedia,
+    width: z.number().int(),
+    height: z.number().int(),
+  }),
+  backdrop: z.string().regex(/^#[0-9a-f]{6}$/i),
+});
+export type HeroVideo = z.infer<typeof heroVideoSchema>;
+
 /** Hero banner: headline, copy, call to action and art-directed images. */
 export const heroBannerSchema = z.object({
+  video: heroVideoSchema.optional(),
   eyebrow: z.string().max(40).optional(),
   headline: z.string().min(1).max(80),
   body: z.string().max(200).optional(),

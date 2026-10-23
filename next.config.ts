@@ -26,7 +26,18 @@ const nextConfig: NextConfig = {
       emulators: process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true",
       staging: process.env.STAGING === "true",
     });
-    return [{ source: "/:path*", headers }];
+    // Storefront photography and hero video: cached for a day by browsers and the
+    // CDN, then refreshed in the background (file names aren't hashed, so not immutable).
+    const media = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=86400, stale-while-revalidate=604800",
+      },
+    ];
+    return [
+      { source: "/:path*", headers },
+      { source: "/media/(hero|stock|assets)/:path*", headers: media },
+    ];
   },
   turbopack: {
     rules: {

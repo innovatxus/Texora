@@ -1,7 +1,7 @@
 // CMS page content for the seed: home, department landings and sale.
 import { cmsPageSchema, type CmsModule, type CmsPage } from "../../src/lib/cms/modules";
 import type { Product } from "../../src/lib/validation";
-import { HOME_HERO, stockAlt, stockUrl, type StockKey } from "../stock-catalog";
+import { HOME_HERO, HOME_VIDEO, stockAlt, stockUrl, type StockKey } from "../stock-catalog";
 
 const P = "/media/placeholders";
 const everyone = { schedule: {}, audience: ["everyone" as const] };
@@ -476,7 +476,9 @@ export function buildStarterPages(now: Date): CmsPage[] {
               focal: { x: 0.5, y: 0.3 },
             },
           };
-          return [{ ...module, data: { ...module.data, ctas, image, tone: hero.tone } }];
+          // The home hero plays the store's walk video over its poster.
+          const video = key === "own" ? { video: HOME_VIDEO } : {};
+          return [{ ...module, data: { ...module.data, ctas, image, tone: hero.tone, ...video } }];
         }
         if (module.type === "categoryTiles") {
           const tiles = module.data.tiles.map((t) => {

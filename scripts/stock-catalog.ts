@@ -16,6 +16,26 @@ export const HOME_HERO = {
   alt: "Three people walking in relaxed neutral tailoring, wide trousers and sneakers",
 } as const;
 
+/**
+ * The home hero video (public/media/hero): the same walk, looped. WebM first,
+ * MP4 for Safari; a lighter cut for phones. The poster is its first frame and
+ * `backdrop` its studio colour (sampled from the poster's edges).
+ */
+export const HOME_VIDEO = {
+  desktop: { webm: "/media/hero/texora-hero.webm", mp4: "/media/hero/texora-hero.mp4" },
+  mobile: {
+    webm: "/media/hero/texora-hero-mobile.webm",
+    mp4: "/media/hero/texora-hero-mobile.mp4",
+  },
+  poster: {
+    webp: "/media/hero/texora-hero-poster.webp",
+    jpg: "/media/hero/texora-hero-poster.jpg",
+    width: 1280,
+    height: 720,
+  },
+  backdrop: "#f3f2f1",
+} as const;
+
 /** A region of a source photo, in its pixels. */
 export interface Crop {
   left: number;
