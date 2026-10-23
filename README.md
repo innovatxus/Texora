@@ -63,8 +63,25 @@ Any Node.js host for Next.js works (for example Vercel or Firebase App Hosting).
 1. Set every variable from `.env.example` in the host's environment, never in a committed file. `NEXT_PUBLIC_SITE_URL` is the public `https://` address. Keep `STAGING=true` for a test deployment; for launch, set `RESEND_API_KEY` and remove `STAGING`.
 2. Deploy the Firestore and Storage rules and indexes whenever `firestore/rules.template`, `storage/rules.template` or `firestore.indexes.json` change (`npm run rules:generate` first).
 3. Schedule the background jobs (`POST`, header `Authorization: Bearer $CRON_SECRET`): `/api/cron/release-reservations` and `/api/cron/merchant-publish` every 5 minutes, and `/api/cron/notifications` and `/api/cron/media-cleanup` hourly.
-4. For card payments, add the Stripe keys and point a Stripe webhook at `/api/webhooks/stripe` (events: `payment_intent.succeeded` and `payment_intent.payment_failed`), using its signing secret as `STRIPE_WEBHOOK_SECRET`.
+4. For card and mobile wallet payments, add the four `PAYMOB_*` keys from the Paymob dashboard and set its transaction callback to `https://<your-domain>/api/webhooks/paymob`. Without them, checkout offers Cash on Delivery only.
 5. Add the production domain to Firebase Authentication → Settings → Authorized domains.
+
+### Vercel
+
+The build checks the environment first and stops with `Invalid client/server environment variables` if anything is missing, so add these before deploying (Project → Settings → Environment Variables, for Production and Preview):
+
+| Variable                                                                                                                                                                    | Value                                                              |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`                                                                                                                                                      | The deployment's address, e.g. `https://texora.vercel.app`         |
+| `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`, `NEXT_PUBLIC_FIREBASE_APP_ID` | From `.env.local` (Firebase web app config)                        |
+| `FIREBASE_PROJECT_ID`, `FIREBASE_STORAGE_BUCKET`                                                                                                                            | From `.env.local`                                                  |
+| `FIREBASE_SERVICE_ACCOUNT`                                                                                                                                                  | From `.env.local` (base64 service-account JSON; mark it Sensitive) |
+| `ORDER_TOKEN_SECRET`, `CRON_SECRET`                                                                                                                                         | From `.env.local` (32+ random characters; Sensitive)               |
+| `STAGING`                                                                                                                                                                   | `true` for a test deployment (or set `RESEND_API_KEY` for launch)  |
+| `EMAIL_FROM`                                                                                                                                                                | Optional sender address                                            |
+| `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_HMAC_SECRET`, `PAYMOB_INTEGRATION_IDS`                                                                                    | Optional: online payments                                          |
+
+Vercel's editor accepts a pasted `.env` file, so the quickest way is to paste the contents of `.env.local` and change `NEXT_PUBLIC_SITE_URL`. Leave out `USE_FIREBASE_EMULATORS` and `NEXT_PUBLIC_USE_FIREBASE_EMULATORS` (tests only). Then redeploy, and add the Vercel domain to Firebase Authentication → Authorized domains.
 
 How the pieces fit together: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
