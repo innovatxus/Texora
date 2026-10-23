@@ -1,3 +1,4 @@
+import { cityLine, COUNTRY } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -61,7 +62,7 @@ async function ShopJsonLd({ slug }: { slug: string }) {
         addressLocality: l.address.city,
         addressRegion: l.address.region,
         postalCode: l.address.postalCode,
-        addressCountry: "US",
+        addressCountry: COUNTRY,
       })),
     },
     {
@@ -117,7 +118,7 @@ async function ShopContent({ params, searchParams }: PageProps<"/shops/[slug]">)
                     {store.address.line1}
                     {store.address.line2 ? `, ${store.address.line2}` : ""}
                     <br />
-                    {store.address.city}, {store.address.region} {store.address.postalCode}
+                    {cityLine(store.address)}
                   </address>
                   <OpenNow location={store} />
                   <details>

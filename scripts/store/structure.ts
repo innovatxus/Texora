@@ -11,6 +11,7 @@ import {
   type StoreSettings,
 } from "../../src/lib/validation";
 import { CATEGORIES } from "./catalog-definitions";
+import { CURRENCY } from "../../src/config/locale";
 
 const cents = (dollars: number) => Math.round(dollars * 100);
 
@@ -63,14 +64,17 @@ export function buildCategories(): Category[] {
 /** Default store settings. Shared with the live-project setup. */
 export function buildStoreSettings(now: Date): StoreSettings {
   const settings = storeSettingsSchema.parse({
-    currency: "USD",
-    freeShippingThreshold: cents(150),
-    shippingRates: { standard: cents(8), express: cents(20) },
-    refundLimits: { customer_service: cents(250) },
+    currency: CURRENCY,
+    freeShippingThreshold: cents(2_500),
+    shippingRates: {
+      greater_cairo: { standard: cents(60), express: cents(120) },
+      rest_of_egypt: { standard: cents(95), express: cents(180) },
+    },
+    refundLimits: { customer_service: cents(10_000) },
     reservationMinutes: 15,
     loyalty: {
-      pointsPerCurrencyUnit: 10,
-      tierThresholds: { enthusiast: cents(500), icon: cents(1500) },
+      pointsPerCurrencyUnit: 1,
+      tierThresholds: { enthusiast: cents(25_000), icon: cents(75_000) },
       birthdayRewardPoints: 500,
     },
     features: {

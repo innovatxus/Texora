@@ -124,7 +124,9 @@ async function ReturnDetail({ params }: PageProps<"/admin/returns/[id]">) {
                 ],
                 [
                   "Method",
-                  record.method === "mail" ? "Mail" : `In store: ${store?.name ?? record.storeId}`,
+                  record.method === "mail"
+                    ? "Courier collection"
+                    : `In store: ${store?.name ?? record.storeId}`,
                 ],
                 [
                   "Label",
@@ -200,7 +202,7 @@ async function ReturnDetail({ params }: PageProps<"/admin/returns/[id]">) {
                 submitLabel="Refund return"
                 done="Refunded"
                 confirm="Refund this return?"
-                fields={[{ name: "amount", label: "Amount ($)", type: "number", step: "0.01" }]}
+                fields={[{ name: "amount", label: "Amount (EGP)", type: "number", step: "0.01" }]}
               />
             </Panel>
           )}

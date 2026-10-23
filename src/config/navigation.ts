@@ -172,9 +172,9 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
     title: "Stores",
     links: [
       { label: "Find a store", href: "/stores" },
-      { label: "Texora SoHo", href: "/stores/soho" },
-      { label: "Texora Austin", href: "/stores/austin" },
-      { label: "Texora Chicago", href: "/stores/chicago" },
+      { label: "Texora Zamalek", href: "/stores/zamalek" },
+      { label: "Texora New Cairo", href: "/stores/new-cairo" },
+      { label: "Texora Alexandria", href: "/stores/alexandria" },
     ],
   },
   {

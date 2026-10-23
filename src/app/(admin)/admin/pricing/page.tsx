@@ -119,10 +119,10 @@ async function Pricing() {
                 required: true,
                 placeholder: "W104-CHARCOAL-R-M",
               },
-              { name: "price", label: "Price ($)", type: "number", step: "0.01", required: true },
+              { name: "price", label: "Price (EGP)", type: "number", step: "0.01", required: true },
               {
                 name: "compareAtPrice",
-                label: "Compare-at price ($)",
+                label: "Compare-at price (EGP)",
                 type: "number",
                 step: "0.01",
                 hint: "The original price, shown struck through. Leave empty for full price.",

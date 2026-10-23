@@ -25,11 +25,11 @@ export type SortKey = keyof typeof SORTS;
 
 /** Price filter buckets (cents). */
 export const PRICE_RANGES = [
-  { value: "0-50", label: "Under $50", min: 0, max: 5000 },
-  { value: "50-100", label: "$50 – $100", min: 5000, max: 10000 },
-  { value: "100-150", label: "$100 – $150", min: 10000, max: 15000 },
-  { value: "150-250", label: "$150 – $250", min: 15000, max: 25000 },
-  { value: "250-", label: "$250 and over", min: 25000, max: Number.POSITIVE_INFINITY },
+  { value: "0-1000", label: "Under EGP 1,000", min: 0, max: 100_000 },
+  { value: "1000-2500", label: "EGP 1,000 – 2,500", min: 100_000, max: 250_000 },
+  { value: "2500-5000", label: "EGP 2,500 – 5,000", min: 250_000, max: 500_000 },
+  { value: "5000-10000", label: "EGP 5,000 – 10,000", min: 500_000, max: 1_000_000 },
+  { value: "10000-", label: "EGP 10,000 and over", min: 1_000_000, max: Number.POSITIVE_INFINITY },
 ] as const;
 
 /** Labels for attribute facets; unknown keys are title-cased. */

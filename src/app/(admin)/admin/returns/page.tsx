@@ -63,7 +63,10 @@ async function Returns({ searchParams }: PageProps<"/admin/returns">) {
           },
           { header: "Requested", cell: (r) => formatDateTime(r.createdAt) },
           { header: "Customer", cell: (r) => r.email },
-          { header: "Method", cell: (r) => (r.method === "mail" ? "Mail" : "In store") },
+          {
+            header: "Method",
+            cell: (r) => (r.method === "mail" ? "Courier collection" : "In store"),
+          },
           {
             header: "Refund to",
             cell: (r) => (r.refundTo === "store_credit" ? "Store credit" : "Original"),

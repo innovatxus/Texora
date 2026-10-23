@@ -1,18 +1,18 @@
 import { z } from "zod";
+import { normalizeEgyptianMobile } from "@/config/locale";
 import { addressSchema } from "@/lib/validation/common";
 
 /** Shared by the checkout forms (client) and placeOrder (server). */
 export const checkoutAddressSchema = addressSchema.extend({
+  /** An Egyptian mobile for the courier, stored as +20…; any common format is accepted. */
   phone: z
     .string()
     .trim()
-    .regex(/^[+\d][\d\s().-]{6,20}$/, "Enter a phone number for delivery updates"),
-  country: z.literal("US", { error: "We currently ship to the United States only" }),
-  region: z.string().trim().length(2, "Use the 2-letter state code, e.g. NY").toUpperCase(),
-  postalCode: z
-    .string()
-    .trim()
-    .regex(/^\d{5}(-\d{4})?$/, "Enter a 5-digit ZIP code"),
+    .refine((value) => normalizeEgyptianMobile(value) !== null, {
+      message: "Enter an Egyptian mobile number, e.g. 010 1234 5678",
+    })
+    .transform((value) => normalizeEgyptianMobile(value) as string),
+  country: z.literal("EG", { error: "We deliver within Egypt only" }),
 });
 export type CheckoutAddress = z.infer<typeof checkoutAddressSchema>;
 

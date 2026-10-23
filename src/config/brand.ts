@@ -7,13 +7,13 @@ export const brand = {
   tagline: "Considered clothing, made to be worn.",
   description:
     "Texora is a modern specialty apparel house: tailored essentials, seasonal collections and fit families for every body.",
-  locale: "en",
+  locale: "en-EG",
   /** Browser UI colour; mirrors --color-canvas (meta tags cannot read CSS variables). */
   themeColor: "#faf8f5",
   support: {
-    phone: "(212) 555-0141",
+    phone: "+20 2 2735 0141",
     email: "care@texora.example",
-    hours: "Monday to Friday 9am–8pm ET, weekends 10am–6pm ET",
+    hours: "Saturday to Thursday 10am–10pm (Cairo time)",
   },
 } as const;
 

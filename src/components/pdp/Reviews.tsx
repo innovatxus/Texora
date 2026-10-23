@@ -1,5 +1,6 @@
 "use client";
 
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import NextLink from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { Rating } from "@/components/commerce/Rating";
@@ -24,7 +25,8 @@ const SORTS = {
 type ReviewSortKey = keyof typeof SORTS;
 
 const FIT_SCALE = ["Runs small", "Slightly small", "True to size", "Slightly large", "Runs large"];
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",

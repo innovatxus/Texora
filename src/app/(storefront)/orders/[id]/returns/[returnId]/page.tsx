@@ -1,3 +1,4 @@
+import { cityLine } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -48,7 +49,7 @@ async function ReturnDetail({
         {RETURN_STATUS_LABELS[record.status]}
         {open &&
           (record.method === "mail"
-            ? ": pack the items securely, print or show the label below and drop the parcel at any carrier location."
+            ? ": pack the items securely; the courier will collect the parcel from your address. Show them the code below."
             : `: bring the items to ${store?.name ?? "the store"} and show this QR code at the till.`)}
       </p>
 
@@ -96,7 +97,7 @@ async function ReturnDetail({
               className="flex flex-col items-center gap-4 border border-line bg-surface p-6 text-center text-sm"
             >
               <h2 id="return-label" className="text-label">
-                {record.method === "mail" ? "Prepaid return label" : "Show this in store"}
+                {record.method === "mail" ? "Courier collection code" : "Show this in store"}
               </h2>
               <div
                 role="img"
@@ -111,9 +112,7 @@ async function ReturnDetail({
                   <span className="tabular-nums">{record.label.trackingNumber}</span>
                 </p>
               )}
-              <PrintButton>
-                {record.method === "mail" ? "Print label" : "Print QR code"}
-              </PrintButton>
+              <PrintButton>{record.method === "mail" ? "Print code" : "Print QR code"}</PrintButton>
             </section>
           )}
 
@@ -124,8 +123,7 @@ async function ReturnDetail({
               </h2>
               <p className="mt-3 font-medium">{store.name}</p>
               <p className="text-ink-soft">
-                {store.address.line1}, {store.address.city}, {store.address.region}{" "}
-                {store.address.postalCode}
+                {store.address.line1}, {cityLine(store.address)}
               </p>
               <p className="mt-3 flex flex-wrap gap-4">
                 <Link href={`/stores/${store.slug}`}>Opening hours</Link>

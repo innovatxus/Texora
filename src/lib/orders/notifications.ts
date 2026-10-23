@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import "server-only";
 import { createElement } from "react";
 import { brand } from "@/config/brand";
@@ -9,7 +10,8 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { clientEnv } from "@/lib/env/client";
 import { orderAccessToken } from "./token";
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "short",
   month: "short",
   day: "numeric",
@@ -24,7 +26,7 @@ export async function sendOrderConfirmation(orderId: string): Promise<void> {
   const delivery = `${order.delivery.method === "express" ? "Express" : "Standard"} delivery, arriving ${dateFormat.format(order.delivery.estimatedFrom)} – ${dateFormat.format(order.delivery.estimatedTo)}`;
   const paymentNote = order.payments.some((p) => p.provider === "cod")
     ? "Pay on delivery"
-    : order.payments.some((p) => p.provider === "stripe")
+    : order.payments.some((p) => p.provider === "paymob")
       ? "Card"
       : "Gift card / rewards";
 

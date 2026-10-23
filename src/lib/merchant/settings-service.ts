@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import "server-only";
 import { MERCHANT_LIMITS } from "@/config/merchant";
 import { ActionError } from "@/lib/actions/run-action";
@@ -76,7 +77,8 @@ export async function changeUsername(
   if (merchant.usernameChangedAt) {
     const next = new Date(merchant.usernameChangedAt.getTime() + days * 86_400_000);
     if (next > now) {
-      const fmt = new Intl.DateTimeFormat("en-US", {
+      const fmt = new Intl.DateTimeFormat(LOCALE, {
+        timeZone: TIME_ZONE,
         month: "short",
         day: "numeric",
         year: "numeric",

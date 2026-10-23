@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  cityLine,
+  CURRENCY,
+  DELIVERY_ZONE_LABELS,
+  deliveryZoneFor,
+  LOCALE,
+  TIME_ZONE,
+} from "@/config/locale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,7 +28,7 @@ import { useBagStore } from "@/stores/bag";
 import { useCheckoutStore, type DeliveryChoice } from "@/stores/checkout";
 import { writeStorage } from "@/lib/browser/storage";
 import { AddressForm } from "./AddressForm";
-import { CLIENT_SECRET_KEY, CUSTOMER_SESSION_KEY } from "./CardPayment";
+import { CHECKOUT_URL_KEY } from "./PendingCardPayment";
 
 type CheckoutOptions = Extract<
   Awaited<ReturnType<typeof getCheckoutOptions>>,
@@ -42,7 +50,8 @@ function useCheckoutOptions(): CheckoutOptions | null {
   return options;
 }
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "short",
   month: "short",
   day: "numeric",
@@ -67,7 +76,7 @@ export function ContactStep() {
     track({
       name: "begin_checkout",
       params: {
-        currency: "USD",
+        currency: CURRENCY,
         items: lineKey.split(",").map((entry) => {
           const [sku = "", quantity = "1"] = entry.split(":");
           const line = lines.find((l) => l.sku === sku);
@@ -222,8 +231,7 @@ export function ShippingStep() {
               </span>
               <span className="block text-ink-soft">
                 {a.address.line1}
-                {a.address.line2 ? `, ${a.address.line2}` : ""}, {a.address.city},{" "}
-                {a.address.region} {a.address.postalCode}
+                {a.address.line2 ? `, ${a.address.line2}` : ""}, {cityLine(a.address)}
               </span>
             </span>
           </label>
@@ -277,13 +285,17 @@ export function DeliveryStep() {
     region: shippingAddress?.region ?? null,
   });
   const freeStandard = bag ? bag.freeShippingRemaining === 0 : false;
+  const zone = deliveryZoneFor(shippingAddress?.region);
   const now = new Date();
 
   if (!options) return <Skeleton className="h-64" />;
+  const rates = options.rates[zone];
 
   const window = (method: "standard" | "express") => {
-    const { from, to } = estimateDelivery(method, now);
-    return `${dateFormat.format(from)} – ${dateFormat.format(to)}`;
+    const { from, to } = estimateDelivery(method, now, zone);
+    return from.toDateString() === to.toDateString()
+      ? dateFormat.format(from)
+      : `${dateFormat.format(from)} – ${dateFormat.format(to)}`;
   };
 
   const option = (
@@ -328,18 +340,21 @@ export function DeliveryStep() {
     >
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-2 text-label">Delivery method</legend>
+        <p className="-mt-1 mb-1 text-sm text-ink-soft">
+          Prices for {DELIVERY_ZONE_LABELS[zone]}. Couriers deliver Saturday to Thursday.
+        </p>
         {option(
           "standard",
           "Standard",
           `Arrives ${window("standard")}`,
-          freeStandard ? "Free" : formatMoney(options.rates.standard),
+          freeStandard ? "Free" : formatMoney(rates.standard),
           <TruckIcon />,
         )}
         {option(
           "express",
           "Express",
           `Arrives ${window("express")}`,
-          formatMoney(options.rates.express),
+          formatMoney(rates.express),
           <TruckIcon />,
         )}
       </fieldset>
@@ -398,7 +413,7 @@ export function PaymentStep() {
     track({
       name: "add_payment_info",
       params: {
-        currency: "USD",
+        currency: CURRENCY,
         value: dollars(bag?.totals.total ?? 0),
         payment_type: chosen === "cod" ? "cash_on_delivery" : "card",
       },
@@ -497,7 +512,7 @@ function AddressBlock({
     line2?: string | undefined;
     city: string;
     region: string;
-    postalCode: string;
+    postalCode?: string | undefined;
   };
   editHref: string;
 }) {
@@ -520,7 +535,7 @@ function AddressBlock({
           </>
         )}
         <br />
-        {address.city}, {address.region} {address.postalCode}
+        {cityLine(address)}
       </address>
     </div>
   );
@@ -564,12 +579,10 @@ export function ReviewStep() {
     }
     const { orderId, accessToken, payment } = result.data;
     if (payment.kind === "card") {
-      // Card details are collected by the payment provider on the confirmation page.
-      writeStorage("session", CLIENT_SECRET_KEY(orderId), payment.clientSecret);
-      if (payment.customerSessionClientSecret) {
-        writeStorage("session", CUSTOMER_SESSION_KEY(orderId), payment.customerSessionClientSecret);
-      }
-      router.push(`/order-confirmation/${orderId}?t=${encodeURIComponent(accessToken)}`);
+      // Card and wallet details are entered on Paymob's checkout, which returns to the
+      // confirmation page. The link is kept for this tab so the shopper can retry from there.
+      writeStorage("session", CHECKOUT_URL_KEY(orderId), payment.checkoutUrl);
+      window.location.assign(payment.checkoutUrl);
       return;
     }
     // The confirmation page clears the bag once it is showing (see ClearAfterOrder).

@@ -18,10 +18,10 @@ describe("generateGiftCardCode", () => {
 });
 
 describe("businessDate", () => {
-  it("uses New York's calendar date", () => {
-    // 02:00 UTC on the 20th is still the 19th in New York.
-    expect(businessDate(new Date(Date.UTC(2026, 9, 20, 2)))).toBe("2026-10-19");
-    expect(businessDate(new Date(Date.UTC(2026, 9, 20, 12)))).toBe("2026-10-20");
+  it("uses Cairo's calendar date", () => {
+    // 22:30 UTC on the 19th is already the 20th in Cairo.
+    expect(businessDate(new Date(Date.UTC(2026, 9, 19, 22, 30)))).toBe("2026-10-20");
+    expect(businessDate(new Date(Date.UTC(2026, 9, 19, 12)))).toBe("2026-10-19");
   });
 });
 

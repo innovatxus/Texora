@@ -4,6 +4,7 @@
  * and Server Actions; limits come from `src/config/merchant.ts`.
  */
 import { z } from "zod";
+import { COUNTRY, GOVERNORATE_CODES, POSTAL_CODE_PATTERN, toE164 } from "@/config/locale";
 import {
   isReservedName,
   MERCHANT_LIMITS,
@@ -77,11 +78,12 @@ export function suggestShopSlug(name: string): string {
     .replace(/-+$/g, "");
 }
 
-/** An international phone number in E.164 form, e.g. +12125550123. */
+/** A phone number, typed the Egyptian way (010…, 02…, +20…) and stored in E.164 form. */
 export const e164PhoneSchema = z
   .string()
   .trim()
-  .regex(/^\+[1-9]\d{6,14}$/, "Enter a phone number like 212 555 0123");
+  .transform((value) => toE164(value))
+  .pipe(z.string().regex(/^\+[1-9]\d{7,14}$/, "Enter a phone number like 010 1234 5678"));
 
 /** A public website: a full https address. */
 export const websiteSchema = z
@@ -365,21 +367,23 @@ export const specialHoursSchema = z
   });
 export type SpecialHours = z.infer<typeof specialHoursSchema>;
 
-/** A US street address for a merchant location. */
+/** A street address in Egypt for a merchant location. */
 export const locationAddressSchema = z.object({
   line1: z.string().trim().min(1, "Enter a street address").max(120),
   line2: z.string().trim().max(120).optional(),
   city: z.string().trim().min(1, "Enter a city").max(80),
+  /** Governorate code (ISO 3166-2:EG). */
   region: z
     .string()
     .trim()
-    .toUpperCase()
-    .regex(/^[A-Z]{2}$/, "Choose a state"),
+    .refine((code) => GOVERNORATE_CODES.includes(code), "Choose a governorate"),
+  /** Five digits; optional, as most Egyptian addresses don't use one. */
   postalCode: z
     .string()
     .trim()
-    .regex(/^\d{5}(-\d{4})?$/, "Enter a 5-digit ZIP code"),
-  country: z.literal("US"),
+    .refine((code) => code === "" || POSTAL_CODE_PATTERN.test(code), "Use a 5-digit postal code")
+    .optional(),
+  country: z.literal(COUNTRY),
 });
 export type LocationAddress = z.infer<typeof locationAddressSchema>;
 

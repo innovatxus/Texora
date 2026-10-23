@@ -1,5 +1,6 @@
 import type { Merchant, MerchantLocation, Shop } from "@/lib/validation/merchant";
-import { geocodeByState, US_STATES, usState, zipMatchesState } from "./geo";
+import { GOVERNORATES, normalizeEgyptianMobile, toE164 } from "@/config/locale";
+import { geocodeByGovernorate, GOVERNORATE_OPTIONS } from "./geo";
 import { nextStep, setupChecklist, shopBlockers } from "./onboarding";
 import {
   assertShopTransition,
@@ -54,25 +55,27 @@ describe("product status machine", () => {
   });
 });
 
-describe("US addresses", () => {
-  it("covers every state and DC once", () => {
-    expect(US_STATES).toHaveLength(51);
-    expect(new Set(US_STATES.map((s) => s.code)).size).toBe(51);
+describe("Egyptian addresses", () => {
+  it("covers all 27 governorates once, each with a position", () => {
+    expect(GOVERNORATES).toHaveLength(27);
+    expect(new Set(GOVERNORATE_OPTIONS.map((g) => g.value)).size).toBe(27);
+    for (const g of GOVERNORATES) expect(geocodeByGovernorate(g.code)?.geo).toBeDefined();
   });
 
-  it("matches ZIP codes to states", () => {
-    expect(zipMatchesState("10012", "NY")).toBe(true);
-    expect(zipMatchesState("78701", "TX")).toBe(true);
-    expect(zipMatchesState("02108", "MA")).toBe(true);
-    expect(zipMatchesState("05501", "MA")).toBe(true);
-    expect(zipMatchesState("10012", "CA")).toBe(false);
-    expect(zipMatchesState("ABCDE", "NY")).toBe(false);
+  it("gives an approximate position and Cairo time without a provider", () => {
+    expect(geocodeByGovernorate("ALX")).toMatchObject({
+      timezone: "Africa/Cairo",
+      precision: "governorate",
+    });
+    expect(geocodeByGovernorate("XX")).toBeNull();
   });
 
-  it("gives an approximate position and timezone without a provider", () => {
-    expect(geocodeByState("az")).toMatchObject({ timezone: "America/Phoenix", precision: "state" });
-    expect(geocodeByState("XX")).toBeNull();
-    expect(usState("il")?.name).toBe("Illinois");
+  it("normalises Egyptian phone numbers", () => {
+    expect(normalizeEgyptianMobile("010 1234 5678")).toBe("+201012345678");
+    expect(normalizeEgyptianMobile("+20 115-555-0000")).toBe("+201155550000");
+    expect(normalizeEgyptianMobile("0161234567")).toBeNull();
+    expect(toE164("02 2735 0000")).toBe("+20227350000");
+    expect(toE164("0020 100 000 0000")).toBe("+201000000000");
   });
 });
 

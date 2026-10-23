@@ -1,7 +1,8 @@
+import { LOCALE } from "@/config/locale";
 import { ButtonLink } from "@/components/primitives";
 import { formatMoney } from "@/lib/format/money";
 import { TIER_NAMES, tierProgress, type TierThresholds } from "@/lib/loyalty/tiers";
-import { POINTS_PER_DOLLAR_REDEEMED } from "@/lib/pricing/rewards";
+import { POINTS_PER_POUND_REDEEMED } from "@/lib/pricing/rewards";
 import type { User } from "@/lib/validation/customer";
 
 /** Tier, points and progress to the next tier; or an invitation to join. */
@@ -34,11 +35,11 @@ export function RewardsSummary({
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <p className="font-display text-3xl">{TIER_NAMES[progress.tier]}</p>
         <p>
-          <span className="text-2xl tabular-nums">{loyalty.points.toLocaleString("en-US")}</span>{" "}
+          <span className="text-2xl tabular-nums">{loyalty.points.toLocaleString(LOCALE)}</span>{" "}
           points
           <span className="block text-sm text-ink-soft">
             worth up to{" "}
-            {formatMoney(Math.floor((loyalty.points * 100) / POINTS_PER_DOLLAR_REDEEMED))} at
+            {formatMoney(Math.floor((loyalty.points * 100) / POINTS_PER_POUND_REDEEMED))} at
             checkout
           </span>
         </p>

@@ -1,3 +1,4 @@
+import { LOCALE } from "@/config/locale";
 import type { Store } from "@/lib/validation";
 
 /** Day names, indexed like Date#getDay (0 = Sunday). */
@@ -31,7 +32,7 @@ export function formatTime(hhmm: string): string {
 
 /** Day of week (0 = Sunday) and minutes since midnight in the store's own time zone. */
 export function localTime(now: Date, timeZone: string): { day: number; minutes: number } {
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const parts = new Intl.DateTimeFormat(LOCALE, {
     timeZone,
     weekday: "short",
     hour: "2-digit",

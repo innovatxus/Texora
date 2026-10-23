@@ -77,7 +77,7 @@ export async function savePromotionAction(input: unknown) {
       }),
     access: { permission: "promotions.write" },
     handler: async (p, ctx) => {
-      // Tiers: "100:10, 200:20" = spend $100 get value 10, spend $200 get 20.
+      // Tiers: "100:10, 200:20" = spend EGP 100 get value 10, spend EGP 200 get 20.
       const tiers =
         p.type === "tiered" && p.tiers
           ? p.tiers.split(",").map((t) => {
@@ -258,8 +258,10 @@ export async function updateSettingsAction(input: unknown) {
   return runAction(input, {
     schema: z.object({
       freeShippingThreshold: dollars,
-      standardRate: dollars,
-      expressRate: dollars,
+      cairoStandardRate: dollars,
+      cairoExpressRate: dollars,
+      restStandardRate: dollars,
+      restExpressRate: dollars,
       refundLimit: dollars,
       reservationMinutes: z.coerce.number().int().min(1).max(120),
       pointsPerDollar: z.coerce.number().int().min(1).max(100),
@@ -275,7 +277,10 @@ export async function updateSettingsAction(input: unknown) {
     handler: async (s, ctx) => {
       await updateSettings(session(ctx.session), {
         freeShippingThreshold: s.freeShippingThreshold,
-        shippingRates: { standard: s.standardRate, express: s.expressRate },
+        shippingRates: {
+          greater_cairo: { standard: s.cairoStandardRate, express: s.cairoExpressRate },
+          rest_of_egypt: { standard: s.restStandardRate, express: s.restExpressRate },
+        },
         refundLimits: { customer_service: s.refundLimit },
         reservationMinutes: s.reservationMinutes,
         loyalty: {

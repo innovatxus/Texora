@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COUNTRY, GOVERNORATE_CODES, POSTAL_CODE_PATTERN } from "@/config/locale";
 
 /** Money in minor units (cents). Never use floats for prices. */
 export const moneySchema = z.number().int().nonnegative();
@@ -20,7 +21,7 @@ export const hexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/i, "Use a #RRGGBB
 export const timestampSchema = z.date();
 
 /** Supported currencies. */
-export const CURRENCIES = ["USD"] as const;
+export const CURRENCIES = ["EGP"] as const;
 /** One supported currency. */
 export const currencySchema = z.enum(CURRENCIES);
 
@@ -101,9 +102,18 @@ export const addressSchema = z.object({
   line1: z.string().trim().min(1, "Enter an address").max(120),
   line2: z.string().trim().max(120).optional(),
   city: z.string().trim().min(1, "Enter a city").max(80),
-  region: z.string().trim().min(1, "Enter a state or region").max(80),
-  postalCode: z.string().trim().min(3, "Enter a postcode").max(12),
-  country: z.string().length(2, "Use a 2-letter country code").toUpperCase(),
+  /** Governorate code (ISO 3166-2:EG, e.g. "C" for Cairo). */
+  region: z
+    .string()
+    .trim()
+    .refine((code) => GOVERNORATE_CODES.includes(code), "Choose a governorate"),
+  /** Five digits; optional, as most Egyptian addresses don't use one. */
+  postalCode: z
+    .string()
+    .trim()
+    .refine((code) => code === "" || POSTAL_CODE_PATTERN.test(code), "Use a 5-digit postal code")
+    .optional(),
+  country: z.string().length(2, "Use a 2-letter country code").toUpperCase().default(COUNTRY),
   phone: z.string().trim().max(30).optional(),
 });
 export type Address = z.infer<typeof addressSchema>;

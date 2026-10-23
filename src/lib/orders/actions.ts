@@ -44,7 +44,7 @@ export async function getCheckoutOptions(input: unknown) {
             id,
             label: label ?? null,
             isDefaultShipping,
-            address: { ...address, country: "US" as const },
+            address: { ...address, country: "EG" as const },
           }),
         ),
       };

@@ -1,3 +1,4 @@
+import { TAX_LABEL } from "@/lib/pricing/tax";
 import {
   Body,
   Column,
@@ -133,7 +134,7 @@ export function OrderConfirmationEmail(props: OrderConfirmationProps) {
           {row("Subtotal", formatMoney(totals.subtotal))}
           {totals.discount > 0 && row("Discounts", `−${formatMoney(totals.discount)}`)}
           {row("Shipping", totals.shipping === 0 ? "Free" : formatMoney(totals.shipping))}
-          {row("Tax", formatMoney(totals.tax))}
+          {row(TAX_LABEL, formatMoney(totals.tax))}
           {totals.giftCard > 0 && row("Gift card", `−${formatMoney(totals.giftCard)}`)}
           {totals.rewards > 0 && row("Rewards", `−${formatMoney(totals.rewards)}`)}
           {row("Total", formatMoney(totals.total), true)}

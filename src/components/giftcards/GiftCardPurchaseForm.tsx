@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useId, useRef, useState, type FormEvent } from "react";
-import { CLIENT_SECRET_KEY } from "@/components/checkout/CardPayment";
+import { CHECKOUT_URL_KEY } from "@/components/checkout/PendingCardPayment";
 import { Button, Input, Radio, RadioGroup, Textarea } from "@/components/primitives";
 import { brand } from "@/config/brand";
 import { writeStorage } from "@/lib/browser/storage";
@@ -21,7 +20,6 @@ type Errors = Partial<Record<string, string>>;
 
 /** E-gift card: amount, recipient, message and delivery date, then card payment. */
 export function GiftCardPurchaseForm({ available }: { available: boolean }) {
-  const router = useRouter();
   const id = useId();
   const [preset, setPreset] = useState<number | "custom">(GIFT_CARD_PRESETS[1]);
   const [custom, setCustom] = useState("");
@@ -70,10 +68,8 @@ export function GiftCardPurchaseForm({ available }: { available: boolean }) {
       idempotencyKey: idempotencyKey.current,
     });
     if (result.ok) {
-      writeStorage("session", CLIENT_SECRET_KEY(result.data.purchaseId), result.data.clientSecret);
-      router.push(
-        `/gift-cards/purchase/${result.data.purchaseId}?t=${encodeURIComponent(result.data.token)}`,
-      );
+      writeStorage("session", CHECKOUT_URL_KEY(result.data.purchaseId), result.data.checkoutUrl);
+      window.location.assign(result.data.checkoutUrl);
       return;
     }
     setPending(false);
@@ -128,7 +124,7 @@ export function GiftCardPurchaseForm({ available }: { available: boolean }) {
           <Input
             id={`${id}-custom`}
             label="Amount in dollars"
-            hint="From $10 to $500"
+            hint="From EGP 250 to EGP 25,000"
             inputMode="numeric"
             value={custom}
             onChange={(e) => setCustom(e.target.value.replace(/[^\d.]/g, ""))}

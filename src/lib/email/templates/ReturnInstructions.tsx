@@ -26,7 +26,7 @@ export function ReturnInstructionsEmail(props: ReturnInstructionsProps) {
       <EmailText>
         Return <strong>{returnNumber}</strong> for order {orderNumber} is approved.{" "}
         {method === "mail"
-          ? "Pack the items securely, attach the prepaid label from your return page and drop the parcel at any carrier location."
+          ? "Pack the items securely. A courier will collect the parcel from your address: show them the code on your return page."
           : `Bring the items to ${storeName ?? "any of our stores"} and show this QR code at the till.`}{" "}
         Please send them by {props.deadline}.
       </EmailText>

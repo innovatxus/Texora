@@ -1,5 +1,7 @@
 "use client";
 
+import { TAX_LABEL } from "@/lib/pricing/tax";
+import { LOCALE } from "@/config/locale";
 import NextLink from "next/link";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { QuantityStepper } from "@/components/commerce/Pickers";
@@ -322,10 +324,7 @@ export function OrderSummary({
           label={shippingLabel}
           value={totals.shipping === 0 ? "Free" : formatMoney(totals.shipping)}
         />
-        <SummaryRow
-          label={bag.taxEstimated ? "Estimated tax" : "Tax"}
-          value={formatMoney(totals.tax)}
-        />
+        <SummaryRow label={TAX_LABEL} value={formatMoney(totals.tax)} />
         {totals.giftCard > 0 && (
           <SummaryRow label="Gift card" value={`−${formatMoney(totals.giftCard)}`} />
         )}
@@ -454,7 +453,7 @@ export function Redemptions({ bag }: { bag: BagView | null }) {
 
       {bag?.rewards && (
         <Select
-          label={`Use rewards (${bag.rewards.points.toLocaleString("en-US")} points)`}
+          label={`Use rewards (${bag.rewards.points.toLocaleString(LOCALE)} points)`}
           value={String(rewardsValue)}
           onChange={(e) => setRewardsValue(Number(e.target.value))}
           options={[
@@ -466,7 +465,7 @@ export function Redemptions({ bag }: { bag: BagView | null }) {
           ]}
           hint={
             bag.rewards.options.length === 0
-              ? "Earn 500 points to unlock your first $5 reward."
+              ? "Earn 500 points to unlock your first EGP 50 reward."
               : undefined
           }
         />

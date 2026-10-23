@@ -299,12 +299,12 @@ describe("merchant orders", () => {
   const address = {
     firstName: "Grace",
     lastName: "Hopper",
-    line1: "1 Navy Yard",
-    city: "Arlington",
-    region: "VA",
-    postalCode: "22201",
-    country: "US" as const,
-    phone: "703 555 0100",
+    line1: "5 Mesaha Square",
+    city: "Dokki",
+    region: "GZ",
+    postalCode: "12311",
+    country: "EG" as const,
+    phone: "011 1234 5678",
   };
   let orderId = "";
   let merchantSku = "";

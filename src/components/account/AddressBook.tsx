@@ -1,5 +1,6 @@
 "use client";
 
+import { cityLine } from "@/config/locale";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AddressForm } from "@/components/checkout/AddressForm";
@@ -123,7 +124,7 @@ export function AddressBook({ addresses }: { addresses: SavedAddress[] }) {
               {a.line1}
               {a.line2 ? `, ${a.line2}` : ""}
               <br />
-              {a.city}, {a.region} {a.postalCode}
+              {cityLine(a)}
               {a.phone ? (
                 <>
                   <br />

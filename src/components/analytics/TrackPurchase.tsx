@@ -1,5 +1,6 @@
 "use client";
 
+import { CURRENCY } from "@/config/locale";
 import { useEffect } from "react";
 import { trackOnce, type AnalyticsItem } from "@/lib/analytics/events";
 
@@ -20,7 +21,7 @@ export function TrackPurchase({
   useEffect(() => {
     trackOnce(`purchase-${number}`, {
       name: "purchase",
-      params: { currency: "USD", transaction_id: number, value, tax, shipping, items },
+      params: { currency: CURRENCY, transaction_id: number, value, tax, shipping, items },
     });
     // One record per order number.
     // eslint-disable-next-line react-hooks/exhaustive-deps

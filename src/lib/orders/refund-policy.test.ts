@@ -16,7 +16,7 @@ const order = (
 });
 
 const card = (amount: number) =>
-  ({ provider: "stripe", ref: "pi", amount, status: "captured" }) as const;
+  ({ provider: "paymob", ref: "1001", amount, status: "captured" }) as const;
 const gift = (amount: number) =>
   ({ provider: "gift_card", ref: "gc", amount, status: "captured" }) as const;
 

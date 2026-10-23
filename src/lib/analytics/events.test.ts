@@ -7,7 +7,7 @@ const consent = (analytics: boolean) =>
 const event = {
   name: "add_to_cart" as const,
   params: {
-    currency: "USD" as const,
+    currency: "EGP" as const,
     value: dollars(4800),
     items: [{ item_id: "p1", item_name: "Tee", price: 48, quantity: 1 }],
   },
@@ -46,7 +46,7 @@ describe("analytics", () => {
     const purchase = {
       name: "purchase" as const,
       params: {
-        currency: "USD" as const,
+        currency: "EGP" as const,
         value: 48,
         transaction_id: "TX-100001",
         tax: 0,

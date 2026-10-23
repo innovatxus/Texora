@@ -31,13 +31,13 @@ const order = (over: Partial<Order> = {}): Order =>
       firstName: "Ada",
       lastName: "L",
       line1: "1 St",
-      city: "NYC",
-      region: "NY",
-      postalCode: "10012",
-      country: "US",
+      city: "Zamalek",
+      region: "C",
+      postalCode: "11211",
+      country: "EG",
     },
     delivery: { method: "standard" },
-    payments: [{ provider: "stripe", ref: "pi_1", amount: 1, status: "captured" }],
+    payments: [{ provider: "paymob", ref: "1001", amount: 1, status: "captured" }],
     ...over,
   }) as unknown as Order;
 

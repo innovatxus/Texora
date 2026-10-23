@@ -1,5 +1,6 @@
 "use client";
 
+import { CURRENCY } from "@/config/locale";
 import NextLink from "next/link";
 import { useRef, useState } from "react";
 import { Badge } from "@/components/primitives";
@@ -65,7 +66,7 @@ export function ProductCard({
     track({
       name: "add_to_cart",
       params: {
-        currency: "USD",
+        currency: CURRENCY,
         value: dollars(product.price),
         items: [listingItem(product, { variant: sku, quantity: 1 })],
       },

@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE, cityLine } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { JoinRewardsButton } from "@/components/account/JoinRewardsButton";
@@ -12,7 +13,8 @@ import { STATUS_LABELS } from "@/lib/orders/tracking";
 
 export const metadata: Metadata = { title: "Overview" };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "short",
   day: "numeric",
   year: "numeric",
@@ -86,7 +88,7 @@ export default async function Page() {
               {address.line1}
               {address.line2 ? `, ${address.line2}` : ""}
               <br />
-              {address.city}, {address.region} {address.postalCode}
+              {cityLine(address)}
             </address>
           ) : (
             <p className="text-sm text-ink-soft">Save an address to check out faster next time.</p>

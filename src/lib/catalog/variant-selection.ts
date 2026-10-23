@@ -3,6 +3,7 @@
  * availability and delivery estimates. Pure and unit tested; shared by the
  * server page and the client buy box.
  */
+import { DELIVERY_DAYS, NON_DELIVERY_DAYS, type DeliveryZone } from "@/config/locale";
 import { compareSizes } from "./sizes";
 
 export interface PdpVariant {
@@ -88,40 +89,42 @@ export function storeAvailability(
 
 // ------------------------------------------------------------- delivery
 
-/** Delivery options and their business-day ranges. */
+/** Delivery options. Day ranges depend on the zone (see DELIVERY_DAYS). */
 export const DELIVERY_METHODS = {
-  standard: { label: "Standard", minDays: 3, maxDays: 5 },
-  express: { label: "Express", minDays: 1, maxDays: 2 },
+  standard: { label: "Standard" },
+  express: { label: "Express" },
 } as const;
 export type DeliveryMethod = keyof typeof DELIVERY_METHODS;
 
 /** Orders after this hour (local) leave the warehouse the next business day. */
 export const DISPATCH_CUTOFF_HOUR = 14;
 
+const isDeliveryDay = (date: Date) => !NON_DELIVERY_DAYS.includes(date.getDay());
+
 function addBusinessDays(start: Date, days: number): Date {
   const date = new Date(start);
   let added = 0;
   while (added < days) {
     date.setDate(date.getDate() + 1);
-    const day = date.getDay();
-    if (day !== 0 && day !== 6) added += 1;
+    if (isDeliveryDay(date)) added += 1;
   }
   return date;
 }
 
-/** Earliest and latest arrival for a method, skipping weekends and honouring the dispatch cutoff. */
-export function estimateDelivery(method: DeliveryMethod, now: Date): { from: Date; to: Date } {
-  const { minDays, maxDays } = DELIVERY_METHODS[method];
+/**
+ * Earliest and latest arrival for a method and delivery zone, skipping
+ * Fridays and honouring the dispatch cutoff.
+ */
+export function estimateDelivery(
+  method: DeliveryMethod,
+  now: Date,
+  zone: DeliveryZone = "greater_cairo",
+): { from: Date; to: Date } {
+  const { minDays, maxDays } = DELIVERY_DAYS[zone][method];
   let dispatch = new Date(now);
-  const weekend = dispatch.getDay() === 0 || dispatch.getDay() === 6;
-  if (weekend || dispatch.getHours() >= DISPATCH_CUTOFF_HOUR)
+  if (!isDeliveryDay(dispatch) || dispatch.getHours() >= DISPATCH_CUTOFF_HOUR)
     dispatch = addBusinessDays(dispatch, 1);
   return { from: addBusinessDays(dispatch, minDays), to: addBusinessDays(dispatch, maxDays) };
-}
-
-/** US ZIP (5 digits or ZIP+4). Other markets join with i18n. */
-export function isValidPostcode(value: string): boolean {
-  return /^\d{5}(-\d{4})?$/.test(value.trim());
 }
 
 // ------------------------------------------------------------- reviews

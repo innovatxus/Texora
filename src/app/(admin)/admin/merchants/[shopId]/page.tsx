@@ -1,3 +1,4 @@
+import { governorateName } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
@@ -95,7 +96,7 @@ async function ShopDetail({ params }: PageProps<"/admin/merchants/[shopId]">) {
                   locations
                     .map(
                       (l) =>
-                        `${l.name} (${l.types.join(", ")}) — ${l.address.city}, ${l.address.region}`,
+                        `${l.name} (${l.types.join(", ")}) — ${l.address.city}, ${governorateName(l.address.region)}`,
                     )
                     .join("; ") || "None",
                 ],

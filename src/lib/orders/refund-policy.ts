@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/format/money";
 import type { Order } from "@/lib/validation";
 
 type RefundOrder = Pick<Order, "totals" | "refunds" | "payments" | "status">;
@@ -38,7 +39,7 @@ export function checkRefund(
     return {
       ok: false,
       code: "limit_exceeded",
-      message: `Refunds above ${(options.limit / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} per order need an admin`,
+      message: `Refunds above ${formatMoney(options.limit)} per order need an admin`,
     };
   }
   return { ok: true };
@@ -69,7 +70,7 @@ export function allocateRefund(
     left -= portion;
     return portion;
   };
-  const card = take(captured("stripe"));
+  const card = take(captured("paymob"));
   const giftCard = take(captured("gift_card"));
   const rewards = take(captured("rewards"));
   return { card, giftCard, rewards, manual: left };

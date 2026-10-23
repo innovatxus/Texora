@@ -1,3 +1,5 @@
+import { TAX_LABEL } from "@/lib/pricing/tax";
+import { LOCALE, TIME_ZONE, cityLine } from "@/config/locale";
 import { PriceDisplay } from "@/components/commerce/PriceDisplay";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { CheckIcon } from "@/components/icons";
@@ -5,7 +7,8 @@ import { formatMoney } from "@/lib/format/money";
 import { cn } from "@/lib/utils/cn";
 import type { Order } from "@/lib/validation";
 
-const dayFormat = new Intl.DateTimeFormat("en-US", {
+const dayFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "short",
   month: "short",
   day: "numeric",
@@ -46,7 +49,7 @@ export function OrderTotals({ order }: { order: Pick<Order, "totals" | "payments
       ? [["Discounts", `−${formatMoney(totals.discount)}`] as [string, string]]
       : []),
     ["Shipping", totals.shipping === 0 ? "Free" : formatMoney(totals.shipping)],
-    ["Tax", formatMoney(totals.tax)],
+    [TAX_LABEL, formatMoney(totals.tax)],
     ...(totals.giftCard > 0
       ? [["Gift card", `−${formatMoney(totals.giftCard)}`] as [string, string]]
       : []),
@@ -97,7 +100,7 @@ export function AddressBlock({
           </>
         )}
         <br />
-        {address.city}, {address.region} {address.postalCode}
+        {cityLine(address)}
       </address>
     </div>
   );

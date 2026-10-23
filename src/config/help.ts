@@ -58,15 +58,15 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Orders & delivery",
     question: "How long does delivery take?",
     answer:
-      "Standard delivery takes 3–5 business days and Express 1–2 business days. Orders placed before 2pm on a business day leave our warehouse the same day.",
+      "In Cairo and Giza, Standard delivery takes 1–3 days and Express arrives the next day. Elsewhere in Egypt, Standard takes 3–5 days and Express 2–3 days. Couriers deliver Saturday to Thursday; orders placed before 2pm leave our warehouse the same day.",
     link: { label: "Shipping information", href: "/help/shipping" },
   },
   {
     id: "shipping-cost",
     category: "Orders & delivery",
-    question: "How much does shipping cost?",
+    question: "How much does delivery cost?",
     answer:
-      "Standard shipping is $8, or free on orders over $150. Express shipping is $20. The exact amount is shown in your bag before you pay.",
+      "In Cairo and Giza, Standard delivery is EGP 60 and Express EGP 120. Elsewhere in Egypt, Standard is EGP 95 and Express EGP 180. Standard delivery is free on orders over EGP 2,500. Prices exclude 14% VAT, which is added at checkout.",
   },
   {
     id: "change-order",
@@ -88,7 +88,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Returns & refunds",
     question: "What is your return policy?",
     answer:
-      "You can return unworn items with their tags within 30 days of delivery, free of charge, by mail or in any store. Items marked final sale can't be returned.",
+      "You can return unworn items with their tags within 30 days of delivery, free of charge, by courier collection or in any store. Items marked final sale can't be returned.",
     link: { label: "Returns & exchanges", href: "/help/returns" },
   },
   {
@@ -96,7 +96,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Returns & refunds",
     question: "How do I start a return?",
     answer:
-      "Find your order, choose Start a return, pick the items and tell us why. For returns by mail you'll get a prepaid label with a QR code; for in-store returns, just bring the items and the QR code.",
+      "Find your order, choose Start a return, pick the items and tell us why. For courier collection you'll get a QR code and the courier picks the parcel up from your address; for in-store returns, just bring the items and the QR code.",
     link: { label: "Find your order", href: "/orders/lookup" },
   },
   {
@@ -118,7 +118,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Payment & gift cards",
     question: "Which payment methods do you accept?",
     answer:
-      "We accept major credit and debit cards, and pay on delivery where available. You can also use a gift card or your rewards toward any order.",
+      "We accept Visa, Mastercard and Meeza cards, mobile wallets such as Vodafone Cash, and cash on delivery. You can also use a gift card or your rewards toward any order. Card and wallet payments are processed securely by Paymob.",
   },
   {
     id: "gift-card-balance",
@@ -133,7 +133,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Payment & gift cards",
     question: "Can I send an e-gift card?",
     answer:
-      "Yes. Choose an amount from $10 to $500, add a message and pick a delivery date. We email the card to the recipient on that day and send you a receipt.",
+      "Yes. Choose an amount from EGP 250 to EGP 25,000, add a message and pick a delivery date. We email the card to the recipient on that day and send you a receipt.",
     link: { label: "Send an e-gift card", href: "/gift-cards/buy" },
   },
   {
@@ -141,7 +141,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Sizing & products",
     question: "How do I find my size?",
     answer:
-      "Each product page has a size guide with body measurements, and reviews tell you whether an item runs small, true to size or large. Petite is cut for 5'3\" and under, Tall for 5'9\" and over.",
+      "Each product page has a size guide with body measurements, and reviews tell you whether an item runs small, true to size or large. Petite is cut for 160 cm and under, Tall for 175 cm and over.",
     link: { label: "Size guides", href: "/help/size-guides" },
   },
   {
@@ -171,14 +171,14 @@ export const FAQ: readonly FaqEntry[] = [
     category: `${brand.name} Rewards`,
     question: "How do I earn points?",
     answer:
-      "Members earn 10 points for every dollar spent on merchandise. Enthusiast members (from $500 a year) earn 25% more, and Icon members (from $1,500 a year) earn 50% more.",
+      "Members earn 1 point for every EGP 1 spent on merchandise. Enthusiast members (from EGP 25,000 a year) earn 25% more, and Icon members (from EGP 75,000 a year) earn 50% more.",
   },
   {
     id: "rewards-redeem",
     category: `${brand.name} Rewards`,
     question: "How do I use my points?",
     answer:
-      "Every 500 points is worth $5 off. In your bag or at checkout, choose how much of your rewards to apply.",
+      "Every 500 points is worth EGP 50 off. In your bag or at checkout, choose how much of your rewards to apply.",
   },
   {
     id: "store-returns",
@@ -193,7 +193,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Stores",
     question: "Do you offer alterations?",
     answer:
-      "All our stores offer hemming and simple alterations, and our SoHo store also offers personal styling appointments.",
+      "All our stores offer hemming and simple alterations, and our Zamalek store also offers personal styling appointments.",
     link: { label: "Find a store", href: "/stores" },
   },
 ];
@@ -209,14 +209,15 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         heading: "Delivery options",
         list: [
-          "Standard: 3–5 business days, $8, free on orders over $150.",
-          "Express: 1–2 business days, $20.",
+          "Cairo and Giza: Standard 1–3 days, EGP 60; Express next day, EGP 120.",
+          "Other governorates: Standard 3–5 days, EGP 95; Express 2–3 days, EGP 180.",
+          "Standard delivery is free on orders over EGP 2,500. Prices exclude 14% VAT.",
         ],
       },
       {
         heading: "When your order leaves us",
         paragraphs: [
-          "Orders placed before 2pm on a business day leave our warehouse the same day. Orders placed later, or at the weekend, leave the next business day. Your delivery estimate at checkout already allows for this.",
+          "Orders placed before 2pm on a business day leave our warehouse the same day. Orders placed later, or on a Friday, leave the next business day. Your delivery estimate at checkout already allows for this.",
         ],
       },
       {
@@ -236,13 +237,13 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   {
     slug: "returns",
     title: "Returns & exchanges",
-    summary: "Free returns within 30 days, by mail or in store.",
+    summary: "Free returns within 30 days, by courier collection or in store.",
     group: "help",
     sections: [
       {
         heading: "Our policy",
         paragraphs: [
-          "Return unworn, unwashed items with their tags within 30 days of delivery for a full refund of the price you paid. Returns are free by mail and in any of our stores. Items marked final sale can't be returned.",
+          "Return unworn, unwashed items with their tags within 30 days of delivery for a full refund of the price you paid. Returns are free by courier collection and in any of our stores. Items marked final sale can't be returned.",
         ],
       },
       {
@@ -250,7 +251,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         list: [
           "Find your order and choose Start a return.",
           "Select the items, the quantity and the reason.",
-          "Choose return by mail (we give you a prepaid label and QR code) or drop off in store.",
+          "Choose courier collection (we give you a QR code and a courier collects from your address) or drop off in store.",
           "Pack the items securely and send them, or bring them to a store with your QR code.",
         ],
       },

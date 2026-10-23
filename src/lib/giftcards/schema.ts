@@ -6,8 +6,8 @@ export const giftCardPurchaseFormSchema = z.object({
   amount: z
     .number("Choose an amount")
     .int()
-    .min(GIFT_CARD_MIN, "Gift cards start at $10")
-    .max(GIFT_CARD_MAX, "Gift cards go up to $500"),
+    .min(GIFT_CARD_MIN, "Gift cards start at EGP 250")
+    .max(GIFT_CARD_MAX, "Gift cards go up to EGP 25,000"),
   recipientName: z.string().trim().min(1, "Enter the recipient's name").max(60),
   recipientEmail: z.email("Enter the recipient's email").max(254).toLowerCase(),
   senderName: z.string().trim().min(1, "Enter your name").max(60),

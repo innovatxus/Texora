@@ -4,11 +4,11 @@ const address = {
   firstName: "A",
   lastName: "B",
   line1: "1 Main",
-  city: "NYC",
-  region: "NY",
-  postalCode: "10012",
-  country: "US" as const,
-  phone: "2125550100",
+  city: "Zamalek",
+  region: "C",
+  postalCode: "11211",
+  country: "EG" as const,
+  phone: "01012345678",
 };
 
 describe("firstIncompleteStep", () => {

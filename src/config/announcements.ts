@@ -11,7 +11,7 @@ export interface Announcement {
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
     id: "free-shipping",
-    message: "Free standard shipping on orders over $150",
+    message: "Free standard delivery on orders over EGP 2,500",
     link: { label: "Details", href: "/help/shipping" },
   },
   {

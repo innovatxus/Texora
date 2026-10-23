@@ -22,6 +22,7 @@ import {
 } from "@/lib/pricing/engine";
 import { redemptionOptions } from "@/lib/pricing/rewards";
 import { taxRateFor } from "@/lib/pricing/tax";
+import { deliveryZoneFor } from "@/config/locale";
 import { ONLINE_LOCATION, type Promotion } from "@/lib/validation";
 import type { BagRequest, BagView } from "./types";
 
@@ -169,7 +170,7 @@ export async function priceBag(request: BagRequest): Promise<BagView> {
         };
   }
 
-  // Rewards: members only, in $5 steps their balance covers.
+  // Rewards: members only, in EGP 50 steps their balance covers.
   const rewardOptions = profile?.loyalty ? redemptionOptions(profile.loyalty.points) : [];
   const rewardsValue =
     request.rewardsValue && rewardOptions.includes(request.rewardsValue) ? request.rewardsValue : 0;
@@ -180,7 +181,7 @@ export async function priceBag(request: BagRequest): Promise<BagView> {
     customer,
     shipping: {
       method: request.shippingMethod,
-      rates: settings.shippingRates,
+      rates: settings.shippingRates[deliveryZoneFor(request.region)],
       freeShippingThreshold: settings.freeShippingThreshold,
     },
     taxRate: taxRateFor(request.region),
@@ -217,7 +218,7 @@ export async function priceBag(request: BagRequest): Promise<BagView> {
       : null,
     freeShippingThreshold: settings.freeShippingThreshold,
     freeShippingRemaining: pricing.freeShippingRemaining,
-    taxEstimated: !request.region,
+    taxEstimated: false,
     signedIn: customer.signedIn,
     itemCount: pricingLines.reduce((n, l) => n + l.quantity, 0),
   };

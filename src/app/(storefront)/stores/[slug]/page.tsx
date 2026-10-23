@@ -1,3 +1,4 @@
+import { cityLine, governorateName } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReturnIcon } from "@/components/icons";
@@ -88,8 +89,7 @@ export default async function Page({ params }: PageProps<"/stores/[slug]">) {
           <div>
             <h1 className="font-display text-5xl">{store.name}</h1>
             <address className="mt-4 text-lg text-ink-soft not-italic">
-              {store.address.line1}, {store.address.city}, {store.address.region}{" "}
-              {store.address.postalCode}
+              {store.address.line1}, {cityLine(store.address)}
             </address>
             <StoreOpenStatus store={store} className="mt-3" />
             <div className="mt-6 flex flex-wrap gap-4">
@@ -163,7 +163,7 @@ export default async function Page({ params }: PageProps<"/stores/[slug]">) {
                       <Link href={`/stores/${s.slug}`}>{s.name}</Link>
                       <span className="text-ink-soft">
                         {" "}
-                        · {s.address.city}, {s.address.region}
+                        · {s.address.city}, {governorateName(s.address.region)}
                       </span>
                     </li>
                   ))}

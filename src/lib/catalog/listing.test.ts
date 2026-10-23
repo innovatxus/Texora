@@ -37,7 +37,7 @@ function product(id: string, overrides: Partial<ListingProduct> = {}): ListingPr
         sizes: [],
       },
     ],
-    price: 9000,
+    price: 300_000,
     maxPrice: 9000,
     badges: [],
     ratingAvg: 4,
@@ -59,8 +59,8 @@ const catalog = [
     fitFamilies: ["regular", "petite"],
   }),
   product("b", {
-    price: 12000,
-    compareAtPrice: 16000,
+    price: 450_000,
+    compareAtPrice: 600_000,
     salesRank: 1,
     attributes: { material: ["silk"] },
     colors: [
@@ -76,13 +76,13 @@ const catalog = [
     createdAt: NOW - 5 * DAY,
   }),
   product("c", {
-    price: 30000,
+    price: 1_200_000,
     salesRank: 2,
     categoryPath: ["women", "outerwear"],
     storesInStock: ["soho"],
     sizesInStock: ["L"],
   }),
-  product("d", { price: 9000, salesRank: 4, inStockOnline: false, sizesInStock: [] }),
+  product("d", { price: 300_000, salesRank: 4, inStockOnline: false, sizesInStock: [] }),
 ];
 
 const context = {
@@ -158,10 +158,9 @@ describe("applyFilters", () => {
   });
 
   it("filters price ranges, sale, new, availability and attributes", () => {
-    expect(ids(applyFilters(catalog, { ...EMPTY_FILTERS, price: ["0-50", "250-"] }, NOW))).toEqual([
-      "a",
-      "c",
-    ]);
+    expect(
+      ids(applyFilters(catalog, { ...EMPTY_FILTERS, price: ["0-1000", "10000-"] }, NOW)),
+    ).toEqual(["a", "c"]);
     expect(ids(applyFilters(catalog, { ...EMPTY_FILTERS, sale: true }, NOW))).toEqual(["b"]);
     expect(ids(applyFilters(catalog, { ...EMPTY_FILTERS, new: true }, NOW))).toEqual(["b"]);
     expect(ids(applyFilters(catalog, { ...EMPTY_FILTERS, availability: ["soho"] }, NOW))).toEqual([

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/primitives";
-import { centsToInput, parseDollars } from "@/lib/format/money";
+import { centsToInput, parsePrice } from "@/lib/format/money";
 import { applyBulk, filterRows, type MatrixRow } from "@/lib/merchant/variants/matrix";
 import type { FitFamily } from "@/lib/validation/common";
 import { FIT_LABELS } from "@/lib/validation/common";
@@ -86,7 +86,7 @@ function Cell({
       onKeyDown={onKeyDown}
       className={`h-11 w-full min-w-0 border bg-surface px-2 text-sm tabular-nums ${
         invalid ||
-        (draft !== null && parse === "money" && parseDollars(draft) === null && draft !== "")
+        (draft !== null && parse === "money" && parsePrice(draft) === null && draft !== "")
           ? "border-sale"
           : "border-ink-subtle"
       }`}
@@ -149,7 +149,7 @@ export function VariantMatrix({
   const commit = (r: MatrixRow, column: Column, raw: string): boolean => {
     const trimmed = raw.trim();
     if (column === "price" || column === "compareAtPrice") {
-      const cents = trimmed === "" ? null : parseDollars(trimmed);
+      const cents = trimmed === "" ? null : parsePrice(trimmed);
       if (trimmed !== "" && cents === null) return false;
       patchRow(r.key, { [column]: cents });
       return true;
@@ -202,8 +202,8 @@ export function VariantMatrix({
     }
     return {
       sku: "SKU",
-      price: "Price ($)",
-      compareAtPrice: "Compare-at ($)",
+      price: "Price (EGP)",
+      compareAtPrice: "Compare-at (EGP)",
       barcode: "Barcode",
       weightGrams: "Weight (g)",
       lowStockThreshold: "Low stock at",
@@ -214,7 +214,7 @@ export function VariantMatrix({
     const keys = new Set([...selected].filter((k) => visible.some((r) => r.key === k)));
     if (keys.size === 0) return setBulkMessage("Select rows first.");
     if (patchName === "price") {
-      const cents = parseDollars(bulk.price);
+      const cents = parsePrice(bulk.price);
       if (cents === null) return setBulkMessage("Enter a price like 148.00");
       onChange(applyBulk(rows, keys, { price: cents }));
     } else if (patchName === "stock") {
@@ -292,7 +292,7 @@ export function VariantMatrix({
       className="flex flex-wrap items-end gap-3 border border-line bg-surface-muted p-3"
     >
       <label className="flex flex-col gap-1 text-sm">
-        Price ($)
+        Price (EGP)
         <input
           inputMode="decimal"
           value={bulk.price}

@@ -1,5 +1,6 @@
 "use client";
 
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import { useState, type FormEvent } from "react";
 import { Button, Input } from "@/components/primitives";
 import { formatMoney } from "@/lib/format/money";
@@ -12,7 +13,8 @@ type Balance = {
   expiresAt: string | null;
 };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",

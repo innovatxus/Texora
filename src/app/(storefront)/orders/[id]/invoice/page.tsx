@@ -1,3 +1,5 @@
+import { TAX_LABEL } from "@/lib/pricing/tax";
+import { cityLine, COUNTRY_NAME, LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
@@ -16,7 +18,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",
@@ -37,9 +40,9 @@ function Address({ title, address }: { title: string; address: Order["shippingAd
           </>
         ) : null}
         <br />
-        {address.city}, {address.region} {address.postalCode}
+        {cityLine(address)}
         <br />
-        {address.country}
+        {COUNTRY_NAME}
       </address>
     </div>
   );
@@ -55,7 +58,7 @@ async function Invoice({ params, searchParams }: PageProps<"/orders/[id]/invoice
     ["Subtotal", t.subtotal],
     ...(t.discount ? ([["Discounts", -t.discount]] as Array<[string, number]>) : []),
     ["Shipping", t.shipping],
-    ["Tax", t.tax],
+    [TAX_LABEL, t.tax],
     ...(t.giftCard ? ([["Gift card", -t.giftCard]] as Array<[string, number]>) : []),
     ...(t.rewards ? ([["Rewards", -t.rewards]] as Array<[string, number]>) : []),
   ];

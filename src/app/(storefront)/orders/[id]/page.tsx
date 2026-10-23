@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
@@ -24,12 +25,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const longDate = new Intl.DateTimeFormat("en-US", {
+const longDate = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "long",
   month: "long",
   day: "numeric",
 });
-const shortDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric" });
+const shortDate = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
+  month: "long",
+  day: "numeric",
+});
 
 async function OrderStatus({ params, searchParams }: PageProps<"/orders/[id]">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
@@ -163,7 +169,8 @@ async function OrderStatus({ params, searchParams }: PageProps<"/orders/[id]">) 
             {eligibility.eligible ? (
               <>
                 <p className="mt-3 text-ink-soft">
-                  Free returns until {longDate.format(eligibility.deadline)}, by mail or in store.
+                  Free returns until {longDate.format(eligibility.deadline)}, by courier collection
+                  or in store.
                 </p>
                 <ButtonLink
                   href={`/orders/${order.id}/return?${signed}`}

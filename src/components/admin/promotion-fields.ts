@@ -40,7 +40,7 @@ export function promotionFields(p?: Promotion): ActionField[] {
       step: "0.01",
       required: true,
       defaultValue: p ? String(p.type === "fixed" ? p.value / 100 : p.value) : "0",
-      hint: "Percent for percentage off, dollars for amount off. Ignored for BOGO and free shipping.",
+      hint: "Percent for percentage off, EGP for amount off. Ignored for BOGO and free shipping.",
     },
     {
       name: "tiers",
@@ -51,7 +51,7 @@ export function promotionFields(p?: Promotion): ActionField[] {
     },
     {
       name: "minSubtotal",
-      label: "Minimum spend ($)",
+      label: "Minimum spend (EGP)",
       type: "number",
       step: "0.01",
       defaultValue: p?.conditions.minSubtotal ? String(p.conditions.minSubtotal / 100) : "",

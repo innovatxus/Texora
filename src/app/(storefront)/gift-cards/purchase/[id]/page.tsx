@@ -1,3 +1,4 @@
+import { LOCALE } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -16,10 +17,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const longDate = new Intl.DateTimeFormat("en-US", {
+const longDate = new Intl.DateTimeFormat(LOCALE, {
   month: "long",
   day: "numeric",
   year: "numeric",
+  // A calendar day (YYYY-MM-DD at noon UTC), so UTC shows the same date.
   timeZone: "UTC",
 });
 const formatDay = (yyyyMmDd: string) => longDate.format(new Date(`${yyyyMmDd}T12:00:00Z`));
@@ -44,11 +46,7 @@ async function Purchase({ params, searchParams }: PageProps<"/gift-cards/purchas
             {formatMoney(purchase.amount)} e-gift card for {purchase.recipientName}.
           </p>
           <div className="mt-8">
-            <PendingCardPayment
-              orderId={purchase.id}
-              amount={purchase.amount}
-              returnUrl={returnUrl.toString()}
-            />
+            <PendingCardPayment orderId={purchase.id} amount={purchase.amount} />
           </div>
         </>
       ) : purchase.status === "cancelled" ? (

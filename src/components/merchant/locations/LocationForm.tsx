@@ -5,7 +5,8 @@ import { ErrorSummary, FormMessage } from "@/components/merchant/forms/ErrorSumm
 import { Button, Checkbox, Input, Select } from "@/components/primitives";
 import { LOCATION_TYPES } from "@/config/merchant";
 import { saveLocationAction } from "@/lib/merchant/actions/shop";
-import { US_STATES, US_TIMEZONES, usState } from "@/lib/merchant/geo";
+import { TIME_ZONE } from "@/config/locale";
+import { GOVERNORATE_OPTIONS } from "@/lib/merchant/geo";
 import type { LocationType } from "@/config/merchant";
 import type { MerchantLocation, SpecialHours, WeeklyHours } from "@/lib/validation/merchant";
 import { HoursEditor } from "./HoursEditor";
@@ -23,8 +24,8 @@ const FIELD_IDS: Record<string, string> = {
 
 /**
  * Add or edit one location: name, type (retail store and/or ship-from; no
- * pickup, D-071), US address, timezone (suggested from the state), weekly
- * hours, special dates and phone.
+ * pickup, D-071), Egyptian address (governorate; postal code optional),
+ * weekly hours, special dates and phone. Egypt has one time zone.
  */
 export function LocationForm({
   shopId,
@@ -46,15 +47,12 @@ export function LocationForm({
     region: location?.address.region ?? "",
     postalCode: location?.address.postalCode ?? "",
   });
-  const [timezone, setTimezone] = useState(location?.timezone ?? "");
   const [hours, setHours] = useState<WeeklyHours>(location?.hours ?? []);
   const [special, setSpecial] = useState<SpecialHours[]>(location?.specialHours ?? []);
   const [phone, setPhone] = useState(location?.phone ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-
-  const suggestedZone = usState(address.region)?.timezone ?? "";
 
   const toggleType = (type: LocationType, checked: boolean) =>
     setTypes((current) =>
@@ -65,17 +63,16 @@ export function LocationForm({
     event.preventDefault();
     setPending(true);
     setFormError(null);
-    const digits = phone.replace(/[^\d+]/g, "");
     const result = await saveLocationAction({
       shopId,
       ...(location ? { locationId: location.id } : {}),
       name,
       types,
       address: { ...address, ...(address.line2.trim() ? {} : { line2: undefined }) },
-      timezone: timezone || suggestedZone,
+      timezone: location?.timezone ?? TIME_ZONE,
       hours,
       specialHours: special,
-      phone: digits ? (digits.startsWith("+") ? digits : `+1${digits}`) : "",
+      phone: phone.trim(),
     });
     setPending(false);
     if (!result.ok) {
@@ -112,7 +109,7 @@ export function LocationForm({
         id="loc-name"
         label="Location name"
         required
-        hint='For example, "SoHo studio" or "Warehouse".'
+        hint='For example, "Zamalek studio" or "Warehouse".'
         value={name}
         onChange={(e) => setName(e.target.value)}
         error={errors.name}
@@ -162,32 +159,23 @@ export function LocationForm({
         />
         <Select
           id="loc-region"
-          label="State"
+          label="Governorate"
           required
-          placeholder="Choose a state"
+          placeholder="Choose a governorate"
           autoComplete="address-level1"
-          options={US_STATES.map((s) => ({ value: s.code, label: s.name }))}
+          options={GOVERNORATE_OPTIONS}
           value={address.region}
           onChange={(e) => setAddress((a) => ({ ...a, region: e.target.value }))}
           error={errors["address.region"]}
         />
         <Input
           id="loc-zip"
-          label="ZIP code"
+          label="Postal code (optional)"
           autoComplete="postal-code"
           inputMode="numeric"
-          required
           value={address.postalCode}
           onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
           error={errors["address.postalCode"]}
-        />
-        <Select
-          id="loc-timezone"
-          label="Timezone"
-          hint={suggestedZone && !timezone ? "Suggested from the state." : undefined}
-          options={US_TIMEZONES}
-          value={timezone || suggestedZone || "America/New_York"}
-          onChange={(e) => setTimezone(e.target.value)}
         />
       </fieldset>
 
@@ -271,6 +259,7 @@ export function LocationForm({
         id="loc-phone"
         label="Phone (optional)"
         type="tel"
+        hint="For example, 010 1234 5678 or 02 2735 0000."
         autoComplete="tel"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}

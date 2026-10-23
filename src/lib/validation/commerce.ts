@@ -108,7 +108,7 @@ export const orderSchema = z.object({
   promoCodes: z.array(z.string()),
   payments: z.array(
     z.object({
-      provider: z.enum(["stripe", "cod", "gift_card", "rewards"]),
+      provider: z.enum(["paymob", "cod", "gift_card", "rewards"]),
       ref: z.string(),
       amount: moneySchema,
       status: z.enum(["pending", "authorized", "captured", "failed", "refunded"]),
@@ -366,11 +366,18 @@ export const auditLogSchema = z.object({
 });
 export type AuditLog = z.infer<typeof auditLogSchema>;
 
-/** Store-wide settings: shipping, refunds, reservations, loyalty and features. */
+const deliveryRatesSchema = z.object({ standard: moneySchema, express: moneySchema });
+
+/** Store-wide settings: delivery, refunds, reservations, loyalty and features. */
 export const storeSettingsSchema = z.object({
   currency: currencySchema,
+  /** Standard delivery is free from this order value (goods after discounts). */
   freeShippingThreshold: moneySchema,
-  shippingRates: z.object({ standard: moneySchema, express: moneySchema }),
+  /** Delivery prices per zone: Greater Cairo (Cairo, Giza) and the rest of Egypt. */
+  shippingRates: z.object({
+    greater_cairo: deliveryRatesSchema,
+    rest_of_egypt: deliveryRatesSchema,
+  }),
   /** Max refund a customer_service agent may issue per order without admin. */
   refundLimits: z.object({ customer_service: moneySchema }),
   reservationMinutes: z.number().int().min(1).max(120),

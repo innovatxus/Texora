@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { listReturnsForUser } from "@/lib/account/account-service";
@@ -7,7 +8,8 @@ import { RETURN_STATUS_LABELS } from "@/lib/returns/policy";
 
 export const metadata: Metadata = { title: "Returns" };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",

@@ -1,11 +1,14 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 /** Shared date formatters for the back office and merchant portal. */
-const dateTime = new Intl.DateTimeFormat("en-US", {
+const dateTime = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "short",
   day: "numeric",
   hour: "numeric",
   minute: "2-digit",
 });
-const dateOnly = new Intl.DateTimeFormat("en-US", {
+const dateOnly = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "short",
   day: "numeric",
   year: "numeric",

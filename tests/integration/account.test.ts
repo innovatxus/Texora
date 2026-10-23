@@ -140,12 +140,12 @@ describe("account data", () => {
     const base = {
       firstName: "Grace",
       lastName: "Hopper",
-      line1: "1 Navy Yard",
-      city: "Arlington",
-      region: "VA",
-      postalCode: "22201",
-      country: "US",
-      phone: "7035550100",
+      line1: "5 Mesaha Square",
+      city: "Dokki",
+      region: "GZ",
+      postalCode: "12311",
+      country: "EG",
+      phone: "01112345678",
     };
     const first = await account.saveAddress(uid, { ...base, label: "Home" });
     const second = await account.saveAddress(uid, {

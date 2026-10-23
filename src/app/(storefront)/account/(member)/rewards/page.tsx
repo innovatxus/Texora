@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import { JoinRewardsButton } from "@/components/account/JoinRewardsButton";
 import { RewardsSummary } from "@/components/account/RewardsSummary";
@@ -11,7 +12,8 @@ import { LOYALTY_TIERS } from "@/lib/validation/customer";
 
 export const metadata: Metadata = { title: "Rewards" };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "short",
   day: "numeric",
   year: "numeric",
@@ -90,10 +92,10 @@ export default async function Page() {
         </h2>
         <ul className="flex max-w-prose list-disc flex-col gap-2 pl-5 text-ink-soft">
           <li>
-            Earn {pointsPerCurrencyUnit} points for every $1 you spend, credited when your order is
-            delivered.
+            Earn {pointsPerCurrencyUnit} points for every EGP 1 you spend, credited when your order
+            is delivered.
           </li>
-          <li>Spend points at checkout in $5 steps: 500 points take $5 off.</li>
+          <li>Spend points at checkout in EGP 50 steps: 500 points take EGP 50 off.</li>
           <li>
             Spend {formatMoney(tierThresholds.enthusiast)} in a year to reach{" "}
             {TIER_NAMES.enthusiast}, or {formatMoney(tierThresholds.icon)} for {TIER_NAMES.icon}.

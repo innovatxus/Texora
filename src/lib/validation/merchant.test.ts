@@ -87,8 +87,10 @@ describe("contact fields", () => {
   });
 
   it("requires E.164 phones and https websites", () => {
+    expect(e164PhoneSchema.parse("010 1234 5678")).toBe("+201012345678");
+    expect(e164PhoneSchema.parse("02 2735 0000")).toBe("+20227350000");
     expect(e164PhoneSchema.safeParse("+12125550123").success).toBe(true);
-    expect(e164PhoneSchema.safeParse("212-555-0123").success).toBe(false);
+    expect(e164PhoneSchema.safeParse("12").success).toBe(false);
     expect(websiteSchema.safeParse("https://maisonrue.com").success).toBe(true);
     expect(websiteSchema.safeParse("http://maisonrue.com").success).toBe(false);
     expect(websiteSchema.safeParse("javascript:alert(1)").success).toBe(false);

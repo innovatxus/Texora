@@ -1,10 +1,11 @@
 "use client";
 
+import { LOCALE } from "@/config/locale";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatMoney } from "@/lib/format/money";
 
 const shortDate = (iso: string) =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALE, {
     month: "short",
     day: "numeric",
     timeZone: "UTC",
@@ -38,7 +39,7 @@ export function RevenueChart({
               axisLine={{ stroke: "var(--color-line)" }}
             />
             <YAxis
-              tickFormatter={(v: number) => `$${Math.round(v / 100).toLocaleString("en-US")}`}
+              tickFormatter={(v: number) => `$${Math.round(v / 100).toLocaleString(LOCALE)}`}
               tick={{ fontSize: 11, fill: "var(--color-ink-subtle)" }}
               tickLine={false}
               axisLine={false}

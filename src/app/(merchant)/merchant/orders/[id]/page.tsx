@@ -1,3 +1,4 @@
+import { cityLine } from "@/config/locale";
 import type { Metadata } from "next";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -88,7 +89,7 @@ export default async function Page({ params }: PageProps<"/merchant/orders/[id]"
                 </>
               ) : null}
               <br />
-              {a.city}, {a.region} {a.postalCode}
+              {cityLine(a)}
               <br />
               {a.country}
             </address>

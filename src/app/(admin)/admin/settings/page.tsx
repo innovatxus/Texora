@@ -1,3 +1,4 @@
+import { governorateName } from "@/config/locale";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ActionForm } from "@/components/admin/ActionForm";
@@ -28,7 +29,7 @@ async function Settings() {
         description={`Store-wide rules. Last changed ${formatDateTime(settings.updatedAt)}.`}
       />
       {canWrite ? (
-        <Panel title="Shipping, refunds, rewards and features">
+        <Panel title="Delivery, refunds, rewards and features">
           <ActionForm
             action={updateSettingsAction}
             submitLabel="Save settings"
@@ -38,24 +39,40 @@ async function Settings() {
             className="grid gap-4 md:grid-cols-3"
             fields={[
               {
-                name: "standardRate",
-                label: "Standard shipping ($)",
+                name: "cairoStandardRate",
+                label: "Standard delivery, Cairo and Giza (EGP)",
                 type: "number",
                 step: "0.01",
                 required: true,
-                defaultValue: dollars(settings.shippingRates.standard),
+                defaultValue: dollars(settings.shippingRates.greater_cairo.standard),
               },
               {
-                name: "expressRate",
-                label: "Express shipping ($)",
+                name: "cairoExpressRate",
+                label: "Express delivery, Cairo and Giza (EGP)",
                 type: "number",
                 step: "0.01",
                 required: true,
-                defaultValue: dollars(settings.shippingRates.express),
+                defaultValue: dollars(settings.shippingRates.greater_cairo.express),
+              },
+              {
+                name: "restStandardRate",
+                label: "Standard delivery, Other governorates (EGP)",
+                type: "number",
+                step: "0.01",
+                required: true,
+                defaultValue: dollars(settings.shippingRates.rest_of_egypt.standard),
+              },
+              {
+                name: "restExpressRate",
+                label: "Express delivery, Other governorates (EGP)",
+                type: "number",
+                step: "0.01",
+                required: true,
+                defaultValue: dollars(settings.shippingRates.rest_of_egypt.express),
               },
               {
                 name: "freeShippingThreshold",
-                label: "Free standard shipping from ($)",
+                label: "Free standard delivery from (EGP)",
                 type: "number",
                 step: "0.01",
                 required: true,
@@ -63,7 +80,7 @@ async function Settings() {
               },
               {
                 name: "refundLimit",
-                label: "Customer service refund limit per order ($)",
+                label: "Customer service refund limit per order (EGP)",
                 type: "number",
                 step: "0.01",
                 required: true,
@@ -79,7 +96,7 @@ async function Settings() {
               },
               {
                 name: "pointsPerDollar",
-                label: "Reward points per dollar",
+                label: "Reward points per EGP 1",
                 type: "number",
                 required: true,
                 defaultValue: String(settings.loyalty.pointsPerCurrencyUnit),
@@ -138,14 +155,20 @@ async function Settings() {
         <Panel title="Store settings">
           <DetailList
             items={[
-              ["Standard shipping", formatMoney(settings.shippingRates.standard)],
-              ["Express shipping", formatMoney(settings.shippingRates.express)],
-              ["Free shipping from", formatMoney(settings.freeShippingThreshold)],
+              [
+                "Delivery, Cairo and Giza",
+                `${formatMoney(settings.shippingRates.greater_cairo.standard)} standard · ${formatMoney(settings.shippingRates.greater_cairo.express)} express`,
+              ],
+              [
+                "Delivery, other governorates",
+                `${formatMoney(settings.shippingRates.rest_of_egypt.standard)} standard · ${formatMoney(settings.shippingRates.rest_of_egypt.express)} express`,
+              ],
+              ["Free standard delivery from", formatMoney(settings.freeShippingThreshold)],
               [
                 "Refund limit (customer service)",
                 formatMoney(settings.refundLimits.customer_service),
               ],
-              ["Points per dollar", settings.loyalty.pointsPerCurrencyUnit],
+              ["Points per EGP 1", settings.loyalty.pointsPerCurrencyUnit],
               ["Pay on delivery", settings.features.cashOnDelivery ? "On" : "Off"],
             ]}
           />
@@ -156,7 +179,7 @@ async function Settings() {
         {stores.map((store) => (
           <Panel key={store.id} title={store.name}>
             <p className="mb-3 text-ink-soft">
-              {store.address.line1}, {store.address.city}, {store.address.region}
+              {store.address.line1}, {store.address.city}, {governorateName(store.address.region)}
             </p>
             {canWrite ? (
               <ActionForm

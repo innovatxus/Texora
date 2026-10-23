@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import "server-only";
 import { randomInt } from "node:crypto";
 import { createElement } from "react";
@@ -26,7 +27,8 @@ export interface ReturnRequest {
   refundTo: "original" | "store_credit";
 }
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",

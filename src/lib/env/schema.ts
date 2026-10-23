@@ -17,8 +17,6 @@ export const clientEnvSchema = z
     /** Automated tests only (tests/emulator.env), and only with a demo- project. */
     NEXT_PUBLIC_USE_FIREBASE_EMULATORS: z.stringbool().default(false),
     NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: z.string().min(1).default("127.0.0.1"),
-    /** Enables card payments (Stripe Elements). Omit to offer only Cash on Delivery. */
-    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_").optional(),
   })
   .refine(
     (env) =>
@@ -39,6 +37,10 @@ const serviceAccountSchema = z.object({
 });
 
 export type ServiceAccount = z.infer<typeof serviceAccountSchema>;
+
+/** Optional settings where an empty `KEY=` line means "not set". */
+const blankIsUnset = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((value) => (value === "" ? undefined : value), schema.optional());
 
 /** Server-only environment variables; some are required in production. */
 export const serverEnvSchema = z
@@ -73,8 +75,22 @@ export const serverEnvSchema = z
     ENABLE_STYLEGUIDE: z.stringbool().default(false),
     /** Signs guest order-confirmation links. At least 32 random characters. */
     ORDER_TOKEN_SECRET: z.string().min(32),
-    STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
-    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+    /**
+     * Card and wallet payments through Paymob (Egypt). Omit the secret key to
+     * offer only Cash on Delivery. Blank values count as unset.
+     */
+    PAYMOB_SECRET_KEY: blankIsUnset(z.string().min(16)),
+    PAYMOB_PUBLIC_KEY: blankIsUnset(z.string().min(16)),
+    /** Verifies the HMAC on Paymob's transaction callbacks. */
+    PAYMOB_HMAC_SECRET: blankIsUnset(z.string().min(16)),
+    /** Payment integration ids to offer (card, mobile wallet…), comma separated. */
+    PAYMOB_INTEGRATION_IDS: blankIsUnset(
+      z
+        .string()
+        .regex(/^\d+(\s*,\s*\d+)*$/, "Comma-separated Paymob integration ids, e.g. 123456,234567")
+        .transform((v) => v.split(",").map((id) => Number(id.trim()))),
+    ),
+    PAYMOB_API_BASE: z.url().default("https://accept.paymob.com"),
     /** Transactional email via Resend; without it, mail goes to the Firestore outbox (dev only). */
     RESEND_API_KEY: z.string().startsWith("re_").optional(),
     EMAIL_FROM: z.string().min(3).default("Texora <orders@texora.test>"),
@@ -116,12 +132,20 @@ export const serverEnvSchema = z
           "RESEND_API_KEY is required in production when emulators are off (or set STAGING=true for a test deployment)",
       });
     }
-    if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["STRIPE_WEBHOOK_SECRET"],
-        message: "STRIPE_WEBHOOK_SECRET is required when Stripe is enabled",
-      });
+    if (env.PAYMOB_SECRET_KEY) {
+      for (const key of [
+        "PAYMOB_PUBLIC_KEY",
+        "PAYMOB_HMAC_SECRET",
+        "PAYMOB_INTEGRATION_IDS",
+      ] as const) {
+        if (!env[key]) {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            message: `${key} is required when PAYMOB_SECRET_KEY is set`,
+          });
+        }
+      }
     }
     if (env.NODE_ENV === "production" && !env.FIREBASE_SERVICE_ACCOUNT) {
       ctx.addIssue({

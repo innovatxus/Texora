@@ -45,6 +45,7 @@ import {
   STORES,
   type CategoryDefinition,
 } from "../../../scripts/store/catalog-definitions";
+import { CURRENCY } from "../../../src/config/locale";
 import { taxRateFor } from "../../../src/lib/pricing/tax";
 import { generateMerchantSeed, type MerchantSeed } from "./merchants";
 import { buildPages } from "../../../scripts/store/pages";
@@ -93,9 +94,9 @@ const slugify = (s: string) =>
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-const cents = (dollars: number) => Math.round(dollars * 100);
-/** Prices end in .00 for a considered, non-discount look. */
-const roundPrice = (dollars: number) => Math.max(18, Math.round(dollars / 2) * 2);
+const cents = (pounds: number) => Math.round(pounds * 100);
+/** Whole prices in EGP 50 steps for a considered, non-discount look. */
+const roundPrice = (pounds: number) => Math.max(450, Math.round(pounds / 50) * 50);
 
 // --------------------------------------------------------------- output
 
@@ -189,7 +190,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
         close: day === 0 ? "18:00" : day === 5 || day === 6 ? "21:00" : "20:00",
       })),
       services:
-        s.id === "soho" ? ["returns", "alterations", "styling"] : ["returns", "alterations"],
+        s.id === "zamalek" ? ["returns", "alterations", "styling"] : ["returns", "alterations"],
       status: "open",
     }),
   );
@@ -394,7 +395,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
             loyalty: {
               tier: "enthusiast",
               points: 2350,
-              periodSpend: cents(640),
+              periodSpend: cents(32_000),
               memberSince: ago(400),
             },
           }
@@ -426,7 +427,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
               loyalty: {
                 tier: pick(rng, ["core", "core", "enthusiast", "icon"] as const),
                 points: int(rng, 0, 6000),
-                periodSpend: cents(int(rng, 0, 1500)),
+                periodSpend: cents(int(rng, 0, 40_000)),
                 memberSince: ago(int(rng, 30, 900)),
               },
             }
@@ -521,8 +522,8 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
       type: "tiered",
       value: 0,
       tiers: [
-        { minSubtotal: cents(200), value: cents(25) },
-        { minSubtotal: cents(350), value: cents(60) },
+        { minSubtotal: cents(5_000), value: cents(600) },
+        { minSubtotal: cents(9_000), value: cents(1_500) },
       ],
       conditions: {},
       automatic: false,
@@ -556,7 +557,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
       active: true,
     },
     {
-      code: "SPEND200",
+      code: "SPEND5000",
       promotionId: "spend-and-save",
       usageLimit: 5000,
       usedCount: 312,
@@ -570,9 +571,9 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
     giftCardSchema.parse({
       id: createHash("sha256").update(demoGiftCardCode).digest("hex"),
       last4: demoGiftCardCode.slice(-4),
-      currency: "USD",
-      initialBalance: cents(100),
-      balance: cents(100),
+      currency: CURRENCY,
+      initialBalance: cents(2_500),
+      balance: cents(2_500),
       status: "active",
       createdAt: ago(10),
     }),
@@ -616,12 +617,12 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
   const demoAddress = {
     firstName: "Ada",
     lastName: "Lovelace",
-    line1: "118 Greene Street",
-    city: "New York",
-    region: "NY",
-    postalCode: "10012",
-    country: "US",
-    phone: "212 555 0100",
+    line1: "12 Brazil Street",
+    city: "Zamalek",
+    region: "C",
+    postalCode: "11211",
+    country: "EG",
+    phone: "+201012345678",
   };
   let orderNumber = 100_000;
   const makeOrder = (spec: {
@@ -636,8 +637,8 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
   }): Order => {
     orderNumber += 1;
     const subtotal = spec.lines.reduce((sum, l) => sum + l.lineTotal, 0);
-    const shipping = subtotal >= cents(150) ? 0 : cents(8);
-    const tax = Math.round(subtotal * taxRateFor(demoAddress.region));
+    const shipping = subtotal >= cents(2_500) ? 0 : cents(60);
+    const tax = Math.round((subtotal + shipping) * taxRateFor(demoAddress.region));
     const total = subtotal + shipping + tax;
     const placedAt = ago(spec.placedDaysAgo);
     const shipped = spec.shippedDaysAgo !== undefined;
@@ -656,7 +657,7 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
       userId: spec.userId,
       email: spec.email,
       status: spec.status,
-      currency: "USD",
+      currency: CURRENCY,
       lines: spec.lines,
       totals: { subtotal, discount: 0, shipping, tax, giftCard: 0, rewards: 0, total },
       shippingAddress: demoAddress,
@@ -675,8 +676,8 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
         ? [
             {
               id: `${spec.id}-s1`,
-              carrier: "UPS Ground",
-              trackingNumber: `1Z999AA1${String(orderNumber).padStart(10, "0")}`,
+              carrier: "Bosta",
+              trackingNumber: `BST${String(orderNumber).padStart(10, "0")}`,
               skus: spec.lines.map((l) => l.sku),
               status: delivered ? "delivered" : "in_transit",
               shippedAt: ago(spec.shippedDaysAgo ?? 0),

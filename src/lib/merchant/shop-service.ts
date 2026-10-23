@@ -27,7 +27,8 @@ import {
   type ShopBrandingInput,
   type ShopContactInput,
 } from "@/lib/validation/merchant";
-import { geocodeByState, zipMatchesState } from "./geo";
+import { COUNTRY, TIME_ZONE } from "@/config/locale";
+import { geocodeByGovernorate } from "./geo";
 import { attachMedia, orphanMedia, requireOwnedMedia } from "./media/media-service";
 import { nextStep, shipFromCount, shopBlockers } from "./onboarding";
 import { syncShopProducts } from "./publishing/publish";
@@ -298,21 +299,14 @@ export async function saveShopContact(
 
 // ---------------------------------------------------------------- step 4: locations
 
-/** Adds or edits a location: validates the ZIP against the state and fills position and timezone. */
+/** Adds or edits a location, filling an approximate position from the governorate. */
 export async function saveLocation(
   actor: MerchantActor,
   input: LocationInput,
   now: Date = new Date(),
 ): Promise<MerchantLocation> {
   const shop = await editableShop(actor, input.shopId);
-  if (!zipMatchesState(input.address.postalCode, input.address.region)) {
-    throw new ActionError(
-      "conflict",
-      "We couldn't find that address. Check the ZIP code and state.",
-      "address.postalCode",
-    );
-  }
-  const geocoded = geocodeByState(input.address.region);
+  const geocoded = geocodeByGovernorate(input.address.region);
   const all = await listLocations(shop.id, { includeArchived: true });
   const existing = input.locationId ? all.find((l) => l.id === input.locationId) : undefined;
   if (input.locationId && !existing)
@@ -340,9 +334,13 @@ export async function saveLocation(
     vendorId: actor.vendorId,
     name: input.name,
     types: input.types,
-    address: { ...input.address, country: "US" },
+    address: {
+      ...input.address,
+      ...(input.address.postalCode ? {} : { postalCode: undefined }),
+      country: COUNTRY,
+    },
     ...(geocoded?.geo ? { geo: geocoded.geo } : {}),
-    timezone: input.timezone || geocoded?.timezone || "America/New_York",
+    timezone: input.timezone || geocoded?.timezone || TIME_ZONE,
     hours: [...input.hours].sort((a, b) => a.day - b.day || a.open.localeCompare(b.open)),
     specialHours: [...input.specialHours].sort((a, b) => a.date.localeCompare(b.date)),
     ...(input.phone ? { phone: input.phone } : {}),

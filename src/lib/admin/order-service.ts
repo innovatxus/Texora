@@ -1,3 +1,4 @@
+import { CURRENCY } from "@/config/locale";
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { FieldPath, FieldValue } from "firebase-admin/firestore";
@@ -10,7 +11,7 @@ import { parseSnapshot } from "@/lib/data/firestore";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { applyLoyaltyChange } from "@/lib/loyalty/tiers";
 import { allocateRefund, checkRefund, statusAfterRefund } from "@/lib/orders/refund-policy";
-import { cardPaymentsEnabled, stripeProvider } from "@/lib/payments/provider";
+import { cardPaymentsEnabled, paymobProvider } from "@/lib/payments/provider";
 import { pointsFor } from "@/lib/pricing/rewards";
 import { ONLINE_LOCATION, orderSchema, type Order } from "@/lib/validation";
 import { invalidate } from "./revalidate";
@@ -60,11 +61,13 @@ export async function refundOrder(
     : allocateRefund(order, amount);
   let cardRef: string | null = null;
   if (split.card > 0) {
-    const intent = order.payments.find((p) => p.provider === "stripe" && p.status !== "failed");
+    const intent = order.payments.find(
+      (p) => p.provider === "paymob" && p.status !== "failed" && p.status !== "pending",
+    );
     if (!intent || !cardPaymentsEnabled()) {
       throw new ActionError("conflict", "Card refunds are unavailable right now");
     }
-    cardRef = (await stripeProvider.refund({ ref: intent.ref, amount: split.card })).ref;
+    cardRef = (await paymobProvider.refund({ ref: intent.ref, amount: split.card })).ref;
   }
 
   const now = new Date();
@@ -160,7 +163,7 @@ export async function refundOrder(
   // Refunds happen in the back office, so the analytics event is server-side (no personal data).
   logger.info("analytics.refund", {
     transaction_id: order.number,
-    currency: "USD",
+    currency: CURRENCY,
     value: amount / 100,
   });
   return { refundId, manual: split.manual };

@@ -5,61 +5,8 @@ import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { Button, Input, Select } from "@/components/primitives";
+import { COUNTRY, GOVERNORATES } from "@/config/locale";
 import { checkoutAddressSchema, type CheckoutAddress } from "@/lib/orders/checkout-schema";
-
-const STATES = [
-  "AL",
-  "AK",
-  "AZ",
-  "AR",
-  "CA",
-  "CO",
-  "CT",
-  "DE",
-  "DC",
-  "FL",
-  "GA",
-  "HI",
-  "ID",
-  "IL",
-  "IN",
-  "IA",
-  "KS",
-  "KY",
-  "LA",
-  "ME",
-  "MD",
-  "MA",
-  "MI",
-  "MN",
-  "MS",
-  "MO",
-  "MT",
-  "NE",
-  "NV",
-  "NH",
-  "NJ",
-  "NM",
-  "NY",
-  "NC",
-  "ND",
-  "OH",
-  "OK",
-  "OR",
-  "PA",
-  "RI",
-  "SC",
-  "SD",
-  "TN",
-  "TX",
-  "UT",
-  "VT",
-  "VA",
-  "WA",
-  "WV",
-  "WI",
-  "WY",
-];
 
 type AddressInput = z.input<typeof checkoutAddressSchema>;
 
@@ -93,7 +40,7 @@ export function AddressForm({
     formState: { errors, isSubmitting },
   } = useForm<AddressInput, unknown, CheckoutAddress>({
     resolver: zodResolver(checkoutAddressSchema),
-    defaultValues: { country: "US", region: "", ...defaultValues },
+    defaultValues: { country: COUNTRY, region: "", ...defaultValues },
     mode: "onBlur",
   });
   const autofill = section === "account" ? "shipping" : section;
@@ -145,20 +92,19 @@ export function AddressForm({
       <div className="grid grid-cols-2 gap-5">
         <Select
           id={`${section}-region`}
-          label="State"
+          label="Governorate"
           autoComplete={ac("address-level1")}
           required
-          placeholder="State"
-          options={STATES.map((s) => ({ value: s, label: s }))}
+          placeholder="Governorate"
+          options={GOVERNORATES.map((g) => ({ value: g.code, label: g.name }))}
           error={errors.region?.message}
           {...register("region")}
         />
         <Input
           id={`${section}-zip`}
-          label="ZIP code"
+          label="Postal code (optional)"
           inputMode="numeric"
           autoComplete={ac("postal-code")}
-          required
           error={errors.postalCode?.message}
           {...register("postalCode")}
         />
@@ -169,12 +115,12 @@ export function AddressForm({
         type="tel"
         autoComplete={ac("tel")}
         required
-        hint="For delivery updates only."
+        hint="Egyptian mobile, e.g. 010 1234 5678. For delivery updates only."
         error={errors.phone?.message}
         className="sm:col-span-2"
         {...register("phone")}
       />
-      <input type="hidden" value="US" {...register("country")} />
+      <input type="hidden" value={COUNTRY} {...register("country")} />
       {children && <div className="flex flex-col gap-4 sm:col-span-2">{children}</div>}
       <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
         <Button type="submit" size="lg" loading={isSubmitting}>

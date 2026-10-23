@@ -1,31 +1,12 @@
 import NextLink from "next/link";
 import { cacheLife } from "next/cache";
+import { PaymentMarks } from "@/components/commerce/PaymentMarks";
 import { NewsletterForm } from "@/components/marketing/NewsletterForm";
 import { Link } from "@/components/primitives";
 import { brand } from "@/config/brand";
 import { FOOTER_COLUMNS, LEGAL_LINKS, SOCIAL_LINKS } from "@/config/navigation";
 import { CookieSettingsButton, CountrySelector } from "./FooterControls";
 import { Logo } from "./Logo";
-
-/** Generic, self-drawn payment glyphs (no card-network marks). */
-const PAYMENT_METHODS = [
-  {
-    label: "Credit and debit cards",
-    path: "M3 6.5h18v11H3z M3 10h18 M6 14.5h4",
-  },
-  {
-    label: "Digital wallets",
-    path: "M8 3.5h8a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 19V5A1.5 1.5 0 0 1 8 3.5z M10.5 17.5h3",
-  },
-  {
-    label: "Gift cards",
-    path: "M3 8.5h18v11H3z M3 12h18 M12 8.5v11 M12 8.5c-1.5-3-5-3-5-1s3.5 1 5 1c1.5 0 5 1 5-1s-3.5-2-5 1",
-  },
-  {
-    label: "Pay on delivery",
-    path: "M3 7h18v10H3z M12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M6 10v4 M18 10v4",
-  },
-] as const;
 
 /** Cached so the static shell can prerender; refreshed daily. */
 async function CopyrightYear() {
@@ -83,29 +64,7 @@ export function Footer() {
               ))}
             </ul>
           </div>
-          <ul
-            aria-label="Payment methods we accept"
-            className="flex items-center gap-4 text-ink-soft"
-          >
-            {PAYMENT_METHODS.map((method) => (
-              <li key={method.label} title={method.label}>
-                <svg
-                  viewBox="0 0 24 24"
-                  width={28}
-                  height={28}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.25}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  role="img"
-                  aria-label={method.label}
-                >
-                  <path d={method.path} />
-                </svg>
-              </li>
-            ))}
-          </ul>
+          <PaymentMarks />
         </div>
         <div className="container-page flex flex-col gap-3 pb-8 text-xs text-ink-subtle sm:flex-row sm:items-center sm:justify-between">
           <p>

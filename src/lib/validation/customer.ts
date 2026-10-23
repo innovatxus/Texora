@@ -44,8 +44,6 @@ export const userSchema = z.object({
   /** Preferred size per size type, used to pre-select on the PDP. */
   savedSizes: z.partialRecord(sizeTypeSchema, z.string().max(16)),
   vendorId: idSchema.optional(),
-  /** Stripe customer for saved cards (cards themselves stay with Stripe). */
-  stripeCustomerId: z.string().max(64).optional(),
   disabled: z.boolean(),
   createdAt: timestampSchema,
   updatedAt: timestampSchema,
@@ -65,19 +63,6 @@ export const savedAddressSchema = addressSchema.extend({
   isDefaultBilling: z.boolean(),
 });
 export type SavedAddress = z.infer<typeof savedAddressSchema>;
-
-/** Provider tokens only: card data never touches our servers. */
-export const paymentMethodSchema = z.object({
-  id: idSchema,
-  provider: z.literal("stripe"),
-  providerRef: z.string().min(1),
-  brand: z.string().max(20),
-  last4: z.string().regex(/^\d{4}$/),
-  expMonth: z.number().int().min(1).max(12),
-  expYear: z.number().int().min(2000),
-  isDefault: z.boolean(),
-});
-export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 
 /** A saved product, with the price when saved for price-drop indicators. */
 export const wishlistItemSchema = z.object({

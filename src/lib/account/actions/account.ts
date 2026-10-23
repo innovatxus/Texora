@@ -11,7 +11,6 @@ import {
   profileDetailsSchema,
   sizePreferencesSchema,
 } from "@/lib/validation/account";
-import { removeSavedCard } from "@/lib/payments/customers";
 import { cartSchema } from "@/lib/validation/commerce";
 import {
   changePassword,
@@ -233,20 +232,6 @@ export async function deleteAccountAction(input: unknown) {
       await deleteAccount(session as Session, password);
       await destroySession();
       return { redirectTo: "/?account=deleted" };
-    },
-  });
-}
-
-/** Removes a saved card (only one belonging to this shopper). */
-export async function removeCardAction(input: unknown) {
-  return runAction(input, {
-    schema: z.object({ id: z.string().min(1).max(64) }),
-    access: { permission: "payment_methods.manage" },
-    handler: async ({ id }, { session }) => {
-      if (!(await removeSavedCard(uidOf(session), id))) {
-        throw new ActionError("not_found", "We couldn't find that card.");
-      }
-      return { removed: true };
     },
   });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { governorateName } from "@/config/locale";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { FormMessage } from "@/components/merchant/forms/ErrorSummary";
@@ -90,7 +91,7 @@ export function LocationsManager({
                   </h3>
                   <p className="text-sm text-ink-soft">
                     {location.types.map((t) => TYPE_LABELS[t]).join(" · ")} ·{" "}
-                    {location.address.city}, {location.address.region}
+                    {location.address.city}, {governorateName(location.address.region)}
                   </p>
                   {location.types.includes("retail") && (
                     <p className="text-sm">{openStatus(location, new Date(now)).label}</p>

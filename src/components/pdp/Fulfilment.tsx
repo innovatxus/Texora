@@ -1,43 +1,39 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useState } from "react";
 import { TruckIcon } from "@/components/icons";
-import { Button, Input } from "@/components/primitives";
-import { estimateDelivery, isValidPostcode } from "@/lib/catalog/variant-selection";
+import { Select } from "@/components/primitives";
+import { deliveryZoneFor, GOVERNORATES, LOCALE, TIME_ZONE } from "@/config/locale";
+import { estimateDelivery } from "@/lib/catalog/variant-selection";
+import type { DeliveryTerms } from "@/lib/delivery/terms";
 import { formatMoney } from "@/lib/format/money";
 
-/** Order value (cents) above which standard shipping is free, as shown on the PDP. */
-export const FREE_SHIPPING_THRESHOLD = 15000;
-
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "short",
   month: "short",
   day: "numeric",
 });
 
-/** Shipping information with a ZIP-based delivery estimate (business days, dispatch cutoff). */
-export function Fulfilment() {
+/**
+ * Delivery information with an estimate for the shopper's governorate:
+ * arrival dates (Fridays skipped, dispatch cutoff) and the zone's prices.
+ */
+export function Fulfilment({ terms }: { terms: DeliveryTerms | null }) {
   const id = useId();
-  const [postcode, setPostcode] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [estimate, setEstimate] = useState<{
-    standard: [Date, Date];
-    express: [Date, Date];
-  } | null>(null);
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!isValidPostcode(postcode)) {
-      setError("Enter a 5-digit ZIP code");
-      setEstimate(null);
-      return;
-    }
-    setError(null);
-    const now = new Date();
-    const s = estimateDelivery("standard", now);
-    const x = estimateDelivery("express", now);
-    setEstimate({ standard: [s.from, s.to], express: [x.from, x.to] });
-  };
+  const [governorate, setGovernorate] = useState("");
+  const zone = governorate ? deliveryZoneFor(governorate) : null;
+  const rows = zone
+    ? (["standard", "express"] as const).map((method) => {
+        const { from, to } = estimateDelivery(method, new Date(), zone);
+        const window =
+          from.toDateString() === to.toDateString()
+            ? dateFormat.format(from)
+            : `${dateFormat.format(from)} – ${dateFormat.format(to)}`;
+        const price = terms ? ` · ${formatMoney(terms.rates[zone][method])}` : "";
+        return { method, text: `${window}${price}` };
+      })
+    : [];
 
   return (
     <section aria-labelledby={`${id}-title`} className="border border-line p-4">
@@ -45,36 +41,29 @@ export function Fulfilment() {
         <TruckIcon /> Delivery
       </h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Free standard shipping on orders over {formatMoney(FREE_SHIPPING_THRESHOLD)}. Free returns
-        within 30 days.
+        {terms ? `Free standard delivery on orders over ${formatMoney(terms.freeFrom)}. ` : ""}
+        Cash on delivery available. Free returns within 30 days.
       </p>
-      <form onSubmit={onSubmit} noValidate className="mt-3 flex items-start gap-2">
-        <Input
-          id={`${id}-zip`}
-          label="ZIP code for delivery estimate"
+      <div className="mt-3 max-w-xs">
+        <Select
+          id={`${id}-governorate`}
+          label="Governorate for delivery estimate"
           hideLabel
-          placeholder="ZIP code"
-          inputMode="numeric"
-          autoComplete="postal-code"
-          value={postcode}
-          onChange={(e) => setPostcode(e.target.value)}
-          error={error ?? undefined}
-          className="w-36"
+          placeholder="Deliver to…"
+          autoComplete="address-level1"
+          options={GOVERNORATES.map((g) => ({ value: g.code, label: g.name }))}
+          value={governorate}
+          onChange={(e) => setGovernorate(e.target.value)}
         />
-        <Button type="submit" variant="secondary">
-          Estimate
-        </Button>
-      </form>
-      {estimate && (
+      </div>
+      {rows.length > 0 && (
         <dl aria-live="polite" className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-          <dt className="text-ink-soft">Standard</dt>
-          <dd>
-            {dateFormat.format(estimate.standard[0])} – {dateFormat.format(estimate.standard[1])}
-          </dd>
-          <dt className="text-ink-soft">Express</dt>
-          <dd>
-            {dateFormat.format(estimate.express[0])} – {dateFormat.format(estimate.express[1])}
-          </dd>
+          {rows.map((r) => (
+            <div key={r.method} className="contents">
+              <dt className="text-ink-soft">{r.method === "standard" ? "Standard" : "Express"}</dt>
+              <dd>{r.text}</dd>
+            </div>
+          ))}
         </dl>
       )}
     </section>

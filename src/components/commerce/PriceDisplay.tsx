@@ -1,3 +1,4 @@
+import { CURRENCY } from "@/config/locale";
 import { cva, type VariantProps } from "class-variance-authority";
 import { VisuallyHidden } from "@/components/primitives";
 import { formatMoney, percentOff } from "@/lib/format/money";
@@ -33,7 +34,7 @@ export function PriceDisplay({
   max,
   compareAtPrice,
   showPercent = true,
-  currency = "USD",
+  currency = CURRENCY,
   size,
   className,
 }: PriceDisplayProps) {

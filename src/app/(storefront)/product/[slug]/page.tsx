@@ -1,3 +1,4 @@
+import { CURRENCY } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -19,6 +20,8 @@ import { sortProducts } from "@/lib/catalog/listing";
 import { getPdpData, listLiveProductSlugs, type PdpData } from "@/lib/catalog/pdp";
 import { getListingIndex, getProductsForIds } from "@/lib/catalog/queries";
 import { clientEnv } from "@/lib/env/client";
+import { getDeliveryTerms } from "@/lib/delivery/terms";
+import { formatMoney } from "@/lib/format/money";
 import { getPublicShopById, returnSummary } from "@/lib/merchant/storefront";
 
 /** Prerenders every live product page. */
@@ -66,7 +69,7 @@ function productJsonLd(data: PdpData) {
     url,
     offers: {
       "@type": "AggregateOffer",
-      priceCurrency: "USD",
+      priceCurrency: CURRENCY,
       lowPrice: (product.priceRange.min / 100).toFixed(2),
       highPrice: (product.priceRange.max / 100).toFixed(2),
       offerCount: variants.length,
@@ -130,7 +133,10 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   if (!data) notFound();
   const { product, variants, reviews, summary, categoryName } = data;
   // Merchant products: the shop's "Sold by" block and its own return policy.
-  const merchant = product.shopId ? await getPublicShopById(product.shopId) : null;
+  const [merchant, delivery] = await Promise.all([
+    product.shopId ? getPublicShopById(product.shopId) : null,
+    getDeliveryTerms(),
+  ]);
   const departmentLabel = product.department === "women" ? "Women" : "Men";
   const categoryHref = `/${product.categoryPath.join("/")}`;
   const defaultColor = product.colors[0]?.code ?? "";
@@ -159,6 +165,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
     product: view,
     variants,
     sizeGuide: sizeGuideFor(product.department, product.sizeType),
+    delivery,
     breadcrumbs: (
       <Breadcrumbs
         items={[
@@ -212,10 +219,12 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
               title: "Shipping & returns",
               content: (
                 <p className="max-w-prose">
-                  Free standard shipping on orders over $150.{" "}
+                  {delivery
+                    ? `Free standard delivery on orders over ${formatMoney(delivery.freeFrom)}. `
+                    : ""}
                   {merchant
                     ? `Ships from ${merchant.shop.name} within ${merchant.shop.shipping.processingTime} business days. ${returnSummary(merchant.shop.returnPolicy)}.`
-                    : "Free returns within 30 days by mail or in store."}
+                    : "Free returns within 30 days by courier collection."}
                   {product.badges.includes("final_sale") &&
                     " This item is final sale and can't be returned or exchanged."}
                 </p>

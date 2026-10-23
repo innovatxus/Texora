@@ -130,14 +130,20 @@ function buildMerchant(def: SeedMerchant, index: number, now: Date, takenSlugs: 
         city: l.city,
         region: l.region,
         postalCode: l.postalCode,
-        country: "US",
+        country: "EG",
       },
       geo: l.geo,
       timezone: l.timezone,
       hours: l.types.includes("retail") ? RETAIL_HOURS : WEEKDAY_HOURS,
       specialHours: [
-        { date: "2026-11-26", closed: true, note: "Thanksgiving" },
-        { date: "2026-12-24", closed: false, open: "10:00", close: "15:00", note: "Christmas Eve" },
+        { date: "2026-10-06", closed: true, note: "Armed Forces Day" },
+        {
+          date: "2027-01-07",
+          closed: false,
+          open: "10:00",
+          close: "15:00",
+          note: "Coptic Christmas",
+        },
       ],
       phone: l.phone,
       isPrimary: i === 0,
@@ -268,7 +274,7 @@ function buildMerchant(def: SeedMerchant, index: number, now: Date, takenSlugs: 
       const fits = def.fits.filter((f) => config.fitFamilies.includes(f));
       const styleId = suggestStyleId(def.shop.slug, shopId, line.categoryKey, sequence);
       // A little variety: prices step up through a line, and one product in four is on sale.
-      const price = (line.price + n * 10) * 100;
+      const price = (line.price + n * 250) * 100;
       const onSale = sequence % 4 === 0;
       const { rows } = buildMatrix(
         { colors: codes, fits, sizes: def.sizes, excluded: new Set() },

@@ -31,7 +31,7 @@ import { STATUS_LABELS } from "@/lib/orders/tracking";
 export const metadata: Metadata = { title: "Order" };
 
 const PAYMENT_LABELS: Record<string, string> = {
-  stripe: "Card",
+  paymob: "Card or wallet (Paymob)",
   cod: "Pay on delivery",
   gift_card: "Gift card",
   rewards: "Rewards",
@@ -232,7 +232,7 @@ async function OrderDetail({ params }: PageProps<"/admin/orders/[id]">) {
                   fields={[
                     {
                       name: "amount",
-                      label: "Amount ($)",
+                      label: "Amount (EGP)",
                       type: "number",
                       step: "0.01",
                       required: true,

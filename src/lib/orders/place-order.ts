@@ -1,3 +1,4 @@
+import { CURRENCY } from "@/config/locale";
 import "server-only";
 import { FieldValue, type DocumentReference } from "firebase-admin/firestore";
 import { ActionError } from "@/lib/actions/run-action";
@@ -8,7 +9,9 @@ import { getStoreSettings } from "@/lib/data/admin-records";
 import { hashGiftCardCode } from "@/lib/data/promotions";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { logger } from "@/lib/observability/logger";
-import { cardPaymentsEnabled, stripeProvider } from "@/lib/payments/provider";
+import { cardPaymentsEnabled, paymobProvider } from "@/lib/payments/provider";
+import { brand } from "@/config/brand";
+import { clientEnv } from "@/lib/env/client";
 import { creditOrderPoints } from "@/lib/loyalty/credit";
 import { pointsForOrder } from "@/lib/loyalty/tiers";
 import { pointsFor } from "@/lib/pricing/rewards";
@@ -17,7 +20,6 @@ import { ONLINE_LOCATION, type OrderLine } from "@/lib/validation";
 import type { PlaceOrderInput } from "./checkout-schema";
 import { notifyMerchantsOfOrder, sendOrderConfirmation } from "./notifications";
 import { orderAccessToken } from "./token";
-import { customerSessionSecret, ensureStripeCustomer } from "@/lib/payments/customers";
 
 export interface PlacedOrder {
   orderId: string;
@@ -27,9 +29,8 @@ export interface PlacedOrder {
   payment:
     | {
         kind: "card";
-        clientSecret: string;
-        /** Signed-in shoppers: lets the payment form show and save cards. */
-        customerSessionClientSecret?: string;
+        /** Paymob's hosted checkout (cards, Meeza, wallets); returns to the confirmation page. */
+        checkoutUrl: string;
       }
     | { kind: "cod" | "none" };
 }
@@ -207,7 +208,7 @@ export async function placeOrder(
       userId: actor?.uid ?? null,
       email: input.email,
       status,
-      currency: "USD",
+      currency: CURRENCY,
       lines: orderLines,
       totals: bag.totals,
       shippingAddress: input.shippingAddress,
@@ -260,30 +261,34 @@ export async function placeOrder(
 
   let payment: PlacedOrder["payment"] = { kind: paymentMethod === "cod" ? "cod" : "none" };
   if (paymentMethod === "card") {
-    // Signed-in shoppers pay as their provider customer, so cards can be saved and reused.
-    const customer = actor ? await ensureStripeCustomer(actor.uid, input.email) : null;
-    const intent = await stripeProvider.createPayment({
-      customer: customer ?? undefined,
+    const billing = input.billingAddress;
+    const returnUrl = new URL(`/order-confirmation/${orderRef.id}`, clientEnv.NEXT_PUBLIC_SITE_URL);
+    returnUrl.searchParams.set("t", orderAccessToken(orderRef.id));
+    const intent = await paymobProvider.createPayment({
       amount: total,
-      currency: "USD",
-      email: input.email,
-      metadata: { orderId: orderRef.id, orderNumber: number },
-      // The order id makes retries of the same order return the same intent.
-      idempotencyKey: `order-${orderRef.id}`,
+      currency: CURRENCY,
+      payer: {
+        email: input.email,
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        phone: billing.phone,
+        city: billing.city,
+        street: billing.line1,
+        region: billing.region,
+      },
+      subject: { kind: "order", id: orderRef.id },
+      returnUrl: returnUrl.toString(),
+      description: `${brand.name} order ${number}`,
     });
     await orderRef.update({
       payments: FieldValue.arrayUnion({
-        provider: "stripe",
+        provider: "paymob",
         ref: intent.ref,
         amount: total,
         status: "pending",
       }),
     });
-    payment = {
-      kind: "card",
-      clientSecret: intent.clientSecret,
-      ...(customer ? { customerSessionClientSecret: await customerSessionSecret(customer) } : {}),
-    };
+    payment = { kind: "card", checkoutUrl: intent.checkoutUrl };
   }
 
   const result: PlacedOrder = {
@@ -293,7 +298,7 @@ export async function placeOrder(
     accessToken: orderAccessToken(orderRef.id),
     payment,
   };
-  // Card intents are re-created idempotently on retry, so the client secret need not be stored.
+  // The checkout link is handed to this tab only; a retry returns the order without it.
   await idempotencyRef.set({
     result: { ...result, payment: { kind: payment.kind } },
     createdAt: now,

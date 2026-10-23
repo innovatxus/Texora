@@ -1,5 +1,6 @@
 "use client";
 
+import { LOCALE, cityLine, governorateName } from "@/config/locale";
 import NextLink from "next/link";
 import { useId, useState } from "react";
 import { StoreIcon } from "@/components/icons";
@@ -16,7 +17,9 @@ const matches = (store: Store, query: string) => {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   const { city, region, postalCode, line1 } = store.address;
-  return [store.name, city, region, postalCode, line1].some((v) => v.toLowerCase().includes(q));
+  return [store.name, city, governorateName(region), postalCode, line1].some((v) =>
+    (v ?? "").toLowerCase().includes(q),
+  );
 };
 
 /**
@@ -114,14 +117,14 @@ export function StoreLocator({ stores }: { stores: Store[] }) {
               </h2>
               {miles !== null && (
                 <span className="shrink-0 text-sm text-ink-soft tabular-nums">
-                  {miles < 10 ? miles.toFixed(1) : Math.round(miles).toLocaleString("en-US")} mi
+                  {miles < 10 ? miles.toFixed(1) : Math.round(miles).toLocaleString(LOCALE)} mi
                 </span>
               )}
             </div>
             <address className="text-sm text-ink-soft not-italic">
               {store.address.line1}
               <br />
-              {store.address.city}, {store.address.region} {store.address.postalCode}
+              {cityLine(store.address)}
             </address>
             <StoreOpenStatus store={store} />
             <p className="text-sm text-ink-soft">

@@ -1,3 +1,4 @@
+import { governorateName } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { redirect } from "next/navigation";
@@ -136,7 +137,7 @@ export default async function Page() {
                   <div key={l.id} className="text-sm">
                     <p className="font-medium">{l.name}</p>
                     <p className="text-ink-soft">
-                      {l.address.line1}, {l.address.city}, {l.address.region}
+                      {l.address.line1}, {l.address.city}, {governorateName(l.address.region)}
                     </p>
                     <ul className="mt-2 text-ink-soft">
                       {weeklyHours(l).map((d) => (

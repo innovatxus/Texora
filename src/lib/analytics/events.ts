@@ -2,8 +2,9 @@
  * Typed ecommerce analytics (spec 10). Events use the GA4 ecommerce shape on
  * `window.dataLayer`, so a tag manager or analytics tool can be connected
  * without code changes. Nothing is recorded unless the shopper accepted
- * analytics cookies; money is sent in dollars, as GA4 expects.
+ * analytics cookies; money is sent in whole currency units (pounds), as GA4 expects.
  */
+import type { CURRENCY } from "@/config/locale";
 import { CONSENT_COOKIE, parseConsent } from "@/lib/consent";
 
 export interface AnalyticsItem {
@@ -11,7 +12,7 @@ export interface AnalyticsItem {
   item_name: string;
   /** SKU, or the colour when no size is chosen yet. */
   item_variant?: string;
-  /** Unit price in dollars. */
+  /** Unit price in pounds. */
   price?: number;
   quantity?: number;
   item_category?: string;
@@ -19,14 +20,14 @@ export interface AnalyticsItem {
   item_brand?: string;
 }
 
-type Money = { currency: "USD"; value: number };
+type Money = { currency: typeof CURRENCY; value: number };
 
 export type AnalyticsEvent =
   | { name: "view_item_list"; params: { item_list_name: string; items: AnalyticsItem[] } }
   | { name: "select_item"; params: { item_list_name: string; items: AnalyticsItem[] } }
   | { name: "view_item"; params: Money & { items: AnalyticsItem[] } }
   | { name: "add_to_cart"; params: Money & { items: AnalyticsItem[] } }
-  | { name: "begin_checkout"; params: { currency: "USD"; items: AnalyticsItem[] } }
+  | { name: "begin_checkout"; params: { currency: typeof CURRENCY; items: AnalyticsItem[] } }
   | { name: "add_payment_info"; params: Money & { payment_type: string } }
   | {
       name: "purchase";
@@ -39,7 +40,7 @@ export type AnalyticsEvent =
     }
   | { name: "refund"; params: Money & { transaction_id: string } };
 
-/** Cents to dollars, rounded to the cent. */
+/** Minor units (piastres) to pounds. */
 export const dollars = (cents: number) => Math.round(cents) / 100;
 
 declare global {

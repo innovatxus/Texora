@@ -1,3 +1,4 @@
+import { governorateName } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { connection } from "next/server";
@@ -44,7 +45,7 @@ async function Queue() {
           },
           {
             header: "Ship to",
-            cell: (o) => `${o.shippingAddress.city}, ${o.shippingAddress.region}`,
+            cell: (o) => `${o.shippingAddress.city}, ${governorateName(o.shippingAddress.region)}`,
           },
           {
             header: "Units",

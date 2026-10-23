@@ -28,6 +28,7 @@ export async function updateSettings(actor: Session, edit: SettingsEdit): Promis
   }
   const next = storeSettingsSchema.parse({ ...before, ...edit, updatedAt: new Date() });
   await db().collection("settings").doc(STORE_SETTINGS_ID).set(next);
+  invalidate("settings");
   const { updatedAt: _b, ...beforeFields } = before;
   const { updatedAt: _a, ...afterFields } = next;
   await writeAuditLog({
@@ -112,7 +113,7 @@ export async function savePage(
 }
 
 const STARTERS: Partial<Record<CmsModuleType, unknown>> = {
-  promoStrip: { message: "Free standard shipping on orders over $150", tone: "muted" },
+  promoStrip: { message: "Free standard delivery on orders over EGP 2,500", tone: "muted" },
   storyBlock: { headline: "A new story", body: "Tell shoppers what's new this season." },
   productCarousel: {
     heading: "New arrivals",

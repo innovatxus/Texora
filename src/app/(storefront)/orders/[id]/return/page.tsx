@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -17,7 +18,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const longDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric" });
+const longDate = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
+  month: "long",
+  day: "numeric",
+});
 
 async function StartReturn({ params, searchParams }: PageProps<"/orders/[id]/return">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);

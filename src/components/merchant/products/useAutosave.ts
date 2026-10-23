@@ -1,5 +1,6 @@
 "use client";
 
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { saveProductDraftAction } from "@/lib/merchant/actions/products";
 import type { DraftSummary, ProductDraftData } from "@/lib/validation/merchant";
@@ -14,7 +15,11 @@ export type SaveState =
 
 /** "10:42" in the merchant's clock. */
 export function clock(date: Date): string {
-  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return date.toLocaleTimeString(LOCALE, {
+    timeZone: TIME_ZONE,
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 /** The status line text (journey §9). */

@@ -14,13 +14,16 @@ interface PaymentRecord {
 
 /**
  * Applies a provider's verdict to a pending order. Success captures the
- * payment and drops the stock reservations; failure cancels the order and
- * returns the reserved stock. Safe to call more than once per event.
+ * payment (recording the provider's transaction id, used for refunds) and
+ * drops the stock reservations; failure cancels the order and returns the
+ * reserved stock. A success for a different amount than the order's online
+ * payment is ignored and logged. Safe to call more than once per event.
  */
 export async function settleCardPayment(
   orderId: string,
-  intentRef: string,
+  transactionRef: string,
   outcome: "succeeded" | "failed",
+  paidAmount?: number,
 ): Promise<"settled" | "ignored"> {
   const { db } = getFirebaseAdmin();
   const orderRef = db.collection("orders").doc(orderId);
@@ -32,9 +35,19 @@ export async function settleCardPayment(
       db.collection("inventoryReservations").where("orderId", "==", orderId),
     );
     const now = new Date();
-    const payments = ((order.get("payments") as PaymentRecord[] | undefined) ?? []).map((p) =>
-      p.provider === "stripe" && p.ref === intentRef
-        ? { ...p, status: outcome === "succeeded" ? "captured" : "failed" }
+    const recorded = (order.get("payments") as PaymentRecord[] | undefined) ?? [];
+    const online = recorded.find((p) => p.provider === "paymob" && p.status === "pending");
+    if (outcome === "succeeded" && (!online || online.amount !== paidAmount)) {
+      logger.error("payment.amount_mismatch", { orderId, expected: online?.amount, paidAmount });
+      return false;
+    }
+    const payments = recorded.map((p) =>
+      p === online
+        ? {
+            ...p,
+            ...(transactionRef ? { ref: transactionRef } : {}),
+            status: outcome === "succeeded" ? "captured" : "failed",
+          }
         : p,
     );
 
@@ -93,12 +106,7 @@ export async function releaseExpiredReservations(now = new Date()): Promise<numb
   const orderIds = [...new Set(expired.docs.map((d) => String(d.get("orderId"))))];
   let released = 0;
   for (const orderId of orderIds) {
-    const order = await db.collection("orders").doc(orderId).get();
-    const ref =
-      ((order.get("payments") as PaymentRecord[] | undefined) ?? []).find(
-        (p) => p.provider === "stripe",
-      )?.ref ?? "";
-    if ((await settleCardPayment(orderId, ref, "failed")) === "settled") released += 1;
+    if ((await settleCardPayment(orderId, "", "failed")) === "settled") released += 1;
   }
   return released;
 }

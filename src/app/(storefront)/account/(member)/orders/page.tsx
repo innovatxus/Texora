@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { ButtonLink } from "@/components/primitives";
@@ -8,7 +9,8 @@ import { STATUS_LABELS } from "@/lib/orders/tracking";
 
 export const metadata: Metadata = { title: "Orders" };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   month: "long",
   day: "numeric",
   year: "numeric",

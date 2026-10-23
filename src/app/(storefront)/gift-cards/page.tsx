@@ -20,8 +20,8 @@ export default function Page() {
         <section aria-labelledby="send-title">
           <h1 className="font-display text-5xl">Gift cards</h1>
           <p className="mt-4 max-w-prose text-ink-soft">
-            The easy way to get the fit right. Send an e-gift card from $10 to $500 with your own
-            message, today or on the day that matters.
+            The easy way to get the fit right. Send an e-gift card from EGP 250 to EGP 25,000 with
+            your own message, today or on the day that matters.
           </p>
           <div className="mt-8 flex aspect-[1.586] max-w-md flex-col justify-between bg-ink p-8 text-canvas">
             <span className="font-display text-2xl tracking-[0.28em] uppercase">{brand.name}</span>

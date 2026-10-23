@@ -1,3 +1,4 @@
+import { CURRENCY, LOCALE } from "@/config/locale";
 import "server-only";
 import { createElement } from "react";
 import { brand } from "@/config/brand";
@@ -11,7 +12,7 @@ import { clientEnv } from "@/lib/env/client";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { logger } from "@/lib/observability/logger";
 import { signToken } from "@/lib/orders/token";
-import { cardPaymentsEnabled, stripeProvider } from "@/lib/payments/provider";
+import { cardPaymentsEnabled, paymobProvider } from "@/lib/payments/provider";
 import { giftCardPurchaseSchema, type GiftCardPurchase } from "@/lib/validation";
 import { parseSnapshot } from "@/lib/data/firestore";
 import { businessDate, GIFT_CARD_VALID_YEARS } from "./codes";
@@ -19,10 +20,11 @@ import { generateGiftCardCode } from "./generate";
 
 const purchases = () => getFirebaseAdmin().db.collection("giftCardPurchases");
 
-const longDate = new Intl.DateTimeFormat("en-US", {
+const longDate = new Intl.DateTimeFormat(LOCALE, {
   month: "long",
   day: "numeric",
   year: "numeric",
+  // A calendar day (YYYY-MM-DD at noon UTC), so UTC shows the same date.
   timeZone: "UTC",
 });
 const formatDay = (yyyyMmDd: string) => longDate.format(new Date(`${yyyyMmDd}T12:00:00Z`));
@@ -58,7 +60,7 @@ export async function getGiftCardPurchase(id: string): Promise<GiftCardPurchase 
 export async function createGiftCardPurchase(
   input: GiftCardPurchaseInput,
   session: Session | null,
-): Promise<{ purchaseId: string; clientSecret: string; token: string }> {
+): Promise<{ purchaseId: string; checkoutUrl: string; token: string }> {
   if (!cardPaymentsEnabled()) {
     throw new ActionError(
       "conflict",
@@ -71,7 +73,7 @@ export async function createGiftCardPurchase(
   if (!existing.exists) {
     await ref.create({
       amount: input.amount,
-      currency: "USD",
+      currency: CURRENCY,
       purchaserEmail: input.purchaserEmail,
       senderName: input.senderName,
       recipientName: input.recipientName,
@@ -87,32 +89,47 @@ export async function createGiftCardPurchase(
   }
 
   const amount = Number((existing.exists ? existing.get("amount") : input.amount) as number);
-  const intent = await stripeProvider.createPayment({
+  const [firstName = input.senderName, ...rest] = input.senderName.split(/\s+/);
+  const intent = await paymobProvider.createPayment({
     amount,
-    currency: "USD",
-    email: input.purchaserEmail,
-    metadata: { giftCardPurchaseId: ref.id },
-    idempotencyKey: `gift-card-${ref.id}`,
+    currency: CURRENCY,
+    payer: {
+      email: input.purchaserEmail,
+      firstName,
+      lastName: rest.join(" ") || firstName,
+      phone: "NA",
+    },
+    subject: { kind: "gift_card", id: ref.id },
+    returnUrl: purchasePageUrl(ref.id),
+    description: `${brand.name} e-gift card`,
   });
   await ref.update({ paymentRef: intent.ref });
   return {
     purchaseId: ref.id,
-    clientSecret: intent.clientSecret,
+    checkoutUrl: intent.checkoutUrl,
     token: signToken("gift-card-purchase", ref.id),
   };
 }
 
-/** Applies the provider's verdict. Paid purchases due today are delivered at once. */
+/**
+ * Applies the provider's verdict. Paid purchases due today are delivered at
+ * once; a success for a different amount than the purchase is ignored.
+ */
 export async function settleGiftCardPurchase(
   purchaseId: string,
   outcome: "succeeded" | "failed",
   now = new Date(),
+  paidAmount?: number,
 ): Promise<"settled" | "ignored"> {
   const { db } = getFirebaseAdmin();
   const ref = purchases().doc(purchaseId);
   const settled = await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists || snap.get("status") !== "pending_payment") return false;
+    if (outcome === "succeeded" && paidAmount !== undefined && snap.get("amount") !== paidAmount) {
+      logger.error("giftcards.amount_mismatch", { purchaseId, paidAmount });
+      return false;
+    }
     tx.update(
       ref,
       outcome === "succeeded" ? { status: "paid", paidAt: now } : { status: "cancelled" },
@@ -163,7 +180,7 @@ export async function deliverGiftCard(purchaseId: string, now = new Date()): Pro
     const amount = Number(snap.get("amount"));
     tx.create(db.collection("giftCards").doc(cardId), {
       last4: code.slice(-4),
-      currency: "USD",
+      currency: CURRENCY,
       initialBalance: amount,
       balance: amount,
       recipientEmail: snap.get("recipientEmail"),
@@ -246,7 +263,7 @@ export async function issueStoreCredit(input: {
     .doc(id)
     .create({
       last4: code.slice(-4),
-      currency: "USD",
+      currency: CURRENCY,
       initialBalance: input.amount,
       balance: input.amount,
       recipientEmail: input.email,

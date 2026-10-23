@@ -3,7 +3,6 @@ import {
   findVariant,
   fitLabel,
   fitsForColor,
-  isValidPostcode,
   sizeOptions,
   stockMessage,
   storeAvailability,
@@ -78,25 +77,24 @@ describe("stock and stores", () => {
 });
 
 describe("estimateDelivery", () => {
-  it("counts business days from a weekday morning", () => {
+  it("counts delivery days in Greater Cairo from a weekday morning", () => {
     // Monday 19 Oct 2026, 10:00
     const { from, to } = estimateDelivery("standard", new Date(2026, 9, 19, 10));
+    expect(from.toDateString()).toBe(new Date(2026, 9, 20).toDateString()); // Tue
+    expect(to.toDateString()).toBe(new Date(2026, 9, 22).toDateString()); // Thu
+  });
+
+  it("takes longer outside Greater Cairo and skips Fridays", () => {
+    const { from, to } = estimateDelivery("standard", new Date(2026, 9, 19, 10), "rest_of_egypt");
     expect(from.toDateString()).toBe(new Date(2026, 9, 22).toDateString()); // Thu
-    expect(to.toDateString()).toBe(new Date(2026, 9, 26).toDateString()); // next Mon
+    expect(to.toDateString()).toBe(new Date(2026, 9, 25).toDateString()); // Sun, Fri skipped
   });
 
-  it("dispatches next business day after the cutoff and on weekends", () => {
-    const friday = estimateDelivery("express", new Date(2026, 9, 23, 16)); // Fri 16:00 → dispatch Mon
-    expect(friday.from.toDateString()).toBe(new Date(2026, 9, 27).toDateString()); // Tue
-    const saturday = estimateDelivery("express", new Date(2026, 9, 24, 9));
-    expect(saturday.from.toDateString()).toBe(new Date(2026, 9, 27).toDateString());
-  });
-
-  it("validates US postcodes", () => {
-    expect(isValidPostcode("10012")).toBe(true);
-    expect(isValidPostcode("10012-1234")).toBe(true);
-    expect(isValidPostcode("1001")).toBe(false);
-    expect(isValidPostcode("SW1A 1AA")).toBe(false);
+  it("dispatches next delivery day after the cutoff and on Fridays", () => {
+    const thursday = estimateDelivery("express", new Date(2026, 9, 22, 16)); // Thu 16:00 → dispatch Sat
+    expect(thursday.from.toDateString()).toBe(new Date(2026, 9, 25).toDateString()); // Sun
+    const friday = estimateDelivery("express", new Date(2026, 9, 23, 9));
+    expect(friday.from.toDateString()).toBe(new Date(2026, 9, 25).toDateString());
   });
 });
 

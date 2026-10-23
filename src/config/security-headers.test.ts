@@ -5,12 +5,13 @@ const header = (key: string, opts = base) =>
   securityHeaders(opts).find((h) => h.key === key)?.value;
 
 describe("security headers", () => {
-  it("locks the page down to this site, Stripe and Firebase", () => {
+  it("locks the page down to this site and Firebase", () => {
     const csp = contentSecurityPolicy(base);
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
-    expect(csp).toContain("frame-src https://js.stripe.com https://hooks.stripe.com");
+    expect(csp).toContain("frame-src 'none'");
+    expect(csp).not.toContain("stripe");
     expect(csp).toContain("https://*.googleapis.com");
     expect(csp).toContain("upgrade-insecure-requests");
     expect(csp).not.toContain("unsafe-eval");

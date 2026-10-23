@@ -1,3 +1,4 @@
+import { LOCALE, TIME_ZONE } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -20,7 +21,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: TIME_ZONE,
   weekday: "long",
   month: "long",
   day: "numeric",
@@ -68,11 +70,7 @@ async function Confirmation({ params, searchParams }: PageProps<"/order-confirma
             <h1 className="mt-3 font-display text-5xl">Complete your payment</h1>
             <p className="mt-4 text-ink-soft">Your items are held for 15 minutes while you pay.</p>
             <div className="mt-8">
-              <PendingCardPayment
-                orderId={order.id}
-                amount={order.totals.total}
-                returnUrl={returnUrl.toString()}
-              />
+              <PendingCardPayment orderId={order.id} amount={order.totals.total} />
             </div>
           </>
         ) : (

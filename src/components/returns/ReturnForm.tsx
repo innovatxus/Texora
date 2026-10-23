@@ -183,8 +183,8 @@ export function ReturnForm({
         <RadioGroup legend="How would you like to return them?">
           <Radio
             name={`${id}-method`}
-            label="By mail, free"
-            hint="We'll give you a prepaid label and QR code to use at any carrier drop-off."
+            label="Courier collection, free"
+            hint="A courier collects the parcel from your delivery address. We'll give you a QR code to show them."
             checked={method === "mail"}
             onChange={() => setMethod("mail")}
           />

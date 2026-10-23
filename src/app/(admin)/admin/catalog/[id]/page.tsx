@@ -328,14 +328,14 @@ async function Editor({ params }: PageProps<"/admin/catalog/[id]">) {
                   },
                   {
                     name: "price",
-                    label: "New price ($)",
+                    label: "New price (EGP)",
                     type: "number",
                     step: "0.01",
                     required: true,
                   },
                   {
                     name: "compareAtPrice",
-                    label: "Compare-at price ($)",
+                    label: "Compare-at price (EGP)",
                     type: "number",
                     step: "0.01",
                     hint: "The original price, for a markdown. Leave empty for full price.",

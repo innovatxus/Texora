@@ -1,3 +1,4 @@
+import { LOCALE } from "@/config/locale";
 import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
@@ -113,7 +114,7 @@ async function Customer({ params }: PageProps<"/admin/customers/[uid]">) {
               <DetailList
                 items={[
                   ["Tier", TIER_NAMES[user.loyalty.tier]],
-                  ["Points", user.loyalty.points.toLocaleString("en-US")],
+                  ["Points", user.loyalty.points.toLocaleString(LOCALE)],
                   ["Spend this period", formatMoney(user.loyalty.periodSpend)],
                   [
                     "Next tier",

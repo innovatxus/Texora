@@ -2,8 +2,10 @@
  * Security headers for every response (spec 10). The Content Security Policy
  * has no nonces, which would force every page to render per request and rule
  * out Partial Prerendering. Inline scripts are therefore allowed, but every
- * other source is limited to this site plus exactly what Stripe (payment
- * fields) and Firebase (direct uploads) need. Pure, so it is unit tested.
+ * other source is limited to this site plus what Firebase (direct uploads)
+ * needs. Online payments happen on Paymob's own hosted page (a full-page
+ * redirect), so no payment scripts or frames are allowed here at all.
+ * Pure, so it is unit tested.
  */
 export interface SecurityHeaderOptions {
   /** Development server: allows eval (React refresh) and websocket HMR. */
@@ -19,24 +21,18 @@ export interface SecurityHeaderOptions {
 export function contentSecurityPolicy({ dev, https, emulators }: SecurityHeaderOptions): string {
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
-    "script-src": [
-      "'self'",
-      "'unsafe-inline'",
-      "https://js.stripe.com",
-      ...(dev ? ["'unsafe-eval'"] : []),
-    ],
+    "script-src": ["'self'", "'unsafe-inline'", ...(dev ? ["'unsafe-eval'"] : [])],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:", "https://*.stripe.com"],
+    "img-src": ["'self'", "data:", "blob:"],
     "font-src": ["'self'"],
     "media-src": ["'self'", "blob:"],
     "connect-src": [
       "'self'",
       "https://*.googleapis.com",
-      "https://api.stripe.com",
       ...(emulators ? ["http://127.0.0.1:*", "http://localhost:*"] : []),
       ...(dev ? ["ws:"] : []),
     ],
-    "frame-src": ["https://js.stripe.com", "https://hooks.stripe.com"],
+    "frame-src": ["'none'"],
     "worker-src": ["'self'", "blob:"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
@@ -58,7 +54,7 @@ export function securityHeaders(
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
     {
       key: "Permissions-Policy",
-      value: 'camera=(), microphone=(), geolocation=(self), payment=(self "https://js.stripe.com")',
+      value: "camera=(), microphone=(), geolocation=(self), payment=()",
     },
     ...(options.https
       ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]

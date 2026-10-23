@@ -1,5 +1,6 @@
 "use client";
 
+import { CURRENCY } from "@/config/locale";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { primaryBadge } from "@/components/commerce/badges";
@@ -28,6 +29,7 @@ import { useUiStore } from "@/stores/ui";
 import { BackInStockForm } from "./BackInStockForm";
 import { PriceDropAlert } from "./PriceDropAlert";
 import { Fulfilment } from "./Fulfilment";
+import type { DeliveryTerms } from "@/lib/delivery/terms";
 import { Gallery } from "./Gallery";
 import { SizeGuideModal } from "./SizeGuideModal";
 
@@ -62,6 +64,8 @@ interface ProductDetailProps {
   details: ReactNode;
   /** Merchant preview of a draft: everything renders, but nothing can be bought or saved. */
   preview?: boolean;
+  /** Delivery prices and the free-delivery threshold from store settings. */
+  delivery?: DeliveryTerms | null;
 }
 
 /** PDP gallery and buy box: colour, fit and size selection, stock messages, add to bag and alerts. */
@@ -73,6 +77,7 @@ export function ProductDetail({
   breadcrumbs,
   details,
   preview = false,
+  delivery = null,
 }: ProductDetailProps) {
   const [color, setColor] = useState(initialColor);
   const fits = fitsForColor(variants, color, product.fitFamilies);
@@ -125,7 +130,7 @@ export function ProductDetail({
       track({
         name: "view_item",
         params: {
-          currency: "USD",
+          currency: CURRENCY,
           value: dollars(product.priceRange.min),
           items: [
             {
@@ -184,7 +189,7 @@ export function ProductDetail({
       track({
         name: "add_to_cart",
         params: {
-          currency: "USD",
+          currency: CURRENCY,
           value: dollars(variant.price * quantity),
           items: [
             {
@@ -330,7 +335,7 @@ export function ProductDetail({
 
           {!preview && <PriceDropAlert productId={product.id} />}
 
-          <Fulfilment />
+          <Fulfilment terms={delivery} />
 
           {details}
         </div>

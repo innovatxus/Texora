@@ -29,12 +29,12 @@ function pickVariant(minStock = 5, skip: string[] = []) {
 const address = {
   firstName: "Ada",
   lastName: "Lovelace",
-  line1: "118 Greene Street",
-  city: "New York",
-  region: "NY",
-  postalCode: "10012",
-  country: "US" as const,
-  phone: "212 555 0100",
+  line1: "12 Brazil Street",
+  city: "Zamalek",
+  region: "C",
+  postalCode: "11211",
+  country: "EG" as const,
+  phone: "010 1234 5678",
 };
 
 let counter = 0;
@@ -159,7 +159,7 @@ describe("placeOrder", () => {
       });
       tx.create(ref, {
         status: "pending_payment",
-        payments: [{ provider: "stripe", ref: "pi_test", amount: 100, status: "pending" }],
+        payments: [{ provider: "paymob", ref: "pi_test", amount: 100, status: "pending" }],
       });
     });
 
