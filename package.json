@@ -27,7 +27,8 @@
     "rules:check": "tsx scripts/generate-rules.ts --check",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm run contrast:check && npm run rules:check && npm run test && npm run build",
     "prepare": "husky",
-    "test:e2e": "tsx tests/e2e-run.ts"
+    "test:e2e": "tsx tests/e2e-run.ts",
+    "prebuild": "tsx scripts/check-env.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",
