@@ -14,6 +14,8 @@ import type { ReactNode } from "react";
 /** Email styles use literal values: mail clients cannot read CSS variables. They mirror the ATELIER tokens. */
 export const EMAIL_COLORS = {
   ink: "#1a1a1a",
+  /** Brand wordmark: military green. */
+  brand: "#4b5320",
   soft: "#4a4744",
   subtle: "#6e6963",
   line: "#ddd7cf",
@@ -53,6 +55,7 @@ export function EmailLayout({
             style={{
               fontFamily: "Georgia, serif",
               fontSize: 22,
+              color: EMAIL_COLORS.brand,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
               margin: 0,

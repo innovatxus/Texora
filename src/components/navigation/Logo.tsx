@@ -9,7 +9,7 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
       href="/"
       aria-label={`${brand.name} home`}
       className={cn(
-        "inline-flex items-center font-display leading-none tracking-[0.28em] text-ink uppercase transition-[font-size] duration-base ease-atelier",
+        "inline-flex items-center font-display leading-none tracking-[0.28em] text-brand uppercase transition-[font-size] duration-base ease-atelier",
         compact ? "text-xl" : "text-2xl",
         className,
       )}

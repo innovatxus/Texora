@@ -25,7 +25,10 @@ async function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-1 flex-col pb-16 lg:flex-row lg:pb-0">
       <aside className="hidden border-r border-line bg-surface lg:block lg:w-56 lg:shrink-0">
         <div className="px-6 py-5">
-          <NextLink href="/merchant" className="font-display text-lg tracking-[0.28em] uppercase">
+          <NextLink
+            href="/merchant"
+            className="font-display text-lg tracking-[0.28em] text-brand uppercase"
+          >
             {brand.name}
           </NextLink>
           <p className="mt-1 text-xs text-ink-subtle">Merchant portal</p>
@@ -36,7 +39,10 @@ async function Shell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col bg-canvas">
         <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line px-4 py-3 text-sm sm:px-6">
-          <NextLink href="/merchant" className="font-display tracking-[0.28em] uppercase lg:hidden">
+          <NextLink
+            href="/merchant"
+            className="font-display tracking-[0.28em] text-brand uppercase lg:hidden"
+          >
             {brand.name}
           </NextLink>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:ml-auto">

@@ -223,7 +223,9 @@ export function GiftCardPurchaseForm({ available }: { available: boolean }) {
           aria-hidden
           className="flex aspect-[1.586] flex-col justify-between bg-ink p-6 text-canvas"
         >
-          <span className="font-display text-xl tracking-[0.28em] uppercase">{brand.name}</span>
+          <span className="font-display text-xl tracking-[0.28em] text-brand uppercase">
+            {brand.name}
+          </span>
           <span>
             <span className="block text-sm opacity-80">
               {recipientName ? `For ${recipientName}` : "E-gift card"}

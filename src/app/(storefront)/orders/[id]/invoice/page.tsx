@@ -73,7 +73,9 @@ async function Invoice({ params, searchParams }: PageProps<"/orders/[id]/invoice
       </div>
       <div className="mt-8 flex flex-wrap items-start justify-between gap-6">
         <div>
-          <p className="font-display text-2xl tracking-[0.28em] uppercase">{brand.name}</p>
+          <p className="font-display text-2xl tracking-[0.28em] text-brand uppercase">
+            {brand.name}
+          </p>
           <h1 className="mt-4 font-display text-4xl">Invoice</h1>
         </div>
         <dl className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1 text-sm">

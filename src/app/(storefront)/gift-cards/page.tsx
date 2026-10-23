@@ -24,7 +24,9 @@ export default function Page() {
             your own message, today or on the day that matters.
           </p>
           <div className="mt-8 flex aspect-[1.586] max-w-md flex-col justify-between bg-ink p-8 text-canvas">
-            <span className="font-display text-2xl tracking-[0.28em] uppercase">{brand.name}</span>
+            <span className="font-display text-2xl tracking-[0.28em] text-brand uppercase">
+              {brand.name}
+            </span>
             <span className="font-display text-5xl">E-gift card</span>
           </div>
           <h2 id="send-title" className="sr-only">

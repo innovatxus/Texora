@@ -28,6 +28,9 @@ function ratio(fg, bg) {
 // 4.5 = normal text (AA), 3 = large text / UI component boundaries (AA).
 const pairs = [
   ["ink", "canvas", "Body text on page", 4.5],
+  ["brand", "canvas", "Logo on page", 4.5],
+  ["brand", "surface", "Logo on cards", 4.5],
+  ["brand", "surface-muted", "Logo in footer", 4.5],
   ["ink", "surface", "Body text on cards/drawers", 4.5],
   ["ink", "surface-muted", "Text on chips/placeholders", 4.5],
   ["ink-soft", "canvas", "Secondary text on page", 4.5],

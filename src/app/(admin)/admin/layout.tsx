@@ -28,7 +28,10 @@ async function Chrome({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-1 flex-col lg:flex-row">
       <aside className="border-b border-line bg-surface lg:w-56 lg:shrink-0 lg:border-r lg:border-b-0">
         <div className="flex items-center justify-between px-6 py-5 lg:block">
-          <NextLink href="/admin" className="font-display text-lg tracking-[0.28em] uppercase">
+          <NextLink
+            href="/admin"
+            className="font-display text-lg tracking-[0.28em] text-brand uppercase"
+          >
             {brand.name}
           </NextLink>
           <p className="text-xs text-ink-subtle lg:mt-1">Back office</p>

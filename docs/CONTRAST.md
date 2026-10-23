@@ -8,6 +8,9 @@ Requirement: 4.5:1 for normal text (SC 1.4.3), 3:1 for non-text UI such as focus
 | Foreground | Background | Usage | Ratio | Required | Result |
 |---|---|---|---|---|---|
 | `ink` #1a1a1a | `canvas` #faf8f5 | Body text on page | 16.42:1 | 4.5:1 | Pass |
+| `brand` #4b5320 | `canvas` #faf8f5 | Logo on page | 7.75:1 | 4.5:1 | Pass |
+| `brand` #4b5320 | `surface` #ffffff | Logo on cards | 8.21:1 | 4.5:1 | Pass |
+| `brand` #4b5320 | `surface-muted` #f1ede7 | Logo in footer | 7.04:1 | 4.5:1 | Pass |
 | `ink` #1a1a1a | `surface` #ffffff | Body text on cards/drawers | 17.40:1 | 4.5:1 | Pass |
 | `ink` #1a1a1a | `surface-muted` #f1ede7 | Text on chips/placeholders | 14.92:1 | 4.5:1 | Pass |
 | `ink-soft` #4a4744 | `canvas` #faf8f5 | Secondary text on page | 8.70:1 | 4.5:1 | Pass |
