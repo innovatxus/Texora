@@ -145,16 +145,25 @@ function VideoHero({
       )}
       style={{ backgroundColor: video.backdrop }}
     >
-      <div className="absolute inset-x-0 top-0 -z-10 aspect-4/3 [mask-image:linear-gradient(to_bottom,black_82%,transparent)] md:inset-y-0 md:right-0 md:left-auto md:aspect-video md:h-full md:[mask-image:linear-gradient(to_right,transparent,black_14%)]">
-        <picture>
-          <source type="image/webp" srcSet={video.poster.webp} />
-          {/* eslint-disable-next-line jsx-a11y/alt-text -- alt comes from getImageProps */}
-          <img
-            {...poster}
-            className="absolute inset-0 h-full w-full object-cover object-[70%_50%] md:object-[50%_45%]"
-          />
-        </picture>
-        <HeroVideo sources={video} className="object-[70%_50%] md:object-[50%_45%]" />
+      {/*
+        Phones: a 4:3 frame at the top, fading into the backdrop at the bottom.
+        Desktop: the frame starts where the copy column ends (27rem, or 36% on
+        wide screens) and the whole 16:9 video fits inside it (container units),
+        so the walk and the logo reveal never pass under the text. All four
+        edges are feathered into the matching backdrop: no visible box.
+      */}
+      <div className="absolute inset-x-0 top-0 -z-10 aspect-4/3 md:[container-type:size] md:inset-y-0 md:right-0 md:left-[max(27rem,36%)] md:flex md:aspect-auto md:items-center md:justify-end">
+        <div className="relative h-full w-full [mask-image:linear-gradient(to_bottom,black_82%,transparent)] md:aspect-video md:h-auto md:w-[min(100cqw,177.78cqh)] md:[mask-image:linear-gradient(to_right,transparent,black_22%),linear-gradient(to_bottom,transparent,black_16%,black_84%,transparent)] md:[mask-composite:intersect] md:[-webkit-mask-composite:source-in]">
+          <picture>
+            <source type="image/webp" srcSet={video.poster.webp} />
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- alt comes from getImageProps */}
+            <img
+              {...poster}
+              className="absolute inset-0 h-full w-full object-cover object-[70%_50%] md:object-center"
+            />
+          </picture>
+          <HeroVideo sources={video} className="object-[70%_50%] md:object-center" />
+        </div>
       </div>
       <div
         className={cn(
