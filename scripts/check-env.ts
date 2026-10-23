@@ -11,9 +11,8 @@ const NODE_ENV = process.env.NODE_ENV ?? "production";
 loadEnvConfig(process.cwd(), NODE_ENV === "development");
 
 // A blank `KEY=` line means "not set", as in the app.
-const source = Object.fromEntries(
-  Object.entries({ ...process.env, NODE_ENV }).filter(([, value]) => value !== ""),
-);
+const env: Record<string, string | undefined> = { ...process.env, NODE_ENV };
+const source = Object.fromEntries(Object.entries(env).filter(([, value]) => value !== ""));
 
 const problems: string[] = [];
 for (const [label, schema] of [
