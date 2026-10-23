@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCESS_DENIED_PATH, decideAccess, signInPathFor } from "@/lib/auth/access";
 import { requiredPermissionForPath } from "@/lib/auth/rbac";
-import { SESSION_COOKIE, verifySessionCookie } from "@/lib/auth/session";
+import type { Session } from "@/lib/auth/session";
+import { SESSION_COOKIE } from "@/lib/auth/session-cookie";
 import { isKnownPath } from "@/config/routes";
 
 /**
@@ -23,7 +24,18 @@ export async function proxy(request: NextRequest) {
 
   const cookie = request.cookies.get(SESSION_COOKIE)?.value;
   // Revocation is checked on every mutation; skipping it here keeps navigation fast.
-  const session = cookie ? await verifySessionCookie(cookie, { checkRevoked: false }) : null;
+  // The Firebase Admin SDK is loaded only here, for protected paths, so public pages
+  // never depend on it. If it can't load or verify, treat the visitor as signed out:
+  // the page and its Server Actions check access again themselves.
+  let session: Session | null = null;
+  if (cookie) {
+    try {
+      const { verifySessionCookie } = await import("@/lib/auth/session");
+      session = await verifySessionCookie(cookie, { checkRevoked: false });
+    } catch (error) {
+      console.error("proxy.session_check_failed", error);
+    }
+  }
 
   const decision = decideAccess(pathname, search, session?.role ?? null);
 

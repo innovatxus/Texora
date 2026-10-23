@@ -5,8 +5,9 @@ import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { isRole, type Role } from "./rbac";
 import { newProfile } from "./profile";
 
-/** `__session` is the one cookie name Firebase Hosting forwards to the server. */
-export const SESSION_COOKIE = "__session";
+import { SESSION_COOKIE } from "./session-cookie";
+
+export { SESSION_COOKIE };
 /** Session cookies last five days. */
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 5;
 /** A session may only be minted from a sign-in this recent (Firebase guidance). */
