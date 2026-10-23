@@ -17,7 +17,7 @@ export const GRID_TILES: Record<string, readonly GridTile[]> = {
       title: "Easy pieces for warm days",
       href: "/collections/the-linen-edit",
       image: "/media/stock/womenTops-tile.jpg",
-      imageAlt: "A woman in a black blouse and cream trousers",
+      imageAlt: "A woman in a fitted ivory tee and high-waisted jeans",
     },
   ],
   men: [
@@ -27,7 +27,7 @@ export const GRID_TILES: Record<string, readonly GridTile[]> = {
       title: "Merino, cashmere and lambswool",
       href: "/collections/knitwear",
       image: "/media/stock/menSweaters-tile.jpg",
-      imageAlt: "A man in a beige sweater and black trousers",
+      imageAlt: "A man in a charcoal crew-neck sweater under an olive overcoat",
     },
   ],
 };

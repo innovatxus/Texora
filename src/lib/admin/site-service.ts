@@ -123,7 +123,10 @@ const STARTERS: Partial<Record<CmsModuleType, unknown>> = {
     headline: "Feature headline",
     body: "Short supporting copy.",
     cta: { label: "Shop now", href: "/collections/new-arrivals" },
-    image: { url: "/media/stock/womenDresses-tile.jpg", alt: "A woman in a long beige dress" },
+    image: {
+      url: "/media/stock/womenDresses-tile.jpg",
+      alt: "A woman in a champagne pleated midi dress with an olive handbag",
+    },
     imageSide: "left",
   },
 };

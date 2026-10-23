@@ -29,7 +29,8 @@
     "prepare": "husky",
     "test:e2e": "tsx tests/e2e-run.ts",
     "prebuild": "tsx scripts/check-env.ts",
-    "migrate:egypt": "tsx scripts/migrate-egypt-settings.ts"
+    "migrate:egypt": "tsx scripts/migrate-egypt-settings.ts",
+    "migrate:campaign": "tsx scripts/migrate-campaign-content.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",

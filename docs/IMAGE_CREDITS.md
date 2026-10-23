@@ -1,28 +1,31 @@
 # Image credits
 
-Interim storefront photography for the live-store starter pages (`npm run bootstrap`), until real product and campaign photography replaces it in `/admin/content`. Every photo is from [Pexels](https://www.pexels.com/license/): free for commercial use, modification allowed, no attribution required. None shows a brand's product or campaign. Regenerate with `npx tsx scripts/stock-images.ts`; heroes are composed (photo plus its own backdrop) so the headline sits on a calm area.
+All storefront photography is the store's own, supplied by the store owner. The generic stock photos used during development have been removed.
 
-| Slot          | Source                                                                                                                     | Description                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| heroHome      | [Pexels 8484104](https://www.pexels.com/photo/women-posing-wearing-matching-outfits-8484104/)                              | Two women in ivory and taupe knits and wide trousers in a pale studio      |
-| heroWomen     | [Pexels 39705635](https://www.pexels.com/photo/fashionable-woman-in-minimalist-studio-portrait-39705635/)                  | A woman in a white blouse and wide brown trousers seated in a white studio |
-| heroMen       | [Pexels 35414994](https://www.pexels.com/photo/elegant-man-in-pale-pink-shirt-and-gray-pants-35414994/)                    | A man in a pale pink shirt and grey trousers in a grey studio              |
-| heroSale      | [Pexels 9594676](https://www.pexels.com/photo/fashion-shopping-indoors-blouse-9594676/)                                    | A clothes rail of neutral pieces in a bright, minimal room                 |
-| womenDresses  | [Pexels 13816064](https://www.pexels.com/photo/a-woman-wearing-a-beige-dress-13816064/)                                    | A woman in a long beige dress                                              |
-| womenTops     | [Pexels 19456445](https://www.pexels.com/photo/studio-shot-of-a-woman-in-a-trendy-casual-outfit-19456445/)                 | A woman in a black blouse and cream trousers                               |
-| womenSweaters | [Pexels 7760243](https://www.pexels.com/photo/a-woman-in-beige-sweater-7760243/)                                           | A woman in an oatmeal knit sweater                                         |
-| womenPants    | [Pexels 19317139](https://www.pexels.com/photo/model-on-white-background-19317139/)                                        | A woman in a black top and ivory trousers                                  |
-| womenJeans    | [Pexels 19317144](https://www.pexels.com/photo/woman-in-transparent-blouse-19317144/)                                      | A woman in a sheer top and straight-leg jeans                              |
-| womenCoats    | [Pexels 7760238](https://www.pexels.com/photo/a-person-hugging-a-beige-coat-7760238/)                                      | A woman wrapped in a pale grey wool coat                                   |
-| menShirts     | [Pexels 10004175](https://www.pexels.com/photo/a-man-wearing-a-denim-shirt-and-pants-10004175/)                            | A man in a denim shirt and light-wash jeans                                |
-| menTees       | [Pexels 8498700](https://www.pexels.com/photo/man-in-a-white-crew-neck-shirt-smiling-while-looking-at-the-camera-8498700/) | A man in a white crew-neck tee                                             |
-| menSweaters   | [Pexels 3754247](https://www.pexels.com/photo/photo-of-man-wearing-beige-sweater-3754247/)                                 | A man in a beige sweater and black trousers                                |
-| menPants      | [Pexels 11000250](https://www.pexels.com/photo/man-in-black-long-sleeve-shirt-and-beige-pants-11000250/)                   | A man in a black sweater and stone trousers                                |
-| menJeans      | [Pexels 8474077](https://www.pexels.com/photo/a-handsome-man-in-black-shirt-and-denim-jeans-8474077/)                      | A man in a black tee and dark-wash jeans                                   |
-| menCoats      | [Pexels 6626749](https://www.pexels.com/photo/man-in-white-winter-coat-6626749/)                                           | A man in a cream padded jacket                                             |
+## Campaign photography
 
-## Store photography
+Source files are in `public/media/assets/campaign`. `npx tsx scripts/campaign-images.ts` builds every slot into `public/media/stock`, using the crops in `scripts/stock-catalog.ts`: 900×1200 category tiles, and hero banners at 2400×1200 (desktop) and 1200×1500 (phone), each with a calm area for the headline.
 
-| Slot      | Source                                                                                                  | Description                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Home hero | Supplied by the store owner (`public/media/assets/texora hero.png`), framed by `scripts/hero-images.ts` | Three people walking in relaxed neutral tailoring and sneakers |
+| Slot          | Source                                             | Description                                                                                                     |
+| ------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| heroWomen     | `public/media/assets/campaign/olive-trench.jpg`    | A woman in an olive trench coat and cream trousers carrying gift boxes through a limestone courtyard            |
+| heroMen       | `public/media/assets/campaign/menswear-motion.jpg` | Three men walking across a sunlit concrete plaza in an olive jacket, a cream knit polo and a charcoal overshirt |
+| heroSale      | `public/media/assets/campaign/evening-villa.jpg`   | Three people in evening wear, an olive satin gown, a dark suit and a black draped dress, in a sunlit villa      |
+| womenDresses  | `public/media/assets/campaign/champagne-dress.jpg` | A woman in a champagne pleated midi dress with an olive handbag                                                 |
+| womenTops     | `public/media/assets/campaign/denim-pair.jpg`      | A woman in a fitted ivory tee and high-waisted jeans                                                            |
+| womenSweaters | `public/media/assets/campaign/oatmeal-knit.jpg`    | A woman in an oatmeal cable-knit cardigan and olive ribbed skirt                                                |
+| womenPants    | `public/media/assets/campaign/olive-trench.jpg`    | Wide cream trousers under an olive trench coat                                                                  |
+| womenJeans    | `public/media/assets/campaign/denim-pair.jpg`      | Wide-leg mid-wash jeans with brown loafers                                                                      |
+| womenCoats    | `public/media/assets/campaign/olive-trench.jpg`    | A woman in a belted olive trench coat                                                                           |
+| menShirts     | `public/media/assets/campaign/denim-pair.jpg`      | A man in a charcoal overshirt over an olive tee                                                                 |
+| menTees       | `public/media/assets/campaign/denim-pair.jpg`      | An olive crew-neck tee under an open charcoal overshirt                                                         |
+| menSweaters   | `public/media/assets/campaign/olive-overcoat.jpg`  | A man in a charcoal crew-neck sweater under an olive overcoat                                                   |
+| menPants      | `public/media/assets/campaign/olive-overcoat.jpg`  | Pressed black trousers with Chelsea boots                                                                       |
+| menJeans      | `public/media/assets/campaign/denim-pair.jpg`      | Straight dark-wash jeans with brown leather boots                                                               |
+| menCoats      | `public/media/assets/campaign/olive-overcoat.jpg`  | A man in a long olive wool overcoat                                                                             |
+
+## Home hero
+
+| Slot      | Source                                                                    | Description                                                                   |
+| --------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Home hero | `public/media/assets/texora hero.png`, framed by `scripts/hero-images.ts` | Three people walking in relaxed neutral tailoring, wide trousers and sneakers |

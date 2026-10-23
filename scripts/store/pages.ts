@@ -1,7 +1,7 @@
 // CMS page content for the seed: home, department landings and sale.
 import { cmsPageSchema, type CmsModule, type CmsPage } from "../../src/lib/cms/modules";
 import type { Product } from "../../src/lib/validation";
-import { HOME_HERO, STOCK, stockUrl, type StockKey } from "../stock-catalog";
+import { HOME_HERO, stockAlt, stockUrl, type StockKey } from "../stock-catalog";
 
 const P = "/media/placeholders";
 const everyone = { schedule: {}, audience: ["everyone" as const] };
@@ -313,12 +313,15 @@ export function buildPages(products: readonly Product[], now: Date): CmsPage[] {
   return draftPages(products).map((page) => cmsPageSchema.parse({ ...page, updatedAt: now }));
 }
 
-/** Starter-page photography: each hero by page, each tile by the category it opens. */
-const STARTER_HEROES: Record<string, { key: StockKey; tone: "dark" | "light" }> = {
-  home: { key: "heroHome", tone: "dark" },
+/**
+ * Starter-page photography: each hero by page (the home page uses the store's
+ * own photo, HOME_HERO), each tile by the category it opens. Every hero keeps
+ * a light area for dark copy.
+ */
+const STARTER_HEROES: Record<string, { key: StockKey | "own"; tone: "dark" | "light" }> = {
+  home: { key: "own", tone: "dark" },
   women: { key: "heroWomen", tone: "dark" },
-  // The men's studio is mid-grey: white copy passes AA there, dark copy doesn't.
-  men: { key: "heroMen", tone: "light" },
+  men: { key: "heroMen", tone: "dark" },
   sale: { key: "heroSale", tone: "dark" },
 };
 const STARTER_TILES: Record<string, StockKey> = {
@@ -357,18 +360,17 @@ export function buildStarterPages(now: Date): CmsPage[] {
           );
           const hero = STARTER_HEROES[page.slug];
           if (!hero) return [{ ...module, data: { ...module.data, ctas } }];
-          // The home page uses the store's own photograph; the others, licensed photos.
-          const own = page.slug === "home";
+          const key = hero.key;
           const image = {
-            alt: own ? HOME_HERO.alt : STOCK[hero.key].alt,
+            alt: key === "own" ? HOME_HERO.alt : stockAlt(key),
             desktop: {
-              url: own ? HOME_HERO.desktop : stockUrl(hero.key, "desktop"),
+              url: key === "own" ? HOME_HERO.desktop : stockUrl(key, "desktop"),
               width: 2400,
               height: 1200,
               focal: { x: 0.5, y: 0.5 },
             },
             mobile: {
-              url: own ? HOME_HERO.mobile : stockUrl(hero.key, "mobile"),
+              url: key === "own" ? HOME_HERO.mobile : stockUrl(key, "mobile"),
               width: 1200,
               height: 1500,
               focal: { x: 0.5, y: 0.3 },
@@ -379,7 +381,7 @@ export function buildStarterPages(now: Date): CmsPage[] {
         if (module.type === "categoryTiles") {
           const tiles = module.data.tiles.map((t) => {
             const key = STARTER_TILES[t.href];
-            return key ? { ...t, image: { url: stockUrl(key, "tile"), alt: STOCK[key].alt } } : t;
+            return key ? { ...t, image: { url: stockUrl(key, "tile"), alt: stockAlt(key) } } : t;
           });
           return [{ ...module, data: { ...module.data, tiles } }];
         }

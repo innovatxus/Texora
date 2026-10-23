@@ -72,7 +72,7 @@ export function SignupModal() {
         <span className="relative block h-full min-h-80">
           <ProductImage
             src="/media/stock/womenSweaters-tile.jpg"
-            alt="A woman in an oatmeal knit sweater"
+            alt="A woman in an oatmeal cable-knit cardigan and olive ribbed skirt"
             fill
             sizes="384px"
           />

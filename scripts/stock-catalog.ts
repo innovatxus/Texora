@@ -1,101 +1,9 @@
-// The interim storefront photographs (royalty-free Pexels photos; see
-// docs/IMAGE_CREDITS.md). Pure data, shared by the image builder
-// (scripts/stock-images.ts) and the live-store starter pages.
-
-export interface StockSource {
-  id: number;
-  /** Pexels page slug (for the credits). */
-  page: string;
-  alt: string;
-}
-
-export const STOCK = {
-  heroHome: {
-    id: 8484104,
-    page: "women-posing-wearing-matching-outfits",
-    alt: "Two women in ivory and taupe knits and wide trousers in a pale studio",
-  },
-  heroWomen: {
-    id: 39705635,
-    page: "fashionable-woman-in-minimalist-studio-portrait",
-    alt: "A woman in a white blouse and wide brown trousers seated in a white studio",
-  },
-  heroMen: {
-    id: 35414994,
-    page: "elegant-man-in-pale-pink-shirt-and-gray-pants",
-    alt: "A man in a pale pink shirt and grey trousers in a grey studio",
-  },
-  heroSale: {
-    id: 9594676,
-    page: "fashion-shopping-indoors-blouse",
-    alt: "A clothes rail of neutral pieces in a bright, minimal room",
-  },
-  womenDresses: {
-    id: 13816064,
-    page: "a-woman-wearing-a-beige-dress",
-    alt: "A woman in a long beige dress",
-  },
-  womenTops: {
-    id: 19456445,
-    page: "studio-shot-of-a-woman-in-a-trendy-casual-outfit",
-    alt: "A woman in a black blouse and cream trousers",
-  },
-  womenSweaters: {
-    id: 7760243,
-    page: "a-woman-in-beige-sweater",
-    alt: "A woman in an oatmeal knit sweater",
-  },
-  womenPants: {
-    id: 19317139,
-    page: "model-on-white-background",
-    alt: "A woman in a black top and ivory trousers",
-  },
-  womenJeans: {
-    id: 19317144,
-    page: "woman-in-transparent-blouse",
-    alt: "A woman in a sheer top and straight-leg jeans",
-  },
-  womenCoats: {
-    id: 7760238,
-    page: "a-person-hugging-a-beige-coat",
-    alt: "A woman wrapped in a pale grey wool coat",
-  },
-  menShirts: {
-    id: 10004175,
-    page: "a-man-wearing-a-denim-shirt-and-pants",
-    alt: "A man in a denim shirt and light-wash jeans",
-  },
-  menTees: {
-    id: 8498700,
-    page: "man-in-a-white-crew-neck-shirt-smiling-while-looking-at-the-camera",
-    alt: "A man in a white crew-neck tee",
-  },
-  menSweaters: {
-    id: 3754247,
-    page: "photo-of-man-wearing-beige-sweater",
-    alt: "A man in a beige sweater and black trousers",
-  },
-  menPants: {
-    id: 11000250,
-    page: "man-in-black-long-sleeve-shirt-and-beige-pants",
-    alt: "A man in a black sweater and stone trousers",
-  },
-  menJeans: {
-    id: 8474077,
-    page: "a-handsome-man-in-black-shirt-and-denim-jeans",
-    alt: "A man in a black tee and dark-wash jeans",
-  },
-  menCoats: {
-    id: 6626749,
-    page: "man-in-white-winter-coat",
-    alt: "A man in a cream padded jacket",
-  },
-} satisfies Record<string, StockSource>;
-
-export type StockKey = keyof typeof STOCK;
+// Storefront photography slots: the store's own campaign photography
+// (CAMPAIGN) and the home hero (HOME_HERO). Pure data, shared by the image
+// builders and the live-store starter pages.
 
 /** Published path of a composed image. */
-export const stockUrl = (key: StockKey, variant: "tile" | "desktop" | "mobile") =>
+export const stockUrl = (key: CampaignKey, variant: "tile" | "desktop" | "mobile") =>
   `/media/stock/${key}-${variant}.jpg`;
 
 /**
@@ -107,3 +15,114 @@ export const HOME_HERO = {
   mobile: "/media/hero/home-mobile.jpg",
   alt: "Three people walking in relaxed neutral tailoring, wide trousers and sneakers",
 } as const;
+
+/** A region of a source photo, in its pixels. */
+export interface Crop {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface CampaignShot {
+  /** File in public/media/assets/campaign. */
+  file: string;
+  /** Crop before framing; the whole photo when absent. */
+  crop?: Crop;
+  /** Phone hero only: a portrait crop around the people. */
+  mobileCrop?: Crop;
+  /** Desktop hero only: crop to 2:1 directly instead of composing on a backdrop. */
+  desktopCrop?: Crop;
+  alt: string;
+}
+
+/**
+ * The store's own campaign photography (public/media/assets/campaign),
+ * in every slot except the home hero (the store's own photo, HOME_HERO). Built by
+ * scripts/campaign-images.ts into the same /media/stock paths, so pages that
+ * already use those paths update without a content change.
+ */
+export const CAMPAIGN = {
+  heroWomen: {
+    file: "olive-trench.jpg",
+    desktopCrop: { left: 0, top: 0, width: 1672, height: 836 },
+    mobileCrop: { left: 700, top: 0, width: 753, height: 941 },
+    alt: "A woman in an olive trench coat and cream trousers carrying gift boxes through a limestone courtyard",
+  },
+  heroMen: {
+    file: "menswear-motion.jpg",
+    desktopCrop: { left: 397, top: 0, width: 1586, height: 793 },
+    mobileCrop: { left: 830, top: 0, width: 640, height: 793 },
+    alt: "Three men walking across a sunlit concrete plaza in an olive jacket, a cream knit polo and a charcoal overshirt",
+  },
+  heroSale: {
+    file: "evening-villa.jpg",
+    desktopCrop: { left: 274, top: 0, width: 1642, height: 821 },
+    mobileCrop: { left: 720, top: 0, width: 760, height: 821 },
+    alt: "Three people in evening wear, an olive satin gown, a dark suit and a black draped dress, in a sunlit villa",
+  },
+  womenDresses: {
+    file: "champagne-dress.jpg",
+    alt: "A woman in a champagne pleated midi dress with an olive handbag",
+  },
+  womenTops: {
+    file: "denim-pair.jpg",
+    crop: { left: 80, top: 80, width: 480, height: 640 },
+    alt: "A woman in a fitted ivory tee and high-waisted jeans",
+  },
+  womenSweaters: {
+    file: "oatmeal-knit.jpg",
+    alt: "A woman in an oatmeal cable-knit cardigan and olive ribbed skirt",
+  },
+  womenPants: {
+    file: "olive-trench.jpg",
+    crop: { left: 830, top: 380, width: 420, height: 560 },
+    alt: "Wide cream trousers under an olive trench coat",
+  },
+  womenJeans: {
+    file: "denim-pair.jpg",
+    crop: { left: 60, top: 520, width: 500, height: 667 },
+    alt: "Wide-leg mid-wash jeans with brown loafers",
+  },
+  womenCoats: {
+    file: "olive-trench.jpg",
+    crop: { left: 657, top: 0, width: 706, height: 941 },
+    alt: "A woman in a belted olive trench coat",
+  },
+  menShirts: {
+    file: "denim-pair.jpg",
+    crop: { left: 520, top: 10, width: 510, height: 680 },
+    alt: "A man in a charcoal overshirt over an olive tee",
+  },
+  menTees: {
+    file: "denim-pair.jpg",
+    crop: { left: 570, top: 160, width: 390, height: 520 },
+    alt: "An olive crew-neck tee under an open charcoal overshirt",
+  },
+  menSweaters: {
+    file: "olive-overcoat.jpg",
+    crop: { left: 300, top: 20, width: 540, height: 720 },
+    alt: "A man in a charcoal crew-neck sweater under an olive overcoat",
+  },
+  menPants: {
+    file: "olive-overcoat.jpg",
+    crop: { left: 330, top: 640, width: 500, height: 667 },
+    alt: "Pressed black trousers with Chelsea boots",
+  },
+  menJeans: {
+    file: "denim-pair.jpg",
+    crop: { left: 520, top: 520, width: 520, height: 693 },
+    alt: "Straight dark-wash jeans with brown leather boots",
+  },
+  menCoats: {
+    file: "olive-overcoat.jpg",
+    alt: "A man in a long olive wool overcoat",
+  },
+} satisfies Record<string, CampaignShot>;
+
+export type CampaignKey = keyof typeof CAMPAIGN;
+/** Kept as an alias: every photo slot is a campaign slot. */
+export type StockKey = CampaignKey;
+
+/** The description for a slot's photo. */
+export const stockAlt = (key: CampaignKey) => CAMPAIGN[key].alt;
