@@ -17,6 +17,9 @@ import type { ReturnPolicy, Shop } from "@/lib/validation/merchant";
 
 /** Calling codes offered in the phone field; numbers are stored in E.164 form. */
 const COUNTRIES = [
+  { value: "20", label: "Egypt (+20)" },
+  { value: "966", label: "Saudi Arabia (+966)" },
+  { value: "971", label: "United Arab Emirates (+971)" },
   { value: "1", label: "United States / Canada (+1)" },
   { value: "44", label: "United Kingdom (+44)" },
   { value: "353", label: "Ireland (+353)" },
@@ -29,16 +32,16 @@ const COUNTRIES = [
   { value: "81", label: "Japan (+81)" },
 ] as const;
 
-/** Splits "+12125550123" into its calling code and national number. */
+/** Splits "+201012345678" into its calling code and national number. */
 export function splitPhone(e164: string | undefined): { country: string; national: string } {
-  if (!e164) return { country: "1", national: "" };
+  if (!e164) return { country: "20", national: "" };
   const digits = e164.replace(/^\+/, "");
   const match = [...COUNTRIES]
     .sort((a, b) => b.value.length - a.value.length)
     .find((c) => digits.startsWith(c.value));
   return match
     ? { country: match.value, national: digits.slice(match.value.length) }
-    : { country: "1", national: digits };
+    : { country: "20", national: digits };
 }
 
 const WINDOW_LABELS: Record<number, string> = {
@@ -97,7 +100,8 @@ export function ContactForm({
     event.preventDefault();
     setPending(true);
     setFormError(null);
-    const national = values.national.replace(/\D/g, "");
+    // A local trunk 0 ("010 1234 5678") isn't part of the international number.
+    const national = values.national.replace(/\D/g, "").replace(/^0+/, "");
     const returnPolicy: ReturnPolicy =
       values.policyMode === "platform"
         ? { mode: "platform" }

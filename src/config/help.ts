@@ -229,7 +229,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         heading: "Where we deliver",
         paragraphs: [
-          "We currently deliver to addresses in the United States, including P.O. boxes for Standard delivery.",
+          "We deliver to addresses in all 27 governorates of Egypt. Prices are in Egyptian pounds (EGP).",
         ],
       },
     ],

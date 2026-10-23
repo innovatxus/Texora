@@ -5,7 +5,7 @@ import { NewsletterForm } from "@/components/marketing/NewsletterForm";
 import { Link } from "@/components/primitives";
 import { brand } from "@/config/brand";
 import { FOOTER_COLUMNS, LEGAL_LINKS, SOCIAL_LINKS } from "@/config/navigation";
-import { CookieSettingsButton, CountrySelector } from "./FooterControls";
+import { CookieSettingsButton } from "./FooterControls";
 import { Logo } from "./Logo";
 
 /** Cached so the static shell can prerender; refreshed daily. */
@@ -15,7 +15,7 @@ async function CopyrightYear() {
   return <>{new Date().getFullYear()}</>;
 }
 
-/** Site footer: newsletter signup, link columns, region selector, social and legal links. */
+/** Site footer: newsletter signup, link columns, social links, payment methods and legal links. */
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-line bg-surface-muted print:hidden">
@@ -53,7 +53,6 @@ export function Footer() {
         <div className="container-page flex flex-col gap-6 py-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
             <Logo compact />
-            <CountrySelector />
             <ul aria-label="Follow us" className="flex gap-5">
               {SOCIAL_LINKS.map((link) => (
                 <li key={link.href}>
