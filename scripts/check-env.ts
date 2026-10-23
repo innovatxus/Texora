@@ -25,6 +25,21 @@ for (const [label, schema] of [
     const key = issue.path.join(".") || "(root)";
     const missing = source[key] === undefined;
     problems.push(`  ✗ ${key} (${label}): ${missing ? "missing" : issue.message}`);
+    if (missing) {
+      // A key saved with a stray space, different case or as "KEY=value" in the name field.
+      const similar = Object.keys(process.env).filter(
+        (name) =>
+          name !== key &&
+          name
+            .replace(/[^A-Z0-9_]/gi, "")
+            .toUpperCase()
+            .startsWith(key),
+      );
+      for (const name of similar) {
+        problems.push(`      found a similar key "${name}": rename it to exactly ${key}`);
+      }
+      if (process.env[key] === "") problems.push(`      ${key} exists but its value is empty`);
+    }
   }
 }
 
@@ -34,6 +49,9 @@ if (problems.length > 0) {
       "",
       "Environment check failed. Add or fix these variables (Vercel: Settings → Environment",
       "Variables, ticked for the environment being built), then redeploy:",
+      ...(process.env.VERCEL_ENV
+        ? [`  (this build runs in Vercel's "${process.env.VERCEL_ENV}" environment)`]
+        : []),
       ...[...new Set(problems)],
       "",
       "See README → Deploy → Vercel for the full list.",
