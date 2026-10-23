@@ -238,15 +238,15 @@ export const SIZE_RUNS: Readonly<Record<SizeType, readonly SizeRun[]>> = {
   ],
   shoe: [
     {
-      id: "shoe_us",
-      label: "US 5–13",
-      sizes: range(5, 13, 0.5).map((n) => `US ${n}`),
-      allowCustom: false,
-    },
-    {
       id: "shoe_eu",
       label: "EU 35–47",
       sizes: range(35, 47).map((n) => `EU ${n}`),
+      allowCustom: false,
+    },
+    {
+      id: "shoe_us",
+      label: "US 5–13",
+      sizes: range(5, 13, 0.5).map((n) => `US ${n}`),
       allowCustom: false,
     },
   ],
@@ -267,7 +267,7 @@ export const MERCHANT_LANDING = {
   hero: {
     eyebrow: "For merchants",
     title: `Sell on ${brand.name}`,
-    body: "Reach shoppers across the US with a shop page that looks as good as your clothes.",
+    body: "Reach shoppers across Egypt with a shop page that looks as good as your clothes.",
     cta: "Open your shop",
     secondary: "Already selling? Sign in",
   },
@@ -294,7 +294,7 @@ export const MERCHANT_LANDING = {
     },
   ],
   requirements: [
-    "A US business or sole trader with a US ship-from address",
+    "A business or sole trader in Egypt with a ship-from address in Egypt",
     "Original goods, or goods you're authorised to sell",
     "Orders ship within the processing time you choose",
     "Photos of every colour you sell, with alt text",

@@ -307,6 +307,7 @@ export async function saveLocation(
 ): Promise<MerchantLocation> {
   const shop = await editableShop(actor, input.shopId);
   const geocoded = geocodeByGovernorate(input.address.region);
+  if (!geocoded) throw new ActionError("conflict", "Choose a governorate", "address.region");
   const all = await listLocations(shop.id, { includeArchived: true });
   const existing = input.locationId ? all.find((l) => l.id === input.locationId) : undefined;
   if (input.locationId && !existing)
@@ -334,9 +335,13 @@ export async function saveLocation(
     vendorId: actor.vendorId,
     name: input.name,
     types: input.types,
+    // Optional fields are left out when empty: Firestore refuses `undefined` values.
     address: {
-      ...input.address,
-      ...(input.address.postalCode ? {} : { postalCode: undefined }),
+      line1: input.address.line1,
+      ...(input.address.line2 ? { line2: input.address.line2 } : {}),
+      city: input.address.city,
+      region: input.address.region,
+      ...(input.address.postalCode ? { postalCode: input.address.postalCode } : {}),
       country: COUNTRY,
     },
     ...(geocoded?.geo ? { geo: geocoded.geo } : {}),

@@ -8,3 +8,6 @@ export async function POST(request: Request) {
   const released = await releaseExpiredReservations();
   return Response.json({ released });
 }
+
+/** Vercel Cron calls with GET and `Authorization: Bearer $CRON_SECRET`; same handler and check. */
+export const GET = POST;

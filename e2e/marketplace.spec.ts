@@ -80,7 +80,7 @@ test.describe("marketplace", () => {
         .click();
     await page.getByRole("checkbox", { name: "Select all shown variants" }).check();
     const bulk = page.getByRole("group", { name: "Bulk edit" });
-    await bulk.getByRole("textbox", { name: "Price ($)" }).fill("148");
+    await bulk.getByRole("textbox", { name: "Price (EGP)" }).fill("148");
     await bulk.getByRole("button", { name: "Apply price" }).click();
     await bulk.getByRole("textbox", { name: "Stock" }).fill("6");
     await bulk.getByRole("button", { name: "Apply stock" }).click();
@@ -147,7 +147,7 @@ test.describe("marketplace", () => {
     await eventually(shopper, href, async () => {
       const soldBy = shopper.getByRole("region", { name: "Sold by" });
       await expect(soldBy).toContainText(shopName);
-      await expect(soldBy).toContainText("Ships from New York, NY");
+      await expect(soldBy).toContainText("Ships from Zamalek, Cairo");
       await expect(soldBy).toContainText("30-day returns");
     });
 
@@ -182,11 +182,11 @@ test.describe("marketplace", () => {
     const field = (name: string) => shopper.getByRole("textbox", { name, exact: true });
     await field("First name").fill("Grace");
     await field("Last name").fill("Hopper");
-    await field("Address").fill("1 Navy Yard");
-    await field("City").fill("Arlington");
-    await shopper.getByRole("combobox", { name: "State", exact: true }).selectOption("VA");
-    await field("ZIP code").fill("22201");
-    await field("Phone").fill("703 555 0100");
+    await field("Address").fill("5 Mesaha Square");
+    await field("City").fill("Dokki");
+    await shopper.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("GZ");
+    await field("Postal code (optional)").fill("12311");
+    await field("Phone").fill("011 1234 5678");
     await shopper.getByRole("button", { name: "Continue to delivery" }).click();
     await shopper.getByRole("button", { name: "Continue to payment" }).click();
     await shopper.getByText("Pay on delivery", { exact: true }).click();

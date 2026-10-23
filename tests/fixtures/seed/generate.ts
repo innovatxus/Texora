@@ -767,7 +767,12 @@ export function generateSeed(options: { seed?: number; now?: Date } = {}): SeedD
   const orderCounter = orderNumber;
 
   // --------------------------------------------------------- settings
-  const settings = buildStoreSettings(now);
+  // A lower customer service refund limit than the live default (EGP 10,000), so tests
+  // can refund past it on the demo orders.
+  const settings = {
+    ...buildStoreSettings(now),
+    refundLimits: { customer_service: cents(1_000) },
+  };
 
   const pages = buildPages(products, now);
   const merchants = generateMerchantSeed(

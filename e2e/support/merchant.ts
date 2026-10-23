@@ -61,10 +61,9 @@ export async function merchantWithShop(page: Page, testInfo: { project: { name: 
   });
   await gotoReady(page, "/merchant/onboarding/locations");
   await page.getByRole("textbox", { name: "Location name" }).fill("Warehouse");
-  await page.getByRole("textbox", { name: "Street address" }).fill("1 Dock Rd");
-  await page.getByRole("textbox", { name: "City" }).fill("Portland");
-  await page.getByRole("combobox", { name: "State" }).selectOption("OR");
-  await page.getByRole("textbox", { name: "ZIP code" }).fill("97201");
+  await page.getByRole("textbox", { name: "Street address" }).fill("Borg El Arab Industrial Zone");
+  await page.getByRole("textbox", { name: "City" }).fill("Borg El Arab");
+  await page.getByRole("combobox", { name: "Governorate" }).selectOption("ALX");
   await page.getByRole("button", { name: "Add location" }).click();
   await expect(page.getByText("Location added.")).toBeVisible({ timeout: 30_000 });
   return { email, username, shopName };
@@ -127,10 +126,10 @@ export async function onboardSubmittedShop(page: Page, testInfo: { project: { na
   await page.waitForSelector("html[data-hydrated]", { state: "attached" });
   await page.getByRole("textbox", { name: "Location name" }).fill("Mercer Street studio");
   await page.getByRole("checkbox", { name: /Retail store/ }).check();
-  await page.getByRole("textbox", { name: "Street address" }).fill("12 Mercer St");
-  await page.getByRole("textbox", { name: "City" }).fill("New York");
-  await page.getByRole("combobox", { name: "State" }).selectOption("NY");
-  await page.getByRole("textbox", { name: "ZIP code" }).fill("10013");
+  await page.getByRole("textbox", { name: "Street address" }).fill("26 July Street");
+  await page.getByRole("textbox", { name: "City" }).fill("Zamalek");
+  await page.getByRole("combobox", { name: "Governorate" }).selectOption("C");
+  await page.getByRole("textbox", { name: "Postal code (optional)" }).fill("11211");
   await page.getByRole("checkbox", { name: "Monday" }).check();
   await page.getByRole("button", { name: "Copy Monday to all days" }).click();
   await page.getByRole("button", { name: "Add location" }).click();

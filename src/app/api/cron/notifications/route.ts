@@ -12,3 +12,6 @@ export async function POST(request: Request) {
   const [alerts, giftCards] = await Promise.all([processAlerts(), deliverScheduledGiftCards()]);
   return Response.json({ alerts, giftCardsDelivered: giftCards });
 }
+
+/** Vercel Cron calls with GET and `Authorization: Bearer $CRON_SECRET`; same handler and check. */
+export const GET = POST;

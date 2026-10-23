@@ -39,7 +39,7 @@ export function RevenueChart({
               axisLine={{ stroke: "var(--color-line)" }}
             />
             <YAxis
-              tickFormatter={(v: number) => `$${Math.round(v / 100).toLocaleString(LOCALE)}`}
+              tickFormatter={(v: number) => `EGP ${Math.round(v / 100).toLocaleString(LOCALE)}`}
               tick={{ fontSize: 11, fill: "var(--color-ink-subtle)" }}
               tickLine={false}
               axisLine={false}

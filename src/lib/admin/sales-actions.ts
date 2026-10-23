@@ -11,7 +11,9 @@ import {
   markDelivered,
   markProcessing,
   refundOrder,
+  updateShippingAddress,
 } from "./order-service";
+import { checkoutAddressSchema } from "@/lib/orders/checkout-schema";
 import { decideReturn, receiveReturn, refundReturn } from "./return-service";
 
 const id = z.string().min(1).max(128);
@@ -45,6 +47,19 @@ export async function cancelOrderAction(input: unknown) {
       if (!session) throw new ActionError("unauthenticated", "Sign in again");
       await cancelOrder(session, orderId, why);
       return { cancelled: true };
+    },
+  });
+}
+
+/** Corrects the delivery address of an unshipped order (same delivery zone). */
+export async function updateShippingAddressAction(input: unknown) {
+  return runAction(input, {
+    schema: checkoutAddressSchema.extend({ orderId: id }),
+    access: { permission: "orders.write" },
+    handler: async ({ orderId, ...address }, { session }) => {
+      if (!session) throw new ActionError("unauthenticated", "Sign in again");
+      await updateShippingAddress(session, orderId, address);
+      return { updated: true };
     },
   });
 }

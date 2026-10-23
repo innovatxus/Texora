@@ -86,7 +86,12 @@ beforeAll(async () => {
         shopId,
         name: "Warehouse",
         types: ["ship_from"],
-        address: { line1: "1 Dock Rd", city: "Portland", region: "OR", postalCode: "97201" },
+        address: {
+          line1: "Borg El Arab Industrial Zone",
+          city: "Borg El Arab",
+          region: "ALX",
+          postalCode: "21934",
+        },
         hours: [],
         specialHours: [],
       },

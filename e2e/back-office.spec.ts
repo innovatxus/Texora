@@ -88,15 +88,16 @@ test.describe("orders", () => {
   });
 
   test("an agent's refund over the limit is refused with a clear reason", async ({ page }) => {
-    const order = seed.orders[0];
-    if (!order) throw new Error("seed has no orders");
+    // An order worth more than the EGP 1,000 test limit, with nothing refunded yet.
+    const order = seed.orders.find((o) => o.totals.total > 200_000 && o.status !== "cancelled");
+    if (!order) throw new Error("No seed order above the refund limit");
     await signIn(page, "customer-service@texora.test");
     await gotoReady(page, `/admin/orders/${order.id}`);
     page.on("dialog", (d) => void d.accept());
-    await page.getByRole("spinbutton", { name: "Amount ($)" }).fill("300");
+    await page.getByRole("spinbutton", { name: "Amount (EGP)" }).fill("1500");
     await page.getByRole("textbox", { name: "Reason" }).first().fill("Damaged in transit");
     await page.getByRole("button", { name: "Refund", exact: true }).click();
-    await expect(page.getByText(/Refunds above \$250\.00 per order need an admin/)).toBeVisible();
+    await expect(page.getByText(/Refunds above EGP.1,000 per order need an admin/)).toBeVisible();
   });
 });
 

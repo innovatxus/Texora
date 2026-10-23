@@ -71,7 +71,7 @@ export function StoreLocator({ stores }: { stores: Store[] }) {
         <Input
           id={`${id}-search`}
           type="search"
-          label="City, state or ZIP code"
+          label="City or governorate"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="sm:max-w-sm sm:flex-1"
@@ -82,12 +82,12 @@ export function StoreLocator({ stores }: { stores: Store[] }) {
       </div>
       {locating === "denied" && (
         <p className="text-sm text-ink-soft">
-          Location access is turned off. Search by city or ZIP code instead.
+          Location access is turned off. Search by city or governorate instead.
         </p>
       )}
       {locating === "unavailable" && (
         <p className="text-sm text-ink-soft">
-          We couldn&apos;t find your location. Search by city or ZIP code instead.
+          We couldn&apos;t find your location. Search by city or governorate instead.
         </p>
       )}
 

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/cron/release-reservations", "schedule": "15 0 * * *" },
+    { "path": "/api/cron/merchant-publish", "schedule": "30 0 * * *" },
+    { "path": "/api/cron/notifications", "schedule": "0 7 * * *" },
+    { "path": "/api/cron/media-cleanup", "schedule": "0 3 * * *" }
+  ]
+}

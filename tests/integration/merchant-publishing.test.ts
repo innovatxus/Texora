@@ -133,7 +133,12 @@ beforeAll(async () => {
         shopId,
         name: "Studio",
         types: ["ship_from"],
-        address: { line1: "5 Mill St", city: "Portland", region: "OR", postalCode: "97209" },
+        address: {
+          line1: "14 Saad Zaghloul Street",
+          city: "Alexandria",
+          region: "ALX",
+          postalCode: "21111",
+        },
         hours: [],
         specialHours: [],
       },

@@ -513,3 +513,13 @@ Texora trades in Egypt. Market settings live in `src/config/locale.ts`: currency
 
 **Date:** 2026-10-23 · **Phase:** Live readiness
 Every photo slot uses the store's campaign photography (`public/media/assets/campaign`), built by `scripts/campaign-images.ts` into the existing `/media/stock` paths, so live pages update without a content change. The stock photos are gone. The home page gains three CMS sections, each with its own marketing job and editable in `/admin/content`: a **campaign diptych** (`pair`: a seasonal campaign selling new arrivals to both departments), **bleed category tiles** with a link per department (cross-department discovery), and the diptych's **framed** layout (an occasion or gift promotion that also sells e-gift cards). "Shop by category" moves to the **editorial** tile style and carousels gain an optional subheading. Existing pages stay valid: tiles without a variant render as before. The copy on campaign photos sits on a dark fade so light text always passes contrast.
+
+## D-098 — Operations manager, platform owners, email outbox, daily jobs
+
+**Date:** 2026-10-24 · **Phase:** Live readiness
+
+- **Roles.** A new **Operations manager** (`manager`) runs the business day to day: everything the specialist roles can do (customer service with unlimited refunds, catalogue, pricing, stock, fulfilment), approving and suspending merchant shops and products, and reading reports, settings, staff and the audit log, but not changing settings or staff. **Admin** is a manager who also runs settings and staff. `super_admin` is shown as **Platform owner**, and only platform owners grant or change admins and platform owners (`OWNER_ONLY_ROLES`), so an admin can't promote themselves through a second account.
+- **Email outbox.** Without `RESEND_API_KEY` (staging), emails are written to `emailOutbox`. Admins and platform owners read them at `/admin/emails` (`emails.outbox.read`) to pass on verification, invitation and reset links while testing; the links are treated like passwords. Nothing new appears once Resend is connected.
+- **Delivery address changes.** Customer service corrects the address of an unshipped order within its delivery zone (the zone sets the delivery price); for another zone the order is cancelled and placed again. Phone orders go through the normal checkout with the customer's email and cash on delivery.
+- **Background jobs on Vercel.** `vercel.json` schedules the four `/api/cron/*` jobs daily (the Hobby plan allows daily jobs only); each accepts Vercel's GET as well as POST, authenticated with `CRON_SECRET`. Tighten the schedules on Vercel Pro.
+- **Operations guide:** `docs/OPERATIONS.md`.

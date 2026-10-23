@@ -294,7 +294,7 @@ export default function StyleguidePage() {
             <Select
               label="Country"
               options={[{ value: "us", label: "United States" }]}
-              hint="Prices shown in USD."
+              hint="Prices shown in EGP."
             />
             <Select
               label="Quantity"

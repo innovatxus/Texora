@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/format/money";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { DetailsAccordion } from "@/components/pdp/DetailsAccordion";
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/merchants" },
 };
 
-const formatFee = (cents: number) => (cents === 0 ? "None" : `$${(cents / 100).toFixed(2)}`);
+const formatFee = (minor: number) => (minor === 0 ? "None" : formatMoney(minor));
 
 /**
  * Public, statically rendered landing page for prospective merchants. All copy

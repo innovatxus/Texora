@@ -221,17 +221,15 @@ export function GiftCardPurchaseForm({ available }: { available: boolean }) {
       <aside className="flex flex-col gap-5 self-start lg:sticky lg:top-24">
         <div
           aria-hidden
-          className="flex aspect-[1.586] flex-col justify-between bg-ink p-6 text-canvas"
+          className="flex aspect-[1.586] flex-col justify-between bg-brand p-6 text-canvas"
         >
-          <span className="font-display text-xl tracking-[0.28em] text-brand uppercase">
-            {brand.name}
-          </span>
+          <span className="font-display text-xl tracking-[0.28em] uppercase">{brand.name}</span>
           <span>
             <span className="block text-sm opacity-80">
               {recipientName ? `For ${recipientName}` : "E-gift card"}
             </span>
             <span className="font-display text-4xl tabular-nums">
-              {amountValid ? formatMoney(amount) : "$–"}
+              {amountValid ? formatMoney(amount) : "EGP –"}
             </span>
           </span>
         </div>

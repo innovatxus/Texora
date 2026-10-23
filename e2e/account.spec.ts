@@ -167,10 +167,10 @@ test.describe("customer accounts", () => {
     await field("First name").fill("Ada");
     await field("Last name").fill("Lovelace");
     await field("Address").fill("118 Greene Street");
-    await field("City").fill("New York");
-    await page.getByRole("combobox", { name: "State", exact: true }).selectOption("NY");
-    await field("ZIP code").fill("10012");
-    await field("Phone").fill("212 555 0100");
+    await field("City").fill("Zamalek");
+    await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
+    await field("Postal code (optional)").fill("11211");
+    await field("Phone").fill("010 1234 5678");
     await page.getByRole("textbox", { name: "Label (optional)" }).fill("Home");
     await page.getByRole("button", { name: "Add address" }).click();
     await expect(page.getByText("Address added.")).toBeVisible({ timeout: 20_000 });

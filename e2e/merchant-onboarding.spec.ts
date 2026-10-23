@@ -90,10 +90,10 @@ test.describe("shop onboarding", () => {
     // Step 4: the form is open because there are no locations yet.
     await page.getByRole("textbox", { name: "Location name" }).fill("Mercer Street studio");
     await page.getByRole("checkbox", { name: /Retail store/ }).check();
-    await page.getByRole("textbox", { name: "Street address" }).fill("12 Mercer St");
-    await page.getByRole("textbox", { name: "City" }).fill("New York");
-    await page.getByRole("combobox", { name: "State" }).selectOption("NY");
-    await page.getByRole("textbox", { name: "ZIP code" }).fill("10013");
+    await page.getByRole("textbox", { name: "Street address" }).fill("26 July Street");
+    await page.getByRole("textbox", { name: "City" }).fill("Zamalek");
+    await page.getByRole("combobox", { name: "Governorate" }).selectOption("C");
+    await page.getByRole("textbox", { name: "Postal code (optional)" }).fill("11211");
     await page.getByRole("checkbox", { name: "Monday" }).check();
     await page.getByRole("button", { name: "Copy Monday to all days" }).click();
     await page.getByRole("button", { name: "Add location" }).click();

@@ -23,10 +23,8 @@ export default function Page() {
             The easy way to get the fit right. Send an e-gift card from EGP 250 to EGP 25,000 with
             your own message, today or on the day that matters.
           </p>
-          <div className="mt-8 flex aspect-[1.586] max-w-md flex-col justify-between bg-ink p-8 text-canvas">
-            <span className="font-display text-2xl tracking-[0.28em] text-brand uppercase">
-              {brand.name}
-            </span>
+          <div className="mt-8 flex aspect-[1.586] max-w-md flex-col justify-between bg-brand p-8 text-canvas">
+            <span className="font-display text-2xl tracking-[0.28em] uppercase">{brand.name}</span>
             <span className="font-display text-5xl">E-gift card</span>
           </div>
           <h2 id="send-title" className="sr-only">

@@ -71,20 +71,20 @@ test.describe("phase 9 flows", () => {
       const field = (name: string) => page.getByRole("textbox", { name, exact: true });
       await field("First name").fill("Morgan");
       await field("Last name").fill("Member");
-      await field("Address").fill("118 Greene Street");
-      await field("City").fill("New York");
-      await page.getByRole("combobox", { name: "State", exact: true }).selectOption("NY");
-      await field("ZIP code").fill("10012");
-      await field("Phone").fill("212 555 0100");
+      await field("Address").fill("12 Brazil Street");
+      await field("City").fill("Zamalek");
+      await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
+      await field("Postal code (optional)").fill("11211");
+      await field("Phone").fill("010 1234 5678");
     } else if ((await page.getByRole("textbox", { name: "Phone", exact: true }).count()) > 0) {
-      await page.getByRole("textbox", { name: "Phone", exact: true }).fill("212 555 0100");
+      await page.getByRole("textbox", { name: "Phone", exact: true }).fill("010 1234 5678");
     }
     await page.getByRole("button", { name: "Continue to delivery" }).click();
     await page.getByRole("button", { name: "Continue to payment" }).click();
     await page.getByText("Pay on delivery", { exact: true }).click();
-    await page.getByRole("combobox", { name: /Use rewards/ }).selectOption("500");
+    await page.getByRole("combobox", { name: /Use rewards/ }).selectOption("5000");
     await page.getByRole("button", { name: "Review order" }).click();
-    await expect(page.getByRole("definition").filter({ hasText: "−$5.00" })).toBeVisible({
+    await expect(page.getByRole("definition").filter({ hasText: /−EGP.50$/ })).toBeVisible({
       timeout: 20_000,
     });
     await page.getByRole("button", { name: "Place order" }).click();
@@ -107,7 +107,7 @@ test.describe("phase 9 flows", () => {
     await signIn(page, emailFor("customer_service"), "/admin");
     await gotoReady(page, `/admin/orders/${order.id}`);
     page.on("dialog", (d) => void d.accept());
-    await page.getByRole("spinbutton", { name: "Amount ($)" }).fill("10");
+    await page.getByRole("spinbutton", { name: "Amount (EGP)" }).fill("10");
     await page.getByRole("textbox", { name: "Reason" }).first().fill("Missing button");
     await page.getByRole("button", { name: "Refund", exact: true }).click();
     await expect(
@@ -144,6 +144,7 @@ const ROLES_TO_CHECK: Role[] = [
   "inventory_manager",
   "fulfillment",
   "vendor",
+  "manager",
   "admin",
   "super_admin",
 ];

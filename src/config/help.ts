@@ -441,7 +441,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
           `A square logo, at least ${MERCHANT_LIMITS.logo.minWidth}×${MERCHANT_LIMITS.logo.minHeight} px (PNG, JPG, WebP or SVG, up to 5 MB).`,
           `A 3:1 banner, at least ${MERCHANT_LIMITS.banner.minWidth}×${MERCHANT_LIMITS.banner.minHeight} px (up to 10 MB).`,
           "A public contact email, and optionally a phone number, website and social handles.",
-          "At least one ship-from location in the US. Retail stores can be listed too, with opening hours.",
+          "At least one ship-from location in Egypt. Retail stores can be listed too, with opening hours.",
         ],
       },
       {
@@ -507,7 +507,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         heading: "Eligibility",
         paragraphs: [
-          "You must be a US business or sole trader with a US ship-from address, and be authorised to sell everything you list.",
+          "You must be a business or sole trader in Egypt with a ship-from address in Egypt, and be authorised to sell everything you list.",
         ],
       },
       {

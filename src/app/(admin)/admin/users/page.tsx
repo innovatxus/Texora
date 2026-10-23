@@ -7,7 +7,7 @@ import { AdminField, AdminPageHeader, adminControl, FilterBar, Panel } from "@/c
 import { searchUsers } from "@/lib/admin/people-service";
 import { changeRoleAction, inviteStaffAction, revokeSessionsAction } from "@/lib/admin/ops-actions";
 import { requirePagePermission } from "@/lib/auth/guard";
-import { hasPermission, ROLE_LABELS, ROLES, STAFF_ROLES } from "@/lib/auth/rbac";
+import { hasPermission, isOwnerOnlyRole, ROLE_LABELS, ROLES, STAFF_ROLES } from "@/lib/auth/rbac";
 
 /** Users title. */
 export const metadata: Metadata = { title: "Users & roles" };
@@ -22,7 +22,7 @@ async function Users({ searchParams }: PageProps<"/admin/users">) {
   // A search covers every account (to promote a customer); otherwise list staff.
   const users = await searchUsers(q ? { q } : { staff: true });
   const assignable = ROLES.filter(
-    (r) => r !== "guest" && (session.role === "super_admin" || r !== "super_admin"),
+    (r) => r !== "guest" && (session.role === "super_admin" || !isOwnerOnlyRole(r)),
   );
 
   return (
@@ -72,7 +72,7 @@ async function Users({ searchParams }: PageProps<"/admin/users">) {
                   <td className="px-3 py-2">
                     {canAssign &&
                     !self &&
-                    (session.role === "super_admin" || u.role !== "super_admin") ? (
+                    (session.role === "super_admin" || !isOwnerOnlyRole(u.role)) ? (
                       <ActionForm
                         action={changeRoleAction}
                         payload={{ uid: u.uid }}
@@ -140,7 +140,7 @@ async function Users({ searchParams }: PageProps<"/admin/users">) {
                 type: "select",
                 required: true,
                 options: STAFF_ROLES.filter(
-                  (r) => session.role === "super_admin" || r !== "super_admin",
+                  (r) => session.role === "super_admin" || !isOwnerOnlyRole(r),
                 ).map((r) => ({ value: r, label: ROLE_LABELS[r] })),
               },
             ]}

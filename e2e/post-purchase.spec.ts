@@ -27,7 +27,7 @@ test.describe("order lookup and tracking", () => {
     await expect(page.getByRole("heading", { level: 1, name: "On its way" })).toBeVisible();
     const progress = page.getByRole("region", { name: "Progress" });
     await expect(progress.locator('[aria-current="step"]')).toContainText("Shipped");
-    await expect(page.getByText(/Tracking number 1Z/)).toBeVisible();
+    await expect(page.getByText(/Tracking number BST/)).toBeVisible();
   });
 
   test("doesn't reveal which detail was wrong", async ({ page }) => {
@@ -72,7 +72,7 @@ test("guest return by mail, with a QR label", async ({ page }, testInfo) => {
   await expect(page).toHaveURL(/\/returns\/.+\?t=/);
   await expect(page.getByRole("heading", { level: 1, name: /^Return TX-\d+-R\d+$/ })).toBeVisible();
   await expect(page.getByRole("img", { name: /QR code for return/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Print label" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Print code" })).toBeVisible();
 });
 
 test.describe("store locator", () => {
@@ -81,8 +81,8 @@ test.describe("store locator", () => {
     await expect(page.getByText("3 stores")).toBeVisible();
     await page.getByRole("button", { name: "Personal styling" }).click();
     await expect(page.getByText("1 store", { exact: true })).toBeVisible();
-    await page.getByRole("link", { name: /Store details.*Texora SoHo/ }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "Texora SoHo" })).toBeVisible();
+    await page.getByRole("link", { name: /Store details.*Texora Zamalek/ }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Texora Zamalek" })).toBeVisible();
     await expect(page.getByRole("table", { name: "Opening hours, local time" })).toBeVisible();
     // The open/closed line is computed in the browser.
     await expect(
@@ -95,9 +95,9 @@ test.describe("store locator", () => {
 
   test("searches by city", async ({ page }) => {
     await gotoReady(page, "/stores");
-    await page.getByRole("searchbox", { name: "City, state or ZIP code" }).fill("austin");
+    await page.getByRole("searchbox", { name: "City or governorate" }).fill("alexandria");
     await expect(page.getByText("1 store", { exact: true })).toBeVisible();
-    await page.getByRole("searchbox", { name: "City, state or ZIP code" }).fill("Paris");
+    await page.getByRole("searchbox", { name: "City or governorate" }).fill("Paris");
     await expect(page.getByText(/No stores match/)).toBeVisible();
   });
 
@@ -158,12 +158,15 @@ test.describe("gift cards", () => {
     await field.fill(seed.demoGiftCardCode.toLowerCase());
     await page.getByRole("button", { name: "Check balance" }).click();
     await expect(page.getByText("Card ending 0001")).toBeVisible();
-    await expect(page.getByText("$100.00")).toBeVisible();
+    await expect(page.getByText(/EGP.2,500/).first()).toBeVisible();
   });
 
   test("the purchase form previews the card", async ({ page }) => {
     await gotoReady(page, "/gift-cards/buy");
-    await page.getByText("$100.00", { exact: true }).first().click();
+    await page
+      .getByText(/^EGP.1,000$/)
+      .first()
+      .click();
     await page.getByRole("textbox", { name: "Recipient's name" }).fill("Grace");
     await expect(page.getByText("For Grace")).toBeVisible();
   });

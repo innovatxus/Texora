@@ -1,4 +1,4 @@
-import { CURRENCY } from "@/config/locale";
+import { CURRENCY, DELIVERY_ZONE_LABELS, deliveryZoneFor } from "@/config/locale";
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { FieldPath, FieldValue } from "firebase-admin/firestore";
@@ -228,6 +228,51 @@ export async function cancelOrder(actor: Session, orderId: string, reason: strin
     );
   });
   invalidate("inventory");
+}
+
+const ADDRESS_EDITABLE = new Set<Order["status"]>(["pending_payment", "placed", "processing"]);
+
+/**
+ * Customer service: corrects the delivery address of an order that hasn't
+ * shipped. The new address must be in the same delivery zone, because the
+ * zone sets the delivery price; for another zone, cancel and reorder.
+ */
+export async function updateShippingAddress(
+  actor: Session,
+  orderId: string,
+  address: Order["shippingAddress"],
+): Promise<void> {
+  const order = await loadOrder(orderId);
+  if (!ADDRESS_EDITABLE.has(order.status)) {
+    throw new ActionError("conflict", "Only orders that haven't shipped can change address");
+  }
+  const zone = deliveryZoneFor(order.shippingAddress.region);
+  if (deliveryZoneFor(address.region) !== zone) {
+    throw new ActionError(
+      "conflict",
+      `Delivery is priced for ${DELIVERY_ZONE_LABELS[zone]}. For another zone, cancel this order and place a new one.`,
+      "region",
+    );
+  }
+  const now = new Date();
+  await orders()
+    .doc(orderId)
+    .update({
+      shippingAddress: address,
+      notes: FieldValue.arrayUnion({
+        text: "Delivery address changed",
+        by: actorOf(actor),
+        at: now,
+      }),
+      updatedAt: now,
+    });
+  await writeAuditLog({
+    actor,
+    action: "orders.update_address",
+    target: { type: "order", id: orderId },
+    before: order.shippingAddress as unknown as Record<string, unknown>,
+    after: address as unknown as Record<string, unknown>,
+  });
 }
 
 /** Adds an internal note to an order (never shown to the customer). */

@@ -61,6 +61,7 @@ export const ADMIN_NAV: readonly AdminNavGroup[] = [
       { href: "/admin/users", label: "Users & roles", permission: "users.read" },
       { href: "/admin/settings", label: "Settings", permission: "settings.read" },
       { href: "/admin/audit", label: "Audit log", permission: "audit.read" },
+      { href: "/admin/emails", label: "Email outbox", permission: "emails.outbox.read" },
     ],
   },
 ];

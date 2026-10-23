@@ -92,8 +92,8 @@ export default async function Page() {
         </h2>
         <ul className="flex max-w-prose list-disc flex-col gap-2 pl-5 text-ink-soft">
           <li>
-            Earn {pointsPerCurrencyUnit} points for every EGP 1 you spend, credited when your order
-            is delivered.
+            Earn {pointsPerCurrencyUnit} {pointsPerCurrencyUnit === 1 ? "point" : "points"} for
+            every EGP 1 you spend, credited when your order is delivered.
           </li>
           <li>Spend points at checkout in EGP 50 steps: 500 points take EGP 50 off.</li>
           <li>

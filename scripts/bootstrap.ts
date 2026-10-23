@@ -151,6 +151,7 @@ const PERSONAS: ReadonlyArray<{ alias: string; role: Role; firstName: string; la
     { alias: "pricing", role: "pricing_manager", firstName: "Priya", lastName: "Pricing" },
     { alias: "inventory", role: "inventory_manager", firstName: "Ivan", lastName: "Inventory" },
     { alias: "fulfilment", role: "fulfillment", firstName: "Fern", lastName: "Fulfilment" },
+    { alias: "manager", role: "manager", firstName: "Maya", lastName: "Manager" },
     { alias: "admin", role: "admin", firstName: "Alex", lastName: "Admin" },
   ];
 

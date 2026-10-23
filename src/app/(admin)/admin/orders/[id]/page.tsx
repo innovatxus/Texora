@@ -17,7 +17,9 @@ import {
   markProcessingAction,
   refundOrderAction,
   resendConfirmationAction,
+  updateShippingAddressAction,
 } from "@/lib/admin/sales-actions";
+import { GOVERNORATES } from "@/config/locale";
 import { requirePagePermission } from "@/lib/auth/guard";
 import { hasPermission, ROLE_LABELS, type Permission } from "@/lib/auth/rbac";
 import { getStoreSettings } from "@/lib/data/admin-records";
@@ -177,7 +179,7 @@ async function OrderDetail({ params }: PageProps<"/admin/orders/[id]">) {
                       label: "Carrier",
                       type: "text",
                       required: true,
-                      placeholder: "UPS Ground",
+                      placeholder: "Bosta",
                     },
                     {
                       name: "trackingNumber",
@@ -305,6 +307,79 @@ async function OrderDetail({ params }: PageProps<"/admin/orders/[id]">) {
                     type: "textarea",
                     rows: 2,
                     required: true,
+                  },
+                ]}
+              />
+            </Panel>
+          )}
+
+          {can("orders.write") && cancellable && (
+            <Panel title="Change delivery address">
+              <p className="mb-3 text-ink-soft">
+                For orders that haven&apos;t shipped, within the same delivery zone. The customer
+                isn&apos;t emailed; let them know if they didn&apos;t ask for it.
+              </p>
+              <ActionForm
+                action={updateShippingAddressAction}
+                payload={{ orderId: order.id, country: "EG" }}
+                submitLabel="Save address"
+                done="Address updated"
+                resetOnSuccess={false}
+                fields={[
+                  {
+                    name: "firstName",
+                    label: "First name",
+                    type: "text",
+                    required: true,
+                    defaultValue: order.shippingAddress.firstName,
+                  },
+                  {
+                    name: "lastName",
+                    label: "Last name",
+                    type: "text",
+                    required: true,
+                    defaultValue: order.shippingAddress.lastName,
+                  },
+                  {
+                    name: "line1",
+                    label: "Address",
+                    type: "text",
+                    required: true,
+                    defaultValue: order.shippingAddress.line1,
+                  },
+                  {
+                    name: "line2",
+                    label: "Apartment, floor (optional)",
+                    type: "text",
+                    defaultValue: order.shippingAddress.line2 ?? "",
+                  },
+                  {
+                    name: "city",
+                    label: "City",
+                    type: "text",
+                    required: true,
+                    defaultValue: order.shippingAddress.city,
+                  },
+                  {
+                    name: "region",
+                    label: "Governorate",
+                    type: "select",
+                    required: true,
+                    defaultValue: order.shippingAddress.region,
+                    options: GOVERNORATES.map((g) => ({ value: g.code, label: g.name })),
+                  },
+                  {
+                    name: "postalCode",
+                    label: "Postal code (optional)",
+                    type: "text",
+                    defaultValue: order.shippingAddress.postalCode ?? "",
+                  },
+                  {
+                    name: "phone",
+                    label: "Mobile",
+                    type: "text",
+                    required: true,
+                    defaultValue: order.shippingAddress.phone,
                   },
                 ]}
               />

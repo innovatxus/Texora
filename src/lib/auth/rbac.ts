@@ -84,6 +84,8 @@ export const PERMISSIONS = [
   "audit.read",
   "audit.export",
   "integrations.write",
+  /** Undelivered emails (no email provider yet): they hold sign-in and reset links. */
+  "emails.outbox.read",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -99,6 +101,7 @@ export const ROLES = [
   "inventory_manager",
   "fulfillment",
   "vendor",
+  "manager",
   "admin",
   "super_admin",
 ] as const;
@@ -112,6 +115,7 @@ export const STAFF_ROLES = [
   "pricing_manager",
   "inventory_manager",
   "fulfillment",
+  "manager",
   "admin",
   "super_admin",
 ] as const satisfies readonly Role[];
@@ -196,7 +200,14 @@ const VENDOR: readonly Permission[] = [
   "merchant.media.write",
 ];
 
-const ADMIN: readonly Permission[] = [
+/**
+ * Operations manager: runs the business day to day. Everything the specialist
+ * roles can do (customer service with unlimited refunds, catalogue, pricing,
+ * stock, fulfilment), approves and suspends merchant shops and products, and
+ * reads reports, settings, staff and the audit log. Doesn't change store
+ * settings or staff accounts: that stays with admins and platform owners.
+ */
+const MANAGER: readonly Permission[] = [
   ...new Set([
     ...CUSTOMER_SERVICE,
     ...MERCHANDISER,
@@ -204,18 +215,27 @@ const ADMIN: readonly Permission[] = [
     ...INVENTORY_MANAGER,
     ...FULFILLMENT,
     "orders.refund_unlimited",
+    "merchants.manage",
     "reports.read",
     "settings.read",
-    "settings.write",
     "users.read",
-    "users.invite",
-    "users.assign_role",
-    "users.revoke_sessions",
     "audit.read",
-    "merchants.manage",
   ] as const),
 ];
 
+/** Admin: a manager who also runs store settings and staff (invites, roles, sessions). */
+const ADMIN: readonly Permission[] = [
+  ...new Set([
+    ...MANAGER,
+    "settings.write",
+    "users.invite",
+    "users.assign_role",
+    "users.revoke_sessions",
+    "emails.outbox.read",
+  ] as const),
+];
+
+/** Platform owner (internal role name: super_admin): everything, including admins and integrations. */
 const SUPER_ADMIN: readonly Permission[] = [
   ...new Set([...ADMIN, "audit.export", "integrations.write"] as const),
 ];
@@ -231,6 +251,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   inventory_manager: INVENTORY_MANAGER,
   fulfillment: FULFILLMENT,
   vendor: VENDOR,
+  manager: MANAGER,
   admin: ADMIN,
   super_admin: SUPER_ADMIN,
 };
@@ -246,8 +267,9 @@ export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   inventory_manager: "Inventory manager",
   fulfillment: "Fulfilment",
   vendor: "Merchant",
+  manager: "Operations manager",
   admin: "Admin",
-  super_admin: "Super admin",
+  super_admin: "Platform owner",
 };
 
 /** Type guard for role strings, e.g. from token claims. */
@@ -285,6 +307,13 @@ export function isStaffRole(role: Role): boolean {
   return (STAFF_ROLES as readonly Role[]).includes(role);
 }
 
+/** Roles only a platform owner may grant or change: admin and platform owner. */
+export const OWNER_ONLY_ROLES = ["admin", "super_admin"] as const satisfies readonly Role[];
+
+export function isOwnerOnlyRole(role: Role): boolean {
+  return (OWNER_ONLY_ROLES as readonly Role[]).includes(role);
+}
+
 export interface RoleChange {
   actorUid: string;
   actorRole: Role;
@@ -305,7 +334,8 @@ export type RoleChangeDecision =
  * Role assignment policy:
  * - only roles with `users.assign_role` (admin, super_admin) may assign;
  * - nobody changes their own role (no self-elevation, no self-lockout);
- * - only a super_admin may grant super_admin or change a super_admin;
+ * - only a platform owner (super_admin) may grant admin or platform owner, or
+ *   change someone who holds either: admins manage the staff below them;
  * - `guest` is a session state, never an assignable role.
  */
 export function canAssignRole(change: RoleChange): RoleChangeDecision {
@@ -316,8 +346,8 @@ export function canAssignRole(change: RoleChange): RoleChangeDecision {
   if (actorUid === targetUid) return { allowed: false, reason: "self_change" };
   if (nextRole === "guest") return { allowed: false, reason: "invalid_role" };
   if (actorRole !== "super_admin") {
-    if (targetCurrentRole === "super_admin") return { allowed: false, reason: "protected_target" };
-    if (nextRole === "super_admin") return { allowed: false, reason: "protected_role" };
+    if (isOwnerOnlyRole(targetCurrentRole)) return { allowed: false, reason: "protected_target" };
+    if (isOwnerOnlyRole(nextRole)) return { allowed: false, reason: "protected_role" };
   }
   return { allowed: true };
 }
@@ -372,6 +402,7 @@ export const ROUTE_PERMISSIONS: ReadonlyArray<{ prefix: string; permission: Perm
   { prefix: "/admin/users", permission: "users.read" },
   { prefix: "/admin/settings", permission: "settings.read" },
   { prefix: "/admin/audit", permission: "audit.read" },
+  { prefix: "/admin/emails", permission: "emails.outbox.read" },
   { prefix: "/merchant", permission: "vendor.catalog.write" },
 ];
 

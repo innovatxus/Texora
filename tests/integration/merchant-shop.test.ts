@@ -46,7 +46,7 @@ const location = (shopId: string, extra: Record<string, unknown> = {}) => ({
   shopId,
   name: "Studio",
   types: ["ship_from" as const, "retail" as const],
-  address: { line1: "12 Mercer St", city: "New York", region: "NY", postalCode: "10013" },
+  address: { line1: "26 July Street", city: "Zamalek", region: "C", postalCode: "11211" },
   hours: [{ day: 1, open: "10:00", close: "18:00" }],
   specialHours: [],
   ...extra,
@@ -195,7 +195,7 @@ describe("branding", () => {
 });
 
 describe("locations", () => {
-  it("rejects a ZIP that doesn't match the state", async () => {
+  it("refuses a governorate outside Egypt's list", async () => {
     await expect(
       shops.saveLocation(
         actor,
@@ -204,13 +204,13 @@ describe("locations", () => {
         }),
         now,
       ),
-    ).rejects.toMatchObject({ field: "address.postalCode" });
+    ).rejects.toMatchObject({ field: "address.region" });
   });
 
   it("adds a location with timezone and position, becoming primary and the default ship-from", async () => {
     const saved = await shops.saveLocation(actor, location(shopId), now);
     expect(saved).toMatchObject({
-      timezone: "America/New_York",
+      timezone: "Africa/Cairo",
       isPrimary: true,
       status: "active",
     });
@@ -237,13 +237,31 @@ describe("locations", () => {
     expect(active[0]?.isPrimary).toBe(true);
     expect((await getShop(shopId))?.shipping.shipsFromLocationId).toBe(warehouse.id);
   });
+  it("saves a location without a postal code (optional in Egypt)", async () => {
+    const saved = await shops.saveLocation(
+      actor,
+      location(shopId, {
+        name: "Warehouse",
+        types: ["ship_from" as const],
+        address: {
+          line1: "Borg El Arab Industrial Zone",
+          city: "Borg El Arab",
+          region: "ALX",
+          postalCode: "",
+        },
+      }),
+      now,
+    );
+    expect(saved.address).not.toHaveProperty("postalCode");
+    expect(saved.address.region).toBe("ALX");
+  });
 });
 
 describe("contact & policies", () => {
   it("saves policies and refuses a ships-from that isn't the merchant's", async () => {
     const input = {
       shopId,
-      contact: { email: "hello@maisonrue.com", phone: "+12125550123" },
+      contact: { email: "hello@maisonrue.com", phone: "+201012345678" },
       social: { instagram: "maison.rue" },
       returnPolicy: { mode: "custom" as const, windowDays: 14 as const, notes: "Unworn" },
       shipping: { processingTime: "3-5" as const },

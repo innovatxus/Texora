@@ -1,4 +1,5 @@
 import "server-only";
+import { governorateName } from "@/config/locale";
 import { cacheLife, cacheTag } from "next/cache";
 import { PLATFORM_RETURN_POLICY } from "@/config/merchant";
 import { parseSnapshot } from "@/lib/data/firestore";
@@ -38,7 +39,7 @@ async function toPublic(shop: Shop | null): Promise<PublicShop | null> {
     shop,
     stores: locations.filter((l) => l.types.includes("retail")),
     shipsFrom: shipsFromLocation
-      ? `${shipsFromLocation.address.city}, ${shipsFromLocation.address.region}`
+      ? `${shipsFromLocation.address.city}, ${governorateName(shipsFromLocation.address.region)}`
       : null,
   };
 }

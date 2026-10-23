@@ -10,3 +10,6 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   return Response.json(await cleanupStaleMedia());
 }
+
+/** Vercel Cron calls with GET and `Authorization: Bearer $CRON_SECRET`; same handler and check. */
+export const GET = POST;

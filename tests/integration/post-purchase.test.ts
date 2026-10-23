@@ -123,11 +123,11 @@ describe("returns", () => {
     const created = await requestReturn(order, {
       lines: [{ sku: line.sku, quantity: 1, reason: "too_large" }],
       method: "store",
-      storeId: "soho",
+      storeId: "zamalek",
       refundTo: "store_credit",
     });
     const [record] = await listReturnsForOrder(order.id);
-    expect(record).toMatchObject({ id: created.returnId, storeId: "soho", method: "store" });
+    expect(record).toMatchObject({ id: created.returnId, storeId: "zamalek", method: "store" });
     expect(record?.label).toBeUndefined();
   });
 });
@@ -149,13 +149,13 @@ describe("loyalty", () => {
       userId: uid,
       status: "placed",
       totals: {
-        subtotal: 120_000,
+        subtotal: 5_000_000,
         discount: 0,
         shipping: 0,
         tax: 0,
         giftCard: 0,
         rewards: 0,
-        total: 120_000,
+        total: 5_000_000,
       },
       loyaltyPointsEarned: 15_000,
     });
@@ -169,8 +169,8 @@ describe("loyalty", () => {
       tier: string;
     };
     expect(after.points).toBe(before.points + 15_000);
-    expect(after.periodSpend).toBe(before.periodSpend + 120_000);
-    // $640 + $1,200 crosses the $1,500 Icon threshold.
+    expect(after.periodSpend).toBe(before.periodSpend + 5_000_000);
+    // EGP 32,000 + EGP 50,000 crosses the EGP 75,000 Icon threshold.
     expect(after.tier).toBe("icon");
     const ledger = await db.collection("users").doc(uid).collection("loyaltyLedger").get();
     expect(ledger.docs.some((d) => d.get("orderId") === ref.id)).toBe(true);
@@ -254,7 +254,7 @@ describe("e-gift cards", () => {
   const purchase = (id: string, deliverOn: string) =>
     db.collection("giftCardPurchases").doc(id).set({
       amount: 5_000,
-      currency: "USD",
+      currency: "EGP",
       purchaserEmail: "buyer@example.com",
       senderName: "Sam",
       recipientName: "Alex",

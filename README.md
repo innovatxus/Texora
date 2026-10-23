@@ -85,6 +85,8 @@ Vercel's editor accepts a pasted `.env` file, so the quickest way is to paste th
 
 How the pieces fit together: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+Running the store (roles, approving shops and products, customer service, staff, going live): [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+
 ## Merchant portal
 
 Independent shops sell on Texora through the merchant portal. Shoppers find it from **Sell on Texora** in the footer (`/merchants`).

@@ -50,10 +50,10 @@ const address = async (page: Page) => {
   await field("First name").fill("Ada");
   await field("Last name").fill("Lovelace");
   await field("Address").fill("118 Greene Street");
-  await field("City").fill("New York");
-  await page.getByRole("combobox", { name: "State", exact: true }).selectOption("NY");
-  await field("ZIP code").fill("10012");
-  await field("Phone").fill("212 555 0100");
+  await field("City").fill("Zamalek");
+  await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
+  await field("Postal code (optional)").fill("11211");
+  await field("Phone").fill("010 1234 5678");
 };
 
 test.beforeEach(async ({ context, baseURL }) => {
@@ -66,7 +66,7 @@ test("guest checkout with a promo code, paying on delivery", async ({ page }) =>
   await expect(page.getByRole("heading", { level: 1, name: "Your bag" })).toBeVisible();
   const total = page
     .getByRole("region", { name: "Order summary" })
-    .getByText(/^\$[\d,]+\.\d{2}$/)
+    .getByText(/^EGP.[\d,]+(\.\d{2})?$/)
     .last();
   await expect(total).toBeVisible();
 

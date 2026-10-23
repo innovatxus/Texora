@@ -127,7 +127,11 @@ describe("catalog structure", () => {
 
   it("reads collections and stores", async () => {
     expect((await getLiveCollectionBySlug("the-linen-edit"))?.productIds.length).toBeGreaterThan(0);
-    expect((await listStores()).map((s) => s.id).sort()).toEqual(["austin", "chicago", "soho"]);
+    expect((await listStores()).map((s) => s.id).sort()).toEqual([
+      "alexandria",
+      "new-cairo",
+      "zamalek",
+    ]);
   });
 });
 
@@ -149,7 +153,7 @@ describe("reviews", () => {
 
 describe("admin records", () => {
   it("reads store settings and user profiles", async () => {
-    expect((await getStoreSettings()).refundLimits.customer_service).toBe(25000);
+    expect((await getStoreSettings()).refundLimits.customer_service).toBe(100_000);
     expect((await getUserProfile("seed-admin"))?.role).toBe("admin");
   });
 

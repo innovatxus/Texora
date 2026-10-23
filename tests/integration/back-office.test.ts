@@ -49,10 +49,16 @@ const stock = async (sku: string, location = "online") =>
 
 describe("refunds", () => {
   it("holds customer service to the per-order limit and admins past it", async () => {
-    const id = await cloneOrder("seed-order-delivered");
-    const total = (await getOrder(id))?.totals.total ?? 0;
+    // An order above the EGP 10,000 customer service limit (cash on delivery, paid).
+    const template = seed.orders.find((o) => o.id === "seed-order-delivered");
+    if (!template) throw new Error("No seed order");
+    const total = 2_000_000;
+    const id = await cloneOrder("seed-order-delivered", {
+      totals: { ...template.totals, total },
+      payments: [{ provider: "cod", ref: "it-cod", amount: total, status: "captured" }],
+    });
 
-    await expect(orderService.refundOrder(agent, id, 30_000, "Too much")).rejects.toMatchObject({
+    await expect(orderService.refundOrder(agent, id, 1_500_000, "Too much")).rejects.toMatchObject({
       code: "limit_exceeded",
     });
     const first = await orderService.refundOrder(agent, id, 10_000, "Goodwill");
@@ -72,6 +78,44 @@ describe("refunds", () => {
       .where("action", "==", "orders.refund")
       .get();
     expect(audit.size).toBe(2);
+  });
+});
+
+describe("delivery address changes", () => {
+  const address = {
+    firstName: "Ada",
+    lastName: "Lovelace",
+    line1: "3 Taha Hussein Street",
+    city: "Zamalek",
+    region: "C",
+    postalCode: "11211",
+    country: "EG" as const,
+    phone: "+201012345678",
+  };
+
+  it("corrects the address within the delivery zone, with a note and an audit entry", async () => {
+    const id = await cloneOrder("seed-order-placed");
+    await orderService.updateShippingAddress(agent, id, { ...address, region: "GZ" });
+    const order = await getOrder(id);
+    expect(order?.shippingAddress).toMatchObject({ line1: "3 Taha Hussein Street", region: "GZ" });
+    expect(order?.notes.some((n) => n.text === "Delivery address changed")).toBe(true);
+    const audit = await db
+      .collection("auditLogs")
+      .where("target.id", "==", id)
+      .where("action", "==", "orders.update_address")
+      .get();
+    expect(audit.size).toBe(1);
+  });
+
+  it("refuses another delivery zone and shipped orders", async () => {
+    const id = await cloneOrder("seed-order-placed");
+    await expect(
+      orderService.updateShippingAddress(agent, id, { ...address, region: "ASN" }),
+    ).rejects.toMatchObject({ code: "conflict", field: "region" });
+    const shipped = await cloneOrder("seed-order-shipped");
+    await expect(orderService.updateShippingAddress(agent, shipped, address)).rejects.toMatchObject(
+      { code: "conflict" },
+    );
   });
 });
 
@@ -161,12 +205,12 @@ describe("returns in the back office", () => {
     const created = await requestReturn(order, {
       lines: [{ sku: line.sku, quantity: 1, reason: "changed_mind" }],
       method: "store",
-      storeId: "soho",
+      storeId: "zamalek",
       refundTo: "store_credit",
     });
     await returnService.receiveReturn(admin, created.returnId, {
       conditions: {},
-      location: "soho",
+      location: "zamalek",
     });
     const result = await returnService.refundReturn(admin, created.returnId);
     expect(result.storeCreditLast4).toMatch(/^[A-Z0-9]{4}$/);

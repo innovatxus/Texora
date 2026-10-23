@@ -67,20 +67,22 @@ test.describe("product editor", () => {
 
     await page.getByRole("checkbox", { name: "Select all shown variants" }).check();
     const bulk = page.getByRole("group", { name: "Bulk edit" });
-    await bulk.getByRole("textbox", { name: "Price ($)" }).fill("148");
+    await bulk.getByRole("textbox", { name: "Price (EGP)" }).fill("148");
     await bulk.getByRole("button", { name: "Apply price" }).click();
     await expect(bulk.getByText("Applied to 36 selected rows.")).toBeVisible();
     await bulk.getByRole("textbox", { name: "Stock" }).fill("5");
     await bulk.getByRole("button", { name: "Apply stock" }).click();
-    await expect(page.getByRole("textbox", { name: "Price ($), Navy, Regular, XS" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Price (EGP), Navy, Regular, XS" })).toHaveValue(
       "148.00",
     );
 
     // One cell edited by keyboard: type, Enter moves down.
-    const cell = page.getByRole("textbox", { name: "Price ($), Navy, Regular, XS" });
+    const cell = page.getByRole("textbox", { name: "Price (EGP), Navy, Regular, XS" });
     await cell.fill("158");
     await cell.press("Enter");
-    await expect(page.getByRole("textbox", { name: "Price ($), Navy, Regular, S" })).toBeFocused();
+    await expect(
+      page.getByRole("textbox", { name: "Price (EGP), Navy, Regular, S" }),
+    ).toBeFocused();
 
     // A photo for Navy through the real pipeline, then confirm its alt text.
     const photo = await sharp({
@@ -111,7 +113,7 @@ test.describe("product editor", () => {
       },
     );
     await expect(page.getByText("36 of 36 variants")).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "Price ($), Navy, Regular, XS" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Price (EGP), Navy, Regular, XS" })).toHaveValue(
       "158.00",
     );
 
@@ -147,7 +149,9 @@ test.describe("product editor", () => {
     await addColour(page, "White");
     await page.locator("label").filter({ hasText: /^M$/ }).click();
     await expect(page.getByRole("region", { name: "White" })).toBeVisible();
-    await expect(page.getByRole("textbox", { name: "Price ($), White, Regular, M" })).toBeVisible();
+    await expect(
+      page.getByRole("textbox", { name: "Price (EGP), White, Regular, M" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Save draft" }).click();
     await expect(page.getByRole("status").filter({ hasText: /^Saved / })).toBeVisible({
       timeout: 20_000,

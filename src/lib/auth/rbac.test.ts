@@ -61,8 +61,22 @@ describe("role bundles", () => {
     expect(hasPermission("vendor", "admin.access")).toBe(false);
     expect(hasPermission("vendor", "merchant.shop.write")).toBe(true);
     expect(hasPermission("vendor", "merchants.review")).toBe(false);
-    expect(rolesWith("merchants.manage")).toEqual(["admin", "super_admin"]);
-    expect(rolesWith("merchants.review")).toEqual(["merchandiser", "admin", "super_admin"]);
+    expect(rolesWith("merchants.manage")).toEqual(["manager", "admin", "super_admin"]);
+    expect(rolesWith("merchants.review")).toEqual([
+      "merchandiser",
+      "manager",
+      "admin",
+      "super_admin",
+    ]);
+
+    // Operations manager: runs the day to day, but not settings or staff.
+    expect(hasPermission("manager", "orders.refund_unlimited")).toBe(true);
+    expect(hasPermission("manager", "catalog.publish")).toBe(true);
+    expect(hasPermission("manager", "pricing.approve")).toBe(true);
+    expect(hasPermission("manager", "reports.read")).toBe(true);
+    expect(hasPermission("manager", "settings.write")).toBe(false);
+    expect(hasPermission("manager", "users.invite")).toBe(false);
+    expect(hasPermission("manager", "vendor.catalog.write")).toBe(false);
   });
 
   it("let merchants shop like customers", () => {
@@ -84,6 +98,7 @@ describe("role bundles", () => {
       "pricing_manager",
       "inventory_manager",
       "fulfillment",
+      "manager",
       "admin",
       "super_admin",
     ] as const) {
@@ -117,6 +132,26 @@ describe("canAssignRole", () => {
     ).toEqual({
       allowed: false,
       reason: "self_change",
+    });
+  });
+
+  it("leaves admin and platform owner roles to platform owners", () => {
+    expect(canAssignRole({ ...base, actorRole: "admin", nextRole: "manager" })).toEqual({
+      allowed: true,
+    });
+    expect(canAssignRole({ ...base, actorRole: "admin", nextRole: "admin" })).toMatchObject({
+      reason: "protected_role",
+    });
+    expect(
+      canAssignRole({
+        ...base,
+        actorRole: "admin",
+        targetCurrentRole: "admin",
+        nextRole: "customer",
+      }),
+    ).toMatchObject({ reason: "protected_target" });
+    expect(canAssignRole({ ...base, actorRole: "super_admin", nextRole: "admin" })).toEqual({
+      allowed: true,
     });
   });
 
