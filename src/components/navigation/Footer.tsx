@@ -4,9 +4,10 @@ import { PaymentMarks } from "@/components/commerce/PaymentMarks";
 import { NewsletterForm } from "@/components/marketing/NewsletterForm";
 import { Link } from "@/components/primitives";
 import { brand } from "@/config/brand";
-import { FOOTER_COLUMNS, LEGAL_LINKS, SOCIAL_LINKS } from "@/config/navigation";
+import { FOOTER_COLUMNS, LEGAL_LINKS } from "@/config/navigation";
 import { CookieSettingsButton } from "./FooterControls";
 import { Logo } from "./Logo";
+import { SocialIcons } from "./SocialIcons";
 
 /** Cached so the static shell can prerender; refreshed daily. */
 async function CopyrightYear() {
@@ -53,15 +54,7 @@ export function Footer() {
         <div className="container-page flex flex-col gap-6 py-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
             <Logo compact />
-            <ul aria-label="Follow us" className="flex gap-5">
-              {SOCIAL_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} variant="quiet" className="text-sm">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <SocialIcons />
           </div>
           <PaymentMarks />
         </div>

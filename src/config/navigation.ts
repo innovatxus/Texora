@@ -195,11 +195,24 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
   },
 ];
 
+export type SocialNetwork =
+  "facebook" | "instagram" | "tiktok" | "whatsapp" | "telegram" | "youtube" | "pinterest";
+
+/** A social profile: replace each href with the shop's own page or number. */
+export interface SocialLink extends NavLink {
+  network: SocialNetwork;
+}
+
 /** Social media links in the footer. */
-export const SOCIAL_LINKS: readonly NavLink[] = [
-  { label: "Instagram", href: "https://www.instagram.com/" },
-  { label: "Pinterest", href: "https://www.pinterest.com/" },
-  { label: "YouTube", href: "https://www.youtube.com/" },
+export const SOCIAL_LINKS: readonly SocialLink[] = [
+  { network: "facebook", label: "Facebook", href: "https://www.facebook.com/" },
+  { network: "instagram", label: "Instagram", href: "https://www.instagram.com/" },
+  { network: "tiktok", label: "TikTok", href: "https://www.tiktok.com/" },
+  // WhatsApp: https://wa.me/<number in international form, digits only>, e.g. https://wa.me/201012345678
+  { network: "whatsapp", label: "WhatsApp", href: "https://wa.me/" },
+  { network: "telegram", label: "Telegram", href: "https://t.me/" },
+  { network: "youtube", label: "YouTube", href: "https://www.youtube.com/" },
+  { network: "pinterest", label: "Pinterest", href: "https://www.pinterest.com/" },
 ];
 
 /** Legal links in the footer, including the cookie settings control. */
