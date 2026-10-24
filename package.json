@@ -31,7 +31,8 @@
     "prebuild": "tsx scripts/check-env.ts",
     "migrate:egypt": "tsx scripts/migrate-egypt-settings.ts",
     "migrate:campaign": "tsx scripts/migrate-campaign-content.ts",
-    "migrate:home": "tsx scripts/migrate-home-sections.ts"
+    "migrate:home": "tsx scripts/migrate-home-sections.ts",
+    "password-link": "tsx scripts/password-link.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",
