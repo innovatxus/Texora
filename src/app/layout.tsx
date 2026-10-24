@@ -15,10 +15,14 @@ export const metadata: Metadata = {
   },
   description: brand.description,
   applicationName: brand.name,
+  // The share image is app/opengraph-image.jpg and app/twitter-image.jpg (the home hero),
+  // used everywhere a page doesn't set its own (products and shops show theirs).
   openGraph: {
     siteName: brand.name,
     type: "website",
+    locale: "en_EG",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 /** Browser theme colour and colour scheme. */

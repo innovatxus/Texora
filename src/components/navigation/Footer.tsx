@@ -5,6 +5,7 @@ import { NewsletterForm } from "@/components/marketing/NewsletterForm";
 import { Link } from "@/components/primitives";
 import { brand } from "@/config/brand";
 import { FOOTER_COLUMNS, LEGAL_LINKS } from "@/config/navigation";
+import { getStores } from "@/lib/catalog/queries";
 import { CookieSettingsButton } from "./FooterControls";
 import { Logo } from "./Logo";
 import { SocialIcons } from "./SocialIcons";
@@ -14,6 +15,18 @@ async function CopyrightYear() {
   "use cache";
   cacheLife("days");
   return <>{new Date().getFullYear()}</>;
+}
+
+/** The live stores, under "Find a store": only stores that exist (cached with the store list). */
+async function StoreLinks() {
+  const stores = (await getStores().catch(() => [])).filter((s) => s.status !== "closed");
+  return stores.map((store) => (
+    <li key={store.id}>
+      <Link href={`/stores/${store.slug}`} variant="quiet" className="text-sm">
+        {store.name}
+      </Link>
+    </li>
+  ));
 }
 
 /** Site footer: newsletter signup, link columns, social links, payment methods and legal links. */
@@ -44,6 +57,7 @@ export function Footer() {
                     </Link>
                   </li>
                 ))}
+                {column.title === "Stores" && <StoreLinks />}
               </ul>
             </div>
           ))}

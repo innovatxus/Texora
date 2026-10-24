@@ -196,12 +196,8 @@ export const FOOTER_COLUMNS: readonly NavColumn[] = [
   },
   {
     title: "Stores",
-    links: [
-      { label: "Find a store", href: "/stores" },
-      { label: "Texora Zamalek", href: "/stores/zamalek" },
-      { label: "Texora New Cairo", href: "/stores/new-cairo" },
-      { label: "Texora Alexandria", href: "/stores/alexandria" },
-    ],
+    // Each live store is added below this link by the footer (from the database).
+    links: [{ label: "Find a store", href: "/stores" }],
   },
   {
     title: "Merchants",
