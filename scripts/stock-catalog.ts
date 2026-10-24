@@ -17,23 +17,20 @@ export const HOME_HERO = {
 } as const;
 
 /**
- * The home hero video (public/media/hero): the same walk, looped. WebM first,
- * MP4 for Safari; a lighter cut for phones. The poster is its first frame and
- * `backdrop` its studio colour (sampled from the poster's edges).
+ * The home hero video (public/media/hero): a 4.8-second walk across the
+ * studio, looped (MP4, with a lighter cut for phones). The poster is its first
+ * frame and `backdrop` its studio colour as rendered, so the frame blends in.
  */
 export const HOME_VIDEO = {
-  desktop: { webm: "/media/hero/texora-hero.webm", mp4: "/media/hero/texora-hero.mp4" },
-  mobile: {
-    webm: "/media/hero/texora-hero-mobile.webm",
-    mp4: "/media/hero/texora-hero-mobile.mp4",
-  },
+  desktop: { mp4: "/media/hero/texora-hero-walk.mp4" },
+  mobile: { mp4: "/media/hero/texora-hero-walk-mobile.mp4" },
   poster: {
-    webp: "/media/hero/texora-hero-poster.webp",
-    jpg: "/media/hero/texora-hero-poster.jpg",
+    webp: "/media/hero/texora-hero-walk-poster.webp",
+    jpg: "/media/hero/texora-hero-walk-poster.jpg",
     width: 1280,
     height: 720,
   },
-  backdrop: "#f3f2f1",
+  backdrop: "#edeceb",
 } as const;
 
 /** A region of a source photo, in its pixels. */

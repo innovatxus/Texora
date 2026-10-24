@@ -40,8 +40,8 @@ const localMedia = z.string().startsWith("/media/");
  * video's own background colour, so the frame blends into the page seamlessly.
  */
 export const heroVideoSchema = z.object({
-  desktop: z.object({ webm: localMedia, mp4: localMedia }),
-  mobile: z.object({ webm: localMedia, mp4: localMedia }),
+  desktop: z.object({ webm: localMedia.optional(), mp4: localMedia }),
+  mobile: z.object({ webm: localMedia.optional(), mp4: localMedia }),
   poster: z.object({
     webp: localMedia,
     jpg: localMedia,

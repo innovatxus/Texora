@@ -49,7 +49,7 @@ export function HeroVideo({
   className?: string;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const [src, setSrc] = useState<{ webm: string; mp4: string } | null>(null);
+  const [src, setSrc] = useState<{ webm?: string | undefined; mp4: string } | null>(null);
   const [playing, setPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const userPausedRef = useRef(false);
@@ -123,7 +123,7 @@ export function HeroVideo({
           className,
         )}
       >
-        <source src={src.webm} type="video/webm" />
+        {src.webm && <source src={src.webm} type="video/webm" />}
         <source src={src.mp4} type="video/mp4" />
       </video>
       <button

@@ -78,7 +78,7 @@ async function main() {
   const video = starterHero?.type === "hero" ? starterHero.data.video : undefined;
   if (hero && video && JSON.stringify(hero.data.video) !== JSON.stringify(video)) {
     hero.data = { ...hero.data, video };
-    changes.push(`"home-hero" video → ${video.desktop.webm}`);
+    changes.push(`"home-hero" video → ${video.desktop.mp4}`);
   }
 
   if (changes.length === 0) {
