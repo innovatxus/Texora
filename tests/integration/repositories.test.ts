@@ -117,6 +117,13 @@ describe("catalog structure", () => {
       "pants",
       "jeans",
       "outerwear",
+      "suits-blazers",
+      "activewear",
+      "underwear-loungewear",
+      "shoes",
+      "bags",
+      "accessories",
+      "watches-jewellery",
     ]);
   });
 
