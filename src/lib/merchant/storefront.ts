@@ -23,10 +23,9 @@ export interface PublicShop {
 }
 
 /** "30-day returns" / "Returns within 14 days" / "Final sale — no returns". */
-export function returnSummary(policy: ReturnPolicy): string {
-  if (policy.mode === "platform") return `${PLATFORM_RETURN_POLICY.windowDays}-day returns`;
-  if (policy.windowDays === 0) return "Final sale — no returns";
-  return `Returns within ${policy.windowDays} days${policy.notes ? ` · ${policy.notes}` : ""}`;
+export function returnSummary(_policy: ReturnPolicy): string {
+  // Every shop uses Texora's policy.
+  return `${PLATFORM_RETURN_POLICY.windowDays}-day returns`;
 }
 
 async function toPublic(shop: Shop | null): Promise<PublicShop | null> {

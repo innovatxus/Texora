@@ -47,7 +47,7 @@ export interface SeedMerchant {
     departments: Array<"women" | "men">;
     website: string;
     instagram: string;
-    processingTime: "1-2" | "3-5" | "5-10";
+    processingTime: "1-2" | "3-5";
     returnWindow: 0 | 14 | 30 | 60 | null;
   };
   status: "approved" | "pending_review" | "changes_requested";
@@ -402,7 +402,7 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       departments: ["women"],
       website: "https://petalandthread.example",
       instagram: "petal.and.thread",
-      processingTime: "5-10",
+      processingTime: "3-5",
       returnWindow: null,
     },
     status: "changes_requested",

@@ -157,17 +157,11 @@ export function accentColor(accent: ShopAccent): string {
 export const PROCESSING_TIMES = [
   { value: "1-2", label: "1–2 business days" },
   { value: "3-5", label: "3–5 business days" },
-  { value: "5-10", label: "5–10 business days" },
 ] as const;
 
 export type ProcessingTime = (typeof PROCESSING_TIMES)[number]["value"];
 
-/** Return windows a shop can choose for a custom policy (0 = final sale). */
-export const RETURN_WINDOWS = [0, 14, 30, 60] as const;
-
-export type ReturnWindow = (typeof RETURN_WINDOWS)[number];
-
-/** Texora's own policy, used when a shop doesn't set one. */
+/** Texora's returns policy: every shop uses it (shops can't set their own). */
 export const PLATFORM_RETURN_POLICY = {
   windowDays: 30,
   summary: "30-day returns, unworn with tags",
@@ -317,7 +311,7 @@ export const MERCHANT_LANDING = {
     },
     {
       question: "Who handles returns?",
-      answer: `Shoppers see your return policy on every product. Use ${brand.name}'s 30-day policy or set your own window, from final sale to 60 days.`,
+      answer: `Every shop uses ${brand.name}'s returns policy: 30-day returns, unworn with tags. Shoppers see it on every product, and ${brand.name} handles return requests.`,
     },
     {
       question: "What does it cost?",

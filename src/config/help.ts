@@ -519,7 +519,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         heading: "Orders, returns and fees",
         paragraphs: [
-          `You ship each order within your stated processing time and honour the return policy shown on your products. We charge a ${MERCHANT_FEES.commissionPercent}% commission on the item price of each sale, with no monthly or listing fees.`,
+          `You ship each order within your stated processing time (1–2 or 3–5 business days), and every shop follows Texora's returns policy: 30-day returns, unworn with tags. We charge a ${MERCHANT_FEES.commissionPercent}% commission on the item price of each sale, with no monthly or listing fees.`,
         ],
       },
       {

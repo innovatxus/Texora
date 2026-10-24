@@ -96,14 +96,7 @@ export default async function Page() {
         </Summary>
         <Summary title="Contact & policies" href="/merchant/onboarding/contact">
           <p>{shop.contact.email}</p>
-          <p>
-            Returns:{" "}
-            {shop.returnPolicy.mode === "platform"
-              ? PLATFORM_RETURN_POLICY.summary
-              : shop.returnPolicy.windowDays === 0
-                ? "Final sale — no returns"
-                : `Returns within ${shop.returnPolicy.windowDays} days`}
-          </p>
+          <p>Returns: {PLATFORM_RETURN_POLICY.summary} (Texora&apos;s policy)</p>
           <p>
             Ships in {PROCESSING_TIMES.find((p) => p.value === shop.shipping.processingTime)?.label}
           </p>

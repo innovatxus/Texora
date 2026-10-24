@@ -4,13 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { ErrorSummary, FormMessage } from "@/components/merchant/forms/ErrorSummary";
 import { savedAt, StepFooter, type FormMode } from "@/components/merchant/forms/StepFooter";
-import { Input, Select, Textarea } from "@/components/primitives";
-import {
-  MERCHANT_LIMITS,
-  PLATFORM_RETURN_POLICY,
-  PROCESSING_TIMES,
-  RETURN_WINDOWS,
-} from "@/config/merchant";
+import { Input, Select } from "@/components/primitives";
+import { PLATFORM_RETURN_POLICY, PROCESSING_TIMES } from "@/config/merchant";
 import { saveShopContactAction } from "@/lib/merchant/actions/shop";
 import { cn } from "@/lib/utils/cn";
 import type { ReturnPolicy, Shop } from "@/lib/validation/merchant";
@@ -44,13 +39,6 @@ export function splitPhone(e164: string | undefined): { country: string; nationa
     : { country: "20", national: digits };
 }
 
-const WINDOW_LABELS: Record<number, string> = {
-  0: "No returns (final sale)",
-  14: "14 days",
-  30: "30 days",
-  60: "60 days",
-};
-
 const FIELD_IDS: Record<string, string> = {
   "contact.email": "contact-email",
   "contact.phone": "contact-phone",
@@ -58,7 +46,6 @@ const FIELD_IDS: Record<string, string> = {
   "social.instagram": "contact-instagram",
   "social.tiktok": "contact-tiktok",
   "social.facebook": "contact-facebook",
-  "returnPolicy.notes": "contact-return-notes",
   "shipping.shipsFromLocationId": "contact-ships-from",
 };
 
@@ -82,9 +69,6 @@ export function ContactForm({
     instagram: shop.social.instagram ?? "",
     tiktok: shop.social.tiktok ?? "",
     facebook: shop.social.facebook ?? "",
-    policyMode: shop.returnPolicy.mode,
-    windowDays: shop.returnPolicy.mode === "custom" ? shop.returnPolicy.windowDays : 30,
-    notes: shop.returnPolicy.mode === "custom" ? (shop.returnPolicy.notes ?? "") : "",
     shipsFrom: shop.shipping.shipsFromLocationId ?? "",
     processingTime: shop.shipping.processingTime,
   });
@@ -102,14 +86,8 @@ export function ContactForm({
     setFormError(null);
     // A local trunk 0 ("010 1234 5678") isn't part of the international number.
     const national = values.national.replace(/\D/g, "").replace(/^0+/, "");
-    const returnPolicy: ReturnPolicy =
-      values.policyMode === "platform"
-        ? { mode: "platform" }
-        : {
-            mode: "custom",
-            windowDays: values.windowDays,
-            ...(values.notes.trim() ? { notes: values.notes.trim() } : {}),
-          };
+    // Every shop uses Texora's returns policy.
+    const returnPolicy: ReturnPolicy = { mode: "platform" };
     const result = await saveShopContactAction({
       shopId: shop.id,
       contact: {
@@ -205,52 +183,16 @@ export function ContactForm({
         </div>
       </section>
 
-      <fieldset className="flex flex-col gap-4">
-        <legend className="mb-2 font-display text-2xl">Returns</legend>
-        {(
-          [
-            ["platform", `Use Texora's policy (${PLATFORM_RETURN_POLICY.summary})`],
-            ["custom", "Set your own"],
-          ] as const
-        ).map(([value, label]) => (
-          <label key={value} className="flex min-h-11 items-center gap-3">
-            <input
-              type="radio"
-              name="policy"
-              value={value}
-              checked={values.policyMode === value}
-              onChange={() => set("policyMode", value)}
-              className="accent-ink"
-            />
-            {label}
-          </label>
-        ))}
-        {values.policyMode === "custom" && (
-          <div className="flex flex-col gap-4 border-l-2 border-line pl-4">
-            <Select
-              id="contact-window"
-              label="Return window"
-              options={RETURN_WINDOWS.map((w) => ({
-                value: String(w),
-                label: WINDOW_LABELS[w] ?? `${w} days`,
-              }))}
-              value={String(values.windowDays)}
-              onChange={(e) =>
-                set("windowDays", Number(e.target.value) as typeof values.windowDays)
-              }
-            />
-            <Textarea
-              id="contact-return-notes"
-              label="Condition notes (optional)"
-              hint={`For example, "Unworn, with tags". ${values.notes.length}/${MERCHANT_LIMITS.shop.returnNotesMax}`}
-              maxLength={MERCHANT_LIMITS.shop.returnNotesMax}
-              value={values.notes}
-              onChange={(e) => set("notes", e.target.value)}
-              error={errors["returnPolicy.notes"]}
-            />
-          </div>
-        )}
-      </fieldset>
+      <section aria-labelledby="returns-title" className="flex flex-col gap-3">
+        <h2 id="returns-title" className="font-display text-2xl">
+          Returns
+        </h2>
+        <p className="max-w-prose border border-line bg-surface p-4 text-sm">
+          Every shop on Texora uses Texora&apos;s returns policy:{" "}
+          <strong>{PLATFORM_RETURN_POLICY.summary}</strong>. Shoppers see it on your products, and
+          Texora handles return requests.
+        </p>
+      </section>
 
       <section aria-labelledby="shipping-title" className="flex flex-col gap-6">
         <h2 id="shipping-title" className="font-display text-2xl">

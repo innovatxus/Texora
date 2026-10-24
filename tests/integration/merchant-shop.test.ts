@@ -263,13 +263,13 @@ describe("contact & policies", () => {
       shopId,
       contact: { email: "hello@maisonrue.com", phone: "+201012345678" },
       social: { instagram: "maison.rue" },
-      returnPolicy: { mode: "custom" as const, windowDays: 14 as const, notes: "Unworn" },
+      returnPolicy: { mode: "platform" as const },
       shipping: { processingTime: "3-5" as const },
     };
     await shops.saveShopContact(actor, input, now);
     expect(await getShop(shopId)).toMatchObject({
       contact: { email: "hello@maisonrue.com" },
-      returnPolicy: { windowDays: 14 },
+      returnPolicy: { mode: "platform" },
       completedSteps: expect.arrayContaining(["contact"]),
     });
     await expect(

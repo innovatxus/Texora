@@ -8,12 +8,10 @@ import { COUNTRY, GOVERNORATE_CODES, POSTAL_CODE_PATTERN, toE164 } from "@/confi
 import {
   isReservedName,
   MERCHANT_LIMITS,
-  RETURN_WINDOWS,
   SOCIAL_HANDLE_PATTERNS,
   type LocationType,
   type MediaKind,
   type ProcessingTime,
-  type ReturnWindow,
   type ShopAccent,
   type ShopType,
 } from "@/config/merchant";
@@ -198,11 +196,13 @@ export const ACCENT_VALUES = [
   "rose",
   "slate",
 ] as const satisfies readonly ShopAccent[];
-export const PROCESSING_TIME_VALUES = [
-  "1-2",
-  "3-5",
-  "5-10",
-] as const satisfies readonly ProcessingTime[];
+export const PROCESSING_TIME_VALUES = ["1-2", "3-5"] as const satisfies readonly ProcessingTime[];
+
+/** Processing time; shops saved with the retired "5-10" option read as "3-5". */
+const processingTimeSchema = z.preprocess(
+  (value) => (value === "5-10" ? "3-5" : value),
+  z.enum(PROCESSING_TIME_VALUES),
+);
 export const LOCATION_TYPE_VALUES = [
   "retail",
   "ship_from",
@@ -211,19 +211,14 @@ export const LOCATION_TYPE_VALUES = [
 const shopTypeSchema = z.enum(SHOP_TYPE_VALUES);
 const accentSchema = z.enum(ACCENT_VALUES);
 
-export const returnPolicySchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("platform") }),
-  z.object({
-    mode: z.literal("custom"),
-    windowDays: z
-      .number()
-      .int()
-      .refine((w): w is ReturnWindow => (RETURN_WINDOWS as readonly number[]).includes(w), {
-        message: "Choose a return window",
-      }),
-    notes: z.string().trim().max(S.returnNotesMax).optional(),
-  }),
-]);
+/**
+ * Every shop uses Texora's returns policy (PLATFORM_RETURN_POLICY). Shops saved
+ * with their own policy before this rule read, and save, as Texora's.
+ */
+export const returnPolicySchema = z
+  .object({ mode: z.enum(["platform", "custom"]) })
+  .passthrough()
+  .transform((): { mode: "platform" } => ({ mode: "platform" }));
 export type ReturnPolicy = z.infer<typeof returnPolicySchema>;
 
 export const shopContactSchema = z.object({
@@ -240,7 +235,7 @@ export const shopSocialSchema = z.object({
 
 export const shopShippingSchema = z.object({
   shipsFromLocationId: idSchema.optional(),
-  processingTime: z.enum(PROCESSING_TIME_VALUES),
+  processingTime: processingTimeSchema,
 });
 
 /** One review decision on a shop, shown to the merchant. */
@@ -646,7 +641,7 @@ export const shopContactInputSchema = z.object({
   returnPolicy: returnPolicySchema,
   shipping: z.object({
     shipsFromLocationId: idSchema.optional().or(z.literal("").transform(() => undefined)),
-    processingTime: z.enum(PROCESSING_TIME_VALUES),
+    processingTime: processingTimeSchema,
   }),
 });
 export type ShopContactInput = z.infer<typeof shopContactInputSchema>;
@@ -752,7 +747,10 @@ export const productDraftDataSchema = z.object({
     widthCm: z.number().nonnegative().nullable(),
     heightCm: z.number().nonnegative().nullable(),
     shipsFromLocationId: z.string().max(128),
-    processingTime: z.enum(["", ...PROCESSING_TIME_VALUES]),
+    processingTime: z.preprocess(
+      (value) => (value === "5-10" ? "3-5" : value),
+      z.enum(["", ...PROCESSING_TIME_VALUES]),
+    ),
   }),
   seo: z.object({ title: z.string().max(70), description: z.string().max(160) }),
   slug: z.string().max(120),

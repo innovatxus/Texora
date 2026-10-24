@@ -19,6 +19,7 @@ import {
   merchantStockKey,
   PROCESSING_TIME_VALUES,
   returnPolicySchema,
+  shopShippingSchema,
   SHOP_TYPE_VALUES,
   shopSlugSchema,
   shopSocialSchema,
@@ -106,11 +107,20 @@ describe("contact fields", () => {
 });
 
 describe("return policy", () => {
-  it("allows the platform policy or a custom window from the list", () => {
-    expect(returnPolicySchema.safeParse({ mode: "platform" }).success).toBe(true);
-    expect(returnPolicySchema.safeParse({ mode: "custom", windowDays: 14 }).success).toBe(true);
-    expect(returnPolicySchema.safeParse({ mode: "custom", windowDays: 0 }).success).toBe(true);
-    expect(returnPolicySchema.safeParse({ mode: "custom", windowDays: 21 }).success).toBe(false);
+  it("is always Texora's policy, including shops saved with their own", () => {
+    expect(returnPolicySchema.parse({ mode: "platform" })).toEqual({ mode: "platform" });
+    expect(returnPolicySchema.parse({ mode: "custom", windowDays: 14, notes: "x" })).toEqual({
+      mode: "platform",
+    });
+    expect(returnPolicySchema.safeParse({ mode: "anything" }).success).toBe(false);
+  });
+});
+
+describe("processing time", () => {
+  it("offers 1–2 or 3–5 business days; the retired 5–10 reads as 3–5", () => {
+    expect(shopShippingSchema.parse({ processingTime: "5-10" }).processingTime).toBe("3-5");
+    expect(shopShippingSchema.parse({ processingTime: "1-2" }).processingTime).toBe("1-2");
+    expect(shopShippingSchema.safeParse({ processingTime: "10-20" }).success).toBe(false);
   });
 });
 
