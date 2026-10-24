@@ -366,10 +366,15 @@ export const MERCHANT_PUBLIC_PATHS = [
 
 /**
  * Pages under protected prefixes that anyone may open: merchant sign-up and
- * recovery, and the wishlist (guests see this device's list, members their
+ * recovery, the staff sign-in page, and the wishlist (guests see this device's list, members their
  * synced one).
  */
-const PUBLIC_PATHS: readonly string[] = [...MERCHANT_PUBLIC_PATHS, "/account/wishlist"];
+const PUBLIC_PATHS: readonly string[] = [
+  ...MERCHANT_PUBLIC_PATHS,
+  "/account/wishlist",
+  // The team's own sign-in page.
+  "/admin/sign-in",
+];
 
 /**
  * The only role changes server code may make without a signed-in admin: a

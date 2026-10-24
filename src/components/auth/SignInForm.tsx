@@ -9,16 +9,25 @@ import type { z } from "zod";
 import { ErrorSummary, FormMessage } from "@/components/merchant/forms/ErrorSummary";
 import { PasswordField } from "@/components/merchant/onboarding/PasswordField";
 import { Button, Input } from "@/components/primitives";
-import { signInCustomerAction } from "@/lib/account/actions/auth";
+import { signInCustomerAction, signInStaffAction } from "@/lib/account/actions/auth";
 import { customerSignInSchema } from "@/lib/validation/account";
 
 const IDS = { email: "signin-email", password: "signin-password" } as const;
 
 /**
  * Email and password sign-in, checked on the server (rate-limited, with a
- * per-account lockout) and exchanged for an HTTP-only session cookie.
+ * per-account lockout) and exchanged for an HTTP-only session cookie. With
+ * `staff`, it is the back office sign-in: only team accounts get a session.
  */
-export function SignInForm({ next, notice }: { next: string | null; notice?: string }) {
+export function SignInForm({
+  next,
+  notice,
+  staff = false,
+}: {
+  next: string | null;
+  notice?: string;
+  staff?: boolean;
+}) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -35,7 +44,7 @@ export function SignInForm({ next, notice }: { next: string | null; notice?: str
   const onSubmit = handleSubmit(
     async (values) => {
       setFormError(null);
-      const result = await signInCustomerAction(values);
+      const result = await (staff ? signInStaffAction : signInCustomerAction)(values);
       if (result.ok) {
         router.replace(result.data.redirectTo);
         router.refresh();

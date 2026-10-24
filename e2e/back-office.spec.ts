@@ -40,6 +40,30 @@ test.describe("sign-in", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Dashboard" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Back office" })).toBeVisible();
   });
+
+  test("the back office has its own sign-in, and returns to the page asked for", async ({
+    page,
+  }) => {
+    await gotoReady(page, "/admin/orders");
+    await expect(page).toHaveURL(/\/admin\/sign-in\?next=%2Fadmin%2Forders$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Back office sign in" }),
+    ).toBeVisible();
+    await page.getByRole("textbox", { name: "Email", exact: true }).fill("manager@texora.test");
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL((u) => u.pathname === "/admin/orders", { timeout: 30_000 });
+    await expect(page.getByRole("heading", { level: 1, name: "Orders" })).toBeVisible();
+  });
+
+  test("the back office sign-in refuses shoppers' accounts", async ({ page }) => {
+    await gotoReady(page, "/admin/sign-in");
+    await page.getByRole("textbox", { name: "Email", exact: true }).fill("customer@texora.test");
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByText(/This sign-in is for the Texora team/)).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/sign-in/);
+  });
 });
 
 test.describe("permissions", () => {

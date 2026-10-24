@@ -4,6 +4,8 @@ import { hasPermission, requiredPermissionForPath, type Role } from "./rbac";
 export const SIGN_IN_PATH = "/auth/signin";
 /** Where signed-out visitors to the merchant portal are sent. */
 export const MERCHANT_SIGN_IN_PATH = "/merchant/sign-in";
+/** Where signed-out visitors to the back office are sent: the team's own sign-in. */
+export const STAFF_SIGN_IN_PATH = "/admin/sign-in";
 /** Where signed-in users without permission are sent. */
 export const ACCESS_DENIED_PATH = "/access-denied";
 
@@ -23,9 +25,9 @@ export function decideAccess(pathname: string, search: string, role: Role | null
 
 /** The sign-in page for a protected path: merchants have their own. */
 export function signInPathFor(pathname: string): string {
-  return pathname === "/merchant" || pathname.startsWith("/merchant/")
-    ? MERCHANT_SIGN_IN_PATH
-    : SIGN_IN_PATH;
+  if (pathname === "/merchant" || pathname.startsWith("/merchant/")) return MERCHANT_SIGN_IN_PATH;
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) return STAFF_SIGN_IN_PATH;
+  return SIGN_IN_PATH;
 }
 
 /** Only same-site relative paths may be used as a post-sign-in redirect. */

@@ -44,7 +44,13 @@ describe("merchant routes", () => {
     expect(signInPathFor("/merchant/products")).toBe("/merchant/sign-in");
     expect(signInPathFor("/merchant")).toBe("/merchant/sign-in");
     expect(signInPathFor("/merchants")).toBe("/auth/signin");
-    expect(signInPathFor("/admin")).toBe("/auth/signin");
+    expect(signInPathFor("/account/orders")).toBe("/auth/signin");
+  });
+
+  it("sends signed-out staff to the back office sign-in page", () => {
+    expect(signInPathFor("/admin")).toBe("/admin/sign-in");
+    expect(signInPathFor("/admin/orders/abc")).toBe("/admin/sign-in");
+    expect(signInPathFor("/administration")).toBe("/auth/signin");
   });
 });
 

@@ -4,7 +4,8 @@ import { z } from "zod";
 import { ActionError, runAction } from "@/lib/actions/run-action";
 import { safeNextPath } from "@/lib/auth/access";
 import { isStaffRole, type Role } from "@/lib/auth/rbac";
-import { createSession } from "@/lib/auth/session";
+import { createSession, sessionFromClaims } from "@/lib/auth/session";
+import { getFirebaseAdmin } from "@/lib/firebase/admin";
 import { clientIp } from "@/lib/security/rate-limit";
 import {
   customerForgotPasswordSchema,
@@ -48,6 +49,36 @@ export async function signInCustomerAction(input: unknown) {
       const { idToken } = await signInCustomer(email, password, await clientIp());
       const session = await createSession(idToken);
       return { role: session.role, redirectTo: landingFor(session.role, next) };
+    },
+  });
+}
+
+/**
+ * The back office sign-in: the same checks as every sign-in (rate limits,
+ * lockout), but only team accounts get a session. The role is read from the
+ * verified sign-in token before any cookie is set, so a shopper's account
+ * never receives a back office session.
+ */
+export async function signInStaffAction(input: unknown) {
+  return runAction(input, {
+    schema: customerSignInSchema,
+    access: { public: true },
+    handler: async ({ email, password, next }) => {
+      const { idToken } = await signInCustomer(email, password, await clientIp());
+      const claims = await getFirebaseAdmin().auth.verifyIdToken(idToken);
+      const role = sessionFromClaims(claims).role;
+      if (!isStaffRole(role)) {
+        throw new ActionError(
+          "forbidden",
+          "This sign-in is for the Texora team. Shoppers sign in from the shop's Sign in page.",
+        );
+      }
+      await createSession(idToken);
+      // Back office pages only: a `next` elsewhere falls back to the dashboard.
+      const target = safeNextPath(next, "/admin");
+      return {
+        redirectTo: target === "/admin" || target.startsWith("/admin/") ? target : "/admin",
+      };
     },
   });
 }

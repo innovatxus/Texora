@@ -211,6 +211,8 @@ describe("requiredPermissionForPath", () => {
     ["/admin", "admin.access"],
     ["/admin/orders/TX-1", "orders.read"],
     ["/admin/audit", "audit.read"],
+    ["/admin/sign-in", null],
+    ["/admin/emails", "emails.outbox.read"],
     ["/administrator", null],
     ["/accounting", null],
     ["/admin/merchants", "merchants.review"],
