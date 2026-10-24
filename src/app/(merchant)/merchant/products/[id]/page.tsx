@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { notFound } from "next/navigation";
 import { EditorLoader } from "@/components/merchant/products/EditorLoader";
-import { CATEGORY_PRODUCT_CONFIG } from "@/config/product-attributes";
+import { ALL_CATEGORY_CONFIGS } from "@/config/product-attributes";
 import { ActionError } from "@/lib/actions/run-action";
 import { PRODUCT_STATUS_LABELS } from "@/lib/catalog/product-status";
 import { productPreviewPath } from "@/lib/orders/token";
@@ -28,7 +28,7 @@ export default async function Page({ params }: PageProps<"/merchant/products/[id
   if (draft.shopId !== shop.id) notFound();
   const locations = await listLocations(shop.id);
   // Categories the shop sells first, then the rest.
-  const categories = [...CATEGORY_PRODUCT_CONFIG].sort(
+  const categories = [...ALL_CATEGORY_CONFIGS].sort(
     (a, b) =>
       Number(shop.categoryKeys.includes(b.categoryKey)) -
       Number(shop.categoryKeys.includes(a.categoryKey)),

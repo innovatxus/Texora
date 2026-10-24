@@ -42,6 +42,7 @@ export const ATTRIBUTE_LABELS: Record<string, string> = {
   leg: "Leg shape",
   cut: "Cut",
   style: "Style",
+  type: "Type",
 };
 
 const FIT_LABELS: Record<string, string> = {

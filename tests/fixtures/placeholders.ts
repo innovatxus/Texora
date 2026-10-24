@@ -175,7 +175,10 @@ function svg(garmentKey: string, hex: string, view: View): string {
 }
 
 mkdirSync(OUT, { recursive: true });
-const garments = [...new Set(CATEGORIES.map((c) => c.garment))];
+// Only categories with demo products need drawings (accessory categories have none).
+const garments = [
+  ...new Set(CATEGORIES.filter((c) => c.products.length > 0).map((c) => c.garment)),
+];
 let count = 0;
 for (const garment of garments) {
   for (const color of COLORS) {

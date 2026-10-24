@@ -1,6 +1,6 @@
 import {
   attributeProblems,
-  CATEGORY_PRODUCT_CONFIG,
+  ALL_CATEGORY_CONFIGS,
   compositionProblem,
   formatComposition,
 } from "@/config/product-attributes";
@@ -202,7 +202,7 @@ describe("stock and publish checks", () => {
 describe("category attributes", () => {
   it("only uses storefront filter keys for category-specific attributes", () => {
     const filterKeys = new Set(Object.keys(ATTRIBUTE_LABELS));
-    for (const config of CATEGORY_PRODUCT_CONFIG) {
+    for (const config of ALL_CATEGORY_CONFIGS) {
       for (const def of config.attributes.filter((d) => d.required)) {
         expect(filterKeys.has(def.key), `${config.categoryKey}.${def.key}`).toBe(true);
       }

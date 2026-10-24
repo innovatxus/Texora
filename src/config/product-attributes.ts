@@ -47,6 +47,13 @@ export const MATERIALS = [
   "elastane",
   "denim",
   "leather",
+  "suede",
+  "canvas",
+  "straw",
+  "rubber",
+  "gold",
+  "silver",
+  "stainless steel",
 ] as const;
 
 const single = (key: string, label: string, options: readonly string[], required = false) =>
@@ -204,7 +211,116 @@ export const CATEGORY_PRODUCT_CONFIG: readonly CategoryProductConfig[] = [
   },
 ];
 
-const BY_KEY = new Map(CATEGORY_PRODUCT_CONFIG.map((c) => [c.categoryKey, c]));
+/** Accessories, shoes and other fashion: one fit, sizes from the size type. */
+const accessory = (
+  categoryKey: string,
+  label: string,
+  sizeType: SizeType,
+  attributes: readonly AttributeDefinition[],
+  fitFamilies: readonly FitFamily[] = ["regular"],
+): CategoryProductConfig => ({
+  categoryKey,
+  label,
+  sizeType,
+  fitFamilies,
+  allowCustomSize: sizeType === "one_size",
+  attributes: [...attributes, ...COMMON],
+});
+
+const MORE_FASHION: readonly CategoryProductConfig[] = [
+  accessory(
+    "women/skirts",
+    "Skirts",
+    "alpha",
+    [single("length", "Length", ["mini", "midi", "maxi"], true)],
+    WOMEN_FITS,
+  ),
+  accessory(
+    "women/modest-wear",
+    "Modest wear & abayas",
+    "alpha",
+    [single("type", "Type", ["abaya", "kaftan", "maxi dress", "hijab"], true)],
+    WOMEN_FITS,
+  ),
+  accessory(
+    "women/activewear",
+    "Activewear",
+    "alpha",
+    [single("type", "Type", ["leggings", "sports bra", "top", "jacket"], true)],
+    WOMEN_FITS,
+  ),
+  accessory(
+    "women/swimwear",
+    "Swimwear",
+    "alpha",
+    [single("style", "Style", ["one-piece", "bikini", "burkini", "cover-up"], true)],
+    WOMEN_FITS,
+  ),
+  accessory(
+    "women/lingerie-loungewear",
+    "Lingerie & loungewear",
+    "alpha",
+    [single("type", "Type", ["bra", "briefs", "pyjamas", "robe"], true)],
+    WOMEN_FITS,
+  ),
+  accessory("women/shoes", "Shoes", "shoe", [
+    single("style", "Style", ["sneakers", "flats", "heels", "sandals", "boots", "loafers"], true),
+  ]),
+  accessory("women/bags", "Bags", "one_size", [
+    single("style", "Style", ["tote", "shoulder", "crossbody", "clutch", "backpack"], true),
+  ]),
+  accessory("women/accessories", "Accessories", "one_size", [
+    single(
+      "type",
+      "Type",
+      ["scarf", "belt", "hat", "sunglasses", "wallet", "hair accessory"],
+      true,
+    ),
+  ]),
+  accessory("women/jewellery-watches", "Jewellery & watches", "one_size", [
+    single("type", "Type", ["necklace", "earrings", "bracelet", "ring", "watch"], true),
+  ]),
+  accessory(
+    "men/suits-blazers",
+    "Suits & blazers",
+    "alpha",
+    [single("type", "Type", ["suit", "blazer", "waistcoat"], true)],
+    MEN_FITS,
+  ),
+  accessory(
+    "men/activewear",
+    "Activewear",
+    "alpha",
+    [single("type", "Type", ["shorts", "joggers", "top", "jacket"], true)],
+    MEN_FITS,
+  ),
+  accessory(
+    "men/underwear-loungewear",
+    "Underwear & loungewear",
+    "alpha",
+    [single("type", "Type", ["boxers", "briefs", "pyjamas", "robe"], true)],
+    MEN_FITS,
+  ),
+  accessory("men/shoes", "Shoes", "shoe", [
+    single("style", "Style", ["sneakers", "loafers", "boots", "sandals", "formal"], true),
+  ]),
+  accessory("men/bags", "Bags", "one_size", [
+    single("style", "Style", ["backpack", "messenger", "tote", "weekender"], true),
+  ]),
+  accessory("men/accessories", "Accessories", "one_size", [
+    single("type", "Type", ["belt", "wallet", "hat", "scarf", "sunglasses", "tie"], true),
+  ]),
+  accessory("men/watches-jewellery", "Watches & jewellery", "one_size", [
+    single("type", "Type", ["watch", "bracelet", "ring", "necklace", "cufflinks"], true),
+  ]),
+];
+
+const BY_KEY = new Map(
+  [...CATEGORY_PRODUCT_CONFIG, ...MORE_FASHION].map((c) => [c.categoryKey, c]),
+);
+
+/** Every category merchants can list in, clothing first. */
+export const ALL_CATEGORY_CONFIGS: readonly CategoryProductConfig[] = [...BY_KEY.values()];
 
 /** The editor config for a leaf category, or undefined for one merchants can't use. */
 export function productConfigFor(categoryKey: string): CategoryProductConfig | undefined {

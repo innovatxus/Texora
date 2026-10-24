@@ -11,7 +11,8 @@ describe("seed data", () => {
     expect(data.products.length).toBeGreaterThanOrEqual(120);
     expect(new Set(data.products.map((p) => p.department))).toEqual(new Set(["women", "men"]));
     const leafCategories = data.categories.filter((c) => c.parentId !== null);
-    expect(leafCategories).toHaveLength(12);
+    // 12 clothing categories with demo products, plus 16 accessory and other fashion ones without.
+    expect(leafCategories).toHaveLength(28);
     // Texora's own catalog is cut in regular, petite and tall; plus arrives with merchants.
     expect(new Set(data.variants.map((v) => v.fitFamily))).toEqual(
       new Set(FIT_FAMILIES.filter((f) => f !== "plus")),

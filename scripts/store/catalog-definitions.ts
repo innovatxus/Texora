@@ -78,6 +78,240 @@ const CARE_WOOL = ["Hand wash cold or dry clean", "Dry flat", "Store folded"];
 const CARE_DENIM = ["Wash sparingly, inside out", "Machine wash cold", "Hang to dry"];
 const CARE_OUTER = ["Dry clean only", "Use a garment brush between wears"];
 
+/** A category merchants can sell in, without demo products. */
+function extra(
+  department: Department,
+  slug: string,
+  name: string,
+  sizeType: SizeType,
+  sizeRun: readonly string[],
+  fitFamilies: readonly FitFamily[],
+  basePrice: number,
+  attributes: Record<string, readonly string[]>,
+  materials: readonly string[],
+  care: readonly string[],
+): CategoryDefinition {
+  return {
+    department,
+    slug,
+    name,
+    garment: "accessory",
+    sizeType,
+    sizeRun,
+    fitFamilies,
+    basePrice,
+    attributes,
+    materials,
+    care,
+    products: [],
+  };
+}
+
+const ONE_SIZE = ["One size"] as const;
+const WOMEN_SHOES = ["35", "36", "37", "38", "39", "40", "41", "42"].map((n) => `EU ${n}`);
+const MEN_SHOES = ["39", "40", "41", "42", "43", "44", "45", "46"].map((n) => `EU ${n}`);
+const CARE_GENTLE = ["Hand wash cold", "Dry flat", "Do not tumble dry"];
+const CARE_LEATHER = ["Wipe with a soft dry cloth", "Keep away from water and heat"];
+const CARE_JEWELLERY = ["Keep dry", "Store separately to avoid scratches"];
+
+/** Accessories, shoes and other fashion categories, for both departments. */
+function extraCategories(): CategoryDefinition[] {
+  return [
+    extra(
+      "women",
+      "skirts",
+      "Skirts",
+      "alpha",
+      SIZE_RUNS.womenAlpha,
+      ["regular", "petite", "tall"],
+      1_900,
+      { length: ["mini", "midi", "maxi"] },
+      ["cotton", "linen", "viscose"],
+      CARE_COTTON,
+    ),
+    extra(
+      "women",
+      "modest-wear",
+      "Modest wear & abayas",
+      "alpha",
+      SIZE_RUNS.womenAlpha,
+      ["regular", "petite", "tall"],
+      2_800,
+      { type: ["abaya", "kaftan", "maxi dress", "hijab"] },
+      ["viscose", "linen", "polyester"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "women",
+      "activewear",
+      "Activewear",
+      "alpha",
+      SIZE_RUNS.womenAlpha,
+      ["regular"],
+      1_400,
+      { type: ["leggings", "sports bra", "top", "jacket"] },
+      ["polyester", "elastane", "nylon"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "women",
+      "swimwear",
+      "Swimwear",
+      "alpha",
+      SIZE_RUNS.womenAlpha,
+      ["regular"],
+      1_600,
+      { style: ["one-piece", "bikini", "burkini", "cover-up"] },
+      ["nylon", "elastane"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "women",
+      "lingerie-loungewear",
+      "Lingerie & loungewear",
+      "alpha",
+      SIZE_RUNS.womenAlpha,
+      ["regular"],
+      900,
+      { type: ["bra", "briefs", "pyjamas", "robe"] },
+      ["cotton", "modal", "silk"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "women",
+      "shoes",
+      "Shoes",
+      "shoe",
+      WOMEN_SHOES,
+      ["regular"],
+      2_400,
+      { style: ["sneakers", "flats", "heels", "sandals", "boots", "loafers"] },
+      ["leather", "suede"],
+      CARE_LEATHER,
+    ),
+    extra(
+      "women",
+      "bags",
+      "Bags",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      3_200,
+      { style: ["tote", "shoulder", "crossbody", "clutch", "backpack"] },
+      ["leather", "canvas"],
+      CARE_LEATHER,
+    ),
+    extra(
+      "women",
+      "accessories",
+      "Accessories",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      700,
+      { type: ["scarf", "belt", "hat", "sunglasses", "wallet", "hair accessory"] },
+      ["silk", "leather", "cotton"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "women",
+      "jewellery-watches",
+      "Jewellery & watches",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      1_500,
+      { type: ["necklace", "earrings", "bracelet", "ring", "watch"] },
+      ["silver", "gold", "stainless steel"],
+      CARE_JEWELLERY,
+    ),
+    extra(
+      "men",
+      "suits-blazers",
+      "Suits & blazers",
+      "alpha",
+      SIZE_RUNS.menAlpha,
+      ["regular", "tall"],
+      6_500,
+      { type: ["suit", "blazer", "waistcoat"] },
+      ["wool", "linen"],
+      CARE_OUTER,
+    ),
+    extra(
+      "men",
+      "activewear",
+      "Activewear",
+      "alpha",
+      SIZE_RUNS.menAlpha,
+      ["regular"],
+      1_300,
+      { type: ["shorts", "joggers", "top", "jacket"] },
+      ["polyester", "elastane", "nylon"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "men",
+      "underwear-loungewear",
+      "Underwear & loungewear",
+      "alpha",
+      SIZE_RUNS.menAlpha,
+      ["regular"],
+      700,
+      { type: ["boxers", "briefs", "pyjamas", "robe"] },
+      ["cotton", "modal"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "men",
+      "shoes",
+      "Shoes",
+      "shoe",
+      MEN_SHOES,
+      ["regular"],
+      2_900,
+      { style: ["sneakers", "loafers", "boots", "sandals", "formal"] },
+      ["leather", "suede"],
+      CARE_LEATHER,
+    ),
+    extra(
+      "men",
+      "bags",
+      "Bags",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      2_900,
+      { style: ["backpack", "messenger", "tote", "weekender"] },
+      ["leather", "canvas"],
+      CARE_LEATHER,
+    ),
+    extra(
+      "men",
+      "accessories",
+      "Accessories",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      700,
+      { type: ["belt", "wallet", "hat", "scarf", "sunglasses", "tie"] },
+      ["leather", "silk", "cotton"],
+      CARE_GENTLE,
+    ),
+    extra(
+      "men",
+      "watches-jewellery",
+      "Watches & jewellery",
+      "one_size",
+      ONE_SIZE,
+      ["regular"],
+      2_200,
+      { type: ["watch", "bracelet", "ring", "necklace", "cufflinks"] },
+      ["stainless steel", "silver", "leather"],
+      CARE_JEWELLERY,
+    ),
+  ];
+}
+
 /** Category tree with garments, materials and price bands that the seed turns into products. */
 export const CATEGORIES: readonly CategoryDefinition[] = [
   {
@@ -407,6 +641,10 @@ export const CATEGORIES: readonly CategoryDefinition[] = [
       ["Waxed Mac", { length: "knee", material: "waxed cotton" }],
     ],
   },
+
+  // ---- More of what Texora's merchants sell: accessories and other fashion. No demo
+  // products: the seed catalogue stays clothing; merchants fill these categories.
+  ...extraCategories(),
 ];
 
 /** The three physical stores: address, coordinates, phone and time zone. */

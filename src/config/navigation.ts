@@ -51,7 +51,21 @@ export const MAIN_NAV: readonly NavDepartment[] = [
             { label: "Pants", href: "/women/pants" },
             { label: "Jeans", href: "/women/jeans" },
             { label: "Coats & jackets", href: "/women/outerwear" },
+            { label: "Skirts", href: "/women/skirts" },
+            { label: "Modest wear & abayas", href: "/women/modest-wear" },
+            { label: "Activewear", href: "/women/activewear" },
+            { label: "Swimwear", href: "/women/swimwear" },
+            { label: "Lingerie & loungewear", href: "/women/lingerie-loungewear" },
             { label: "Shop all women", href: "/women" },
+          ],
+        },
+        {
+          title: "Shoes & accessories",
+          links: [
+            { label: "Shoes", href: "/women/shoes" },
+            { label: "Bags", href: "/women/bags" },
+            { label: "Accessories", href: "/women/accessories" },
+            { label: "Jewellery & watches", href: "/women/jewellery-watches" },
           ],
         },
         {
@@ -96,7 +110,19 @@ export const MAIN_NAV: readonly NavDepartment[] = [
             { label: "Pants & chinos", href: "/men/pants" },
             { label: "Jeans", href: "/men/jeans" },
             { label: "Coats & jackets", href: "/men/outerwear" },
+            { label: "Suits & blazers", href: "/men/suits-blazers" },
+            { label: "Activewear", href: "/men/activewear" },
+            { label: "Underwear & loungewear", href: "/men/underwear-loungewear" },
             { label: "Shop all men", href: "/men" },
+          ],
+        },
+        {
+          title: "Shoes & accessories",
+          links: [
+            { label: "Shoes", href: "/men/shoes" },
+            { label: "Bags", href: "/men/bags" },
+            { label: "Accessories", href: "/men/accessories" },
+            { label: "Watches & jewellery", href: "/men/watches-jewellery" },
           ],
         },
         {
