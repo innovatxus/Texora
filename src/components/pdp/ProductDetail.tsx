@@ -252,7 +252,7 @@ export function ProductDetail({
           </a>
         )}
         <p className="mt-4 bg-surface-muted px-4 py-3 text-sm">
-          Members earn 10 points per dollar.{" "}
+          Members earn 1 point for every EGP 1.{" "}
           {product.finalSale ? (
             <strong className="text-sale">Final sale: not eligible for return.</strong>
           ) : (

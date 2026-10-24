@@ -21,7 +21,7 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
   },
   {
     id: "rewards",
-    message: "Members earn 10 points per dollar. Join Texora Rewards",
+    message: "Members earn 1 point for every EGP 1. Join Texora Rewards",
     link: { label: "Learn more", href: "/account/rewards" },
   },
 ];

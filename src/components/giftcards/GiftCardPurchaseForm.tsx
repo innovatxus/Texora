@@ -123,7 +123,7 @@ export function GiftCardPurchaseForm({ available }: { available: boolean }) {
         {preset === "custom" && (
           <Input
             id={`${id}-custom`}
-            label="Amount in dollars"
+            label="Amount in EGP"
             hint="From EGP 250 to EGP 25,000"
             inputMode="numeric"
             value={custom}

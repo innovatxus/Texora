@@ -1,7 +1,7 @@
 import type { ListingProduct } from "@/lib/catalog/listing-types";
 import { dollars, type AnalyticsItem } from "./events";
 
-/** A listing product as an analytics item (price in dollars). */
+/** A listing product as an analytics item (price in pounds). */
 export function listingItem(
   product: Pick<ListingProduct, "id" | "name" | "price" | "categoryPath" | "shop">,
   extra: { variant?: string; quantity?: number } = {},

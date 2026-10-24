@@ -150,9 +150,9 @@ export default function StyleguidePage() {
             <span className="text-label">New arrivals</span>
           </Specimen>
           <Specimen label="Prices · tabular figures">
-            <span className="text-lg tabular-nums">$128.00</span>
-            <span className="text-lg text-sale tabular-nums">$89.60</span>
-            <span className="text-lg text-ink-subtle tabular-nums line-through">$128.00</span>
+            <span className="text-lg tabular-nums">EGP 1,280</span>
+            <span className="text-lg text-sale tabular-nums">EGP 896</span>
+            <span className="text-lg text-ink-subtle tabular-nums line-through">EGP 1,280</span>
           </Specimen>
           <Specimen label="Body">
             <p className="max-w-prose text-ink-soft">
@@ -319,7 +319,7 @@ export default function StyleguidePage() {
               name="sg-delivery"
               value="standard"
               label="Standard · 3–5 business days"
-              hint="Free over $150"
+              hint="Free over EGP 2,500"
               defaultChecked
             />
             <Radio name="sg-delivery" value="express" label="Express · 1–2 business days" />

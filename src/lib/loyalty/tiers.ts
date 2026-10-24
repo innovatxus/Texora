@@ -13,7 +13,7 @@ export const TIER_NAMES: Record<LoyaltyTier, string> = {
   icon: "Icon",
 };
 
-/** Higher tiers earn faster: points per dollar are multiplied by this. */
+/** Higher tiers earn faster: points per pound are multiplied by this. */
 export const TIER_MULTIPLIERS: Record<LoyaltyTier, number> = {
   core: 1,
   enthusiast: 1.25,
@@ -28,7 +28,7 @@ export function tierFor(periodSpend: number, thresholds: TierThresholds): Loyalt
 }
 
 /**
- * Points for an order: whole dollars of merchandise (after discounts, before
+ * Points for an order: whole pounds of merchandise (after discounts, before
  * shipping and tax) × the base rate × the member's tier multiplier.
  */
 export function pointsForOrder(
