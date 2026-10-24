@@ -27,7 +27,8 @@ export function StoreOpenStatus({
   }
   const status = openStatus(store, new Date(now));
   return (
-    <p className={cn("flex items-center gap-2 text-sm", className)}>
+    // data-dynamic: depends on the time of day, so screenshot tests mask it.
+    <p data-dynamic className={cn("flex items-center gap-2 text-sm", className)}>
       <span
         aria-hidden
         className={cn("size-2 rounded-full", status.open ? "bg-success" : "bg-ink-subtle")}

@@ -21,6 +21,8 @@ export function OpenNow({ location }: { location: HoursSource }) {
   if (minute === null) return null;
   const status = openStatus(location, new Date(minute * 60_000));
   return (
-    <p className={status.open ? "text-sm text-success" : "text-sm text-ink-soft"}>{status.label}</p>
+    <p data-dynamic className={status.open ? "text-sm text-success" : "text-sm text-ink-soft"}>
+      {status.label}
+    </p>
   );
 }
