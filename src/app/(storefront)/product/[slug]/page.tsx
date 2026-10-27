@@ -11,7 +11,6 @@ import {
   ProductDetailFromParams,
   type PdpProductView,
 } from "@/components/pdp/ProductDetail";
-import { SoldByBlock } from "@/components/merchant/shop/SoldByBlock";
 import { RecentlyViewed } from "@/components/pdp/RecentlyViewed";
 import { Reviews } from "@/components/pdp/Reviews";
 import { brand } from "@/config/brand";
@@ -22,7 +21,7 @@ import { getListingIndex, getProductsForIds } from "@/lib/catalog/queries";
 import { clientEnv } from "@/lib/env/client";
 import { getDeliveryTerms } from "@/lib/delivery/terms";
 import { formatMoney } from "@/lib/format/money";
-import { getPublicShopById, returnSummary } from "@/lib/merchant/storefront";
+import { getPublicShopById } from "@/lib/merchant/storefront";
 
 /** Prerenders every live product page. */
 export async function generateStaticParams() {
@@ -132,7 +131,8 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const data = await getPdpData((await params).slug);
   if (!data) notFound();
   const { product, variants, reviews, summary, categoryName } = data;
-  // Merchant products: the shop's "Sold by" block and its own return policy.
+  // Merchant products: only the processing time is used. The shop's name and
+  // details are never shown to shoppers (merchants and staff see them).
   const [merchant, delivery] = await Promise.all([
     product.shopId ? getPublicShopById(product.shopId) : null,
     getDeliveryTerms(),
@@ -178,7 +178,6 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
     ),
     details: (
       <>
-        {merchant && <SoldByBlock shop={merchant} />}
         <DetailsAccordion
           sections={[
             {
@@ -223,8 +222,9 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
                     ? `Free standard delivery on orders over ${formatMoney(delivery.freeFrom)}. `
                     : ""}
                   {merchant
-                    ? `Ships from ${merchant.shop.name} within ${merchant.shop.shipping.processingTime} business days. ${returnSummary(merchant.shop.returnPolicy)}.`
-                    : "Free returns within 30 days by courier collection."}
+                    ? `Ships within ${merchant.shop.shipping.processingTime.replace("-", "–")} business days. `
+                    : ""}
+                  Free returns within 30 days by courier collection.
                   {product.badges.includes("final_sale") &&
                     " This item is final sale and can't be returned or exchanged."}
                 </p>

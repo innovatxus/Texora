@@ -68,6 +68,8 @@ export const PERMISSIONS = [
   "merchant.shop.write",
   "merchant.locations.write",
   "merchant.media.write",
+  /** Open a shop's page (`/shops/…`): its own merchant and the marketplace team only. */
+  "shops.preview",
 
   // Marketplace oversight (back office)
   "merchants.review",
@@ -162,6 +164,7 @@ const MERCHANDISER: readonly Permission[] = [
   "reviews.moderate",
   "inventory.read",
   "merchants.review",
+  "shops.preview",
 ];
 
 const PRICING_MANAGER: readonly Permission[] = [
@@ -198,6 +201,7 @@ const VENDOR: readonly Permission[] = [
   "merchant.shop.write",
   "merchant.locations.write",
   "merchant.media.write",
+  "shops.preview",
 ];
 
 /**
@@ -409,6 +413,8 @@ export const ROUTE_PERMISSIONS: ReadonlyArray<{ prefix: string; permission: Perm
   { prefix: "/admin/audit", permission: "audit.read" },
   { prefix: "/admin/emails", permission: "emails.outbox.read" },
   { prefix: "/merchant", permission: "vendor.catalog.write" },
+  // Shop pages are private: merchant and shop names are never shown to shoppers.
+  { prefix: "/shops", permission: "shops.preview" },
 ];
 
 function matchesPrefix(pathname: string, prefix: string): boolean {

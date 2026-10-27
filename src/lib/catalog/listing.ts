@@ -136,7 +136,8 @@ export function parseListingQuery(
   return {
     filters: {
       category: list(params.category),
-      shop: list(params.shop),
+      // Shop filtering is not offered to shoppers (shop identity stays private).
+      shop: [],
       size: list(params.size),
       fit: list(params.fit),
       color: list(params.color),
@@ -342,27 +343,7 @@ export function computeFacets(
     });
   }
 
-  // Shop facet: only when the result mixes more than one merchant shop.
-  const shopScope = without("shop");
-  const shopNames = new Map(
-    shopScope.flatMap((p) => (p.shop ? [[p.shop.slug, p.shop.name] as const] : [])),
-  );
-  if (shopNames.size > 1 || filters.shop.length > 0) {
-    const counts = countBy(shopScope, (p) => (p.shop ? [p.shop.slug] : []));
-    facets.push({
-      key: "shop",
-      label: "Shop",
-      type: "list",
-      options: [...new Set([...shopNames.keys(), ...filters.shop])]
-        .map((slug) => ({
-          value: slug,
-          label: shopNames.get(slug) ?? titleCase(slug),
-          count: counts.get(slug) ?? 0,
-          selected: filters.shop.includes(slug),
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    });
-  }
+  // No Shop facet: merchant and shop names are never shown to shoppers.
 
   const sizeCounts = countBy(without("size"), (p) => p.sizesInStock);
   facets.push({

@@ -126,41 +126,41 @@ test.describe("marketplace", () => {
       staff.getByRole("status").filter({ hasText: /^Approved\. It's live/ }),
     ).toBeVisible();
 
-    // Storefront: the shop page, the card's "by" line, the PDP's "Sold by" and search.
+    // Shoppers never see the merchant: no shop page, no shop name on cards or the PDP,
+    // and the shop's name doesn't find its products.
     const shopper = await newVisitor(browser, baseURL);
-    await eventually(shopper, `/shops/${shopSlug}`, async () => {
-      await expect(shopper.getByRole("heading", { level: 1, name: shopName })).toBeVisible();
-      await expect(shopper.getByRole("link", { name: "Linen Midi Dress" }).first()).toBeVisible();
-    });
-    await expect(shopper.getByText("Mercer Street studio", { exact: true })).toBeVisible();
-    await expect(shopper.locator("article").getByText(`by ${shopName}`)).toBeVisible();
-    expect(
-      (await new AxeBuilder({ page: shopper }).withTags(WCAG_TAGS).analyze()).violations,
-    ).toEqual([]);
+    await gotoReady(shopper, `/shops/${shopSlug}`);
+    await expect(shopper.getByRole("heading", { level: 1 })).toHaveText("We can't find that page");
 
+    // The merchant sees their own shop page.
+    await eventually(page, `/shops/${shopSlug}`, async () => {
+      await expect(page.getByRole("heading", { level: 1, name: shopName })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Linen Midi Dress" }).first()).toBeVisible();
+    });
+    await expect(page.getByText("Mercer Street studio", { exact: true })).toBeVisible();
+    expect((await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()).violations).toEqual([]);
+
+    const card = shopper
+      .locator("article")
+      .filter({ has: shopper.getByRole("link", { name: "Linen Midi Dress", exact: true }) })
+      .first();
+    await eventually(shopper, "/women/dresses?sort=newest", async () => {
+      await expect(card).toBeVisible();
+    });
+    await expect(card).not.toContainText(shopName);
     const href =
-      (await shopper
-        .locator("article")
-        .getByRole("link", { name: "Linen Midi Dress" })
+      (await card
+        .getByRole("link", { name: "Linen Midi Dress", exact: true })
         .first()
         .getAttribute("href")) ?? "";
-    await eventually(shopper, href, async () => {
-      const soldBy = shopper.getByRole("region", { name: "Sold by" });
-      await expect(soldBy).toContainText(shopName);
-      await expect(soldBy).toContainText("Ships from Zamalek, Cairo");
-      await expect(soldBy).toContainText("30-day returns");
-    });
+    await gotoReady(shopper, href);
+    await expect(shopper.getByRole("region", { name: "Sold by" })).toHaveCount(0);
+    await expect(shopper.getByText(shopName)).toHaveCount(0);
 
-    await eventually(shopper, `/search?q=${encodeURIComponent(shopName)}`, async () => {
-      await expect(
-        shopper.locator("article").getByRole("link", { name: "Linen Midi Dress" }).first(),
-      ).toBeVisible();
-    });
-    await eventually(shopper, `/women/dresses?shop=${shopSlug}`, async () => {
-      await expect(
-        shopper.locator("article").getByRole("link", { name: "Linen Midi Dress" }).first(),
-      ).toBeVisible();
-    });
+    await gotoReady(shopper, `/search?q=${encodeURIComponent(shopName)}`);
+    await expect(
+      shopper.locator("article").getByRole("link", { name: "Linen Midi Dress", exact: true }),
+    ).toHaveCount(0);
 
     // A shopper buys it (pay on delivery)...
     await gotoReady(shopper, href);
@@ -224,14 +224,9 @@ test.describe("marketplace", () => {
     staff.on("dialog", (d) => void d.accept());
     await staff.getByRole("button", { name: "Pause shop" }).click();
     await expect(staff.getByText("Paused. Its products are hidden.")).toBeVisible();
-    await eventually(shopper, `/shops/${shopSlug}`, async () => {
-      await expect(shopper.getByRole("heading", { level: 1 })).toHaveText(
-        "We can't find that page",
-      );
-    });
-    await eventually(shopper, `/search?q=${encodeURIComponent(shopName)}`, async () => {
+    await eventually(shopper, "/search?q=linen%20midi%20dress", async () => {
       await expect(
-        shopper.locator("article").getByRole("link", { name: "Linen Midi Dress" }),
+        shopper.locator("article").getByRole("link", { name: "Linen Midi Dress", exact: true }),
       ).toHaveCount(0);
     });
 

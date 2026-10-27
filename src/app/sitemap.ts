@@ -6,7 +6,6 @@ import {
   getListingIndex,
   getStores,
 } from "@/lib/catalog/queries";
-import { listApprovedShopSlugs } from "@/lib/merchant/storefront";
 import { siteUrl } from "@/lib/site-url";
 import { DEPARTMENTS } from "@/lib/validation/common";
 
@@ -15,15 +14,14 @@ const COLLECTION_SLUGS = ["new-arrivals", "the-linen-edit", "knitwear"];
 
 /**
  * XML sitemap (spec 10, SEO): home, departments, categories, collections,
- * live products, approved merchant shops, stores and help. Built from the
+ * live products, stores and help (shop pages are private). Built from the
  * same cached reads the pages use, so it follows publishing.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, categories, collections, shops, stores] = await Promise.all([
+  const [products, categories, collections, stores] = await Promise.all([
     getListingIndex(),
     Promise.all(DEPARTMENTS.map((d) => getDepartmentCategories(d))),
     Promise.all(COLLECTION_SLUGS.map((slug) => getCollection(slug))),
-    listApprovedShopSlugs(),
     getStores(),
   ]);
   const entry = (
@@ -49,7 +47,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...collections.flatMap((c) => (c ? [entry(`/collections/${c.slug}`, 0.7, "weekly")] : [])),
     ...products.map((p) => entry(`/product/${p.slug}`, 0.7, "weekly", new Date(p.createdAt))),
     entry("/merchants", 0.5, "monthly"),
-    ...shops.map((slug) => entry(`/shops/${slug}`, 0.6, "weekly")),
     entry("/stores", 0.5, "monthly"),
     ...stores
       .filter((s) => s.status !== "closed")

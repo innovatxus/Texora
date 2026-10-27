@@ -240,17 +240,6 @@ export function ProductCard({
           {product.name}
         </NextLink>
       </h3>
-      {product.shop && (
-        <p className="mt-1 text-xs text-ink-soft">
-          by{" "}
-          <NextLink
-            href={`/shops/${product.shop.slug}`}
-            className="inline-flex min-h-6 items-center underline-offset-4 hover:underline"
-          >
-            {product.shop.name}
-          </NextLink>
-        </p>
-      )}
       <PriceDisplay
         size="sm"
         price={product.price}

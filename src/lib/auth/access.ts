@@ -10,7 +10,13 @@ export const STAFF_SIGN_IN_PATH = "/admin/sign-in";
 export const ACCESS_DENIED_PATH = "/access-denied";
 
 export type AccessDecision =
-  { type: "allow" } | { type: "sign_in"; next: string } | { type: "deny" };
+  { type: "allow" } | { type: "sign_in"; next: string } | { type: "deny" } | { type: "not_found" };
+
+/**
+ * Private pages that answer "not found" to anyone without access (instead of
+ * asking them to sign in), so shoppers can't tell they exist: shop pages.
+ */
+const HIDDEN_PREFIXES = ["/shops"] as const;
 
 /**
  * Route-level decision used by the proxy. Pure, so it is unit tested.
@@ -19,8 +25,12 @@ export type AccessDecision =
 export function decideAccess(pathname: string, search: string, role: Role | null): AccessDecision {
   const permission = requiredPermissionForPath(pathname);
   if (!permission) return { type: "allow" };
+  const allowed = role !== null && role !== "guest" && hasPermission(role, permission);
+  if (allowed) return { type: "allow" };
+  if (HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`)))
+    return { type: "not_found" };
   if (role === null || role === "guest") return { type: "sign_in", next: `${pathname}${search}` };
-  return hasPermission(role, permission) ? { type: "allow" } : { type: "deny" };
+  return { type: "deny" };
 }
 
 /** The sign-in page for a protected path: merchants have their own. */

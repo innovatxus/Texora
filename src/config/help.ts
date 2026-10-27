@@ -408,7 +408,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     sections: [
       {
         paragraphs: [
-          `Merchants sell their own clothing on ${brand.name} from a shop page with their branding. Your products appear in our search, filters and category pages, and shoppers check out with us as usual.`,
+          `Merchants sell their own fashion on ${brand.name}. Your products appear in our search, filters and category pages under ${brand.name}, and shoppers check out with us as usual. Your shop name and details stay private to you and the ${brand.name} team.`,
         ],
       },
       {

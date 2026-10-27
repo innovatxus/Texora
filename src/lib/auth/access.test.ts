@@ -54,6 +54,23 @@ describe("merchant routes", () => {
   });
 });
 
+describe("private shop pages", () => {
+  it("answer not found to shoppers and signed-out visitors", () => {
+    expect(decideAccess("/shops/maison-rue", "", null)).toEqual({ type: "not_found" });
+    expect(decideAccess("/shops/maison-rue", "", "guest")).toEqual({ type: "not_found" });
+    expect(decideAccess("/shops/maison-rue", "", "customer")).toEqual({ type: "not_found" });
+    expect(decideAccess("/shops/maison-rue", "", "customer_service")).toEqual({
+      type: "not_found",
+    });
+  });
+
+  it("let merchants and the marketplace team through", () => {
+    for (const role of ["vendor", "merchandiser", "manager", "admin", "super_admin"] as const) {
+      expect(decideAccess("/shops/maison-rue", "", role)).toEqual({ type: "allow" });
+    }
+  });
+});
+
 describe("safeNextPath", () => {
   it.each([
     ["/account/orders", "/account/orders"],

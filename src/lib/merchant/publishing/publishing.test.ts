@@ -1,7 +1,6 @@
 import {
   EMPTY_FILTERS,
   computeFacets,
-  applyFilters,
   parseListingQuery,
   toSearchParams,
 } from "@/lib/catalog/listing";
@@ -228,7 +227,7 @@ describe("publishProblems", () => {
   });
 });
 
-describe("shop facet", () => {
+describe("shop facet (private to merchants and staff)", () => {
   const item = (id: string, shop?: { id: string; slug: string; name: string }): ListingProduct =>
     ({
       id,
@@ -249,21 +248,15 @@ describe("shop facet", () => {
     item("c"),
   ];
 
-  it("appears when results mix shops and filters by shop", () => {
+  it("is never offered to shoppers, even when results mix shops", () => {
     const facets = computeFacets(products, EMPTY_FILTERS, { attributeKeys: [], stores: [] }, 0);
-    const shopFacet = facets.find((f) => f.key === "shop");
-    expect(shopFacet?.options.map((o) => [o.label, o.count])).toEqual([
-      ["Harbour Goods", 1],
-      ["Maison Rue", 1],
-    ]);
-    const filtered = applyFilters(products, { ...EMPTY_FILTERS, shop: ["maison"] }, 0);
-    expect(filtered.map((p) => p.id)).toEqual(["b"]);
+    expect(facets.find((f) => f.key === "shop")).toBeUndefined();
   });
 
-  it("round-trips through the URL", () => {
+  it("ignores a shop in the URL, so shop names can't be probed", () => {
     const query = parseListingQuery({ shop: "maison" });
-    expect(query.filters.shop).toEqual(["maison"]);
-    expect(toSearchParams({ filters: query.filters }).get("shop")).toBe("maison");
+    expect(query.filters.shop).toEqual([]);
+    expect(toSearchParams({ filters: query.filters }).get("shop")).toBeNull();
   });
 
   it("stays hidden with a single shop", () => {

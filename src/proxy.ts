@@ -47,6 +47,10 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  if (decision.type === "not_found") {
+    return NextResponse.rewrite(new URL("/_not-found", request.url), { status: 404 });
+  }
+
   if (decision.type === "deny") {
     return NextResponse.rewrite(new URL(ACCESS_DENIED_PATH, request.url), { status: 403 });
   }

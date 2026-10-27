@@ -11,6 +11,8 @@ import {
   ProductListing,
 } from "@/components/plp/ProductListing";
 import { getListingIndex } from "@/lib/catalog/queries";
+import { hasPermission } from "@/lib/auth/rbac";
+import { getSession } from "@/lib/auth/session";
 import { clientEnv } from "@/lib/env/client";
 import {
   getPublicShopBySlug,
@@ -33,6 +35,8 @@ export async function generateMetadata({ params }: PageProps<"/shops/[slug]">): 
   const { shop } = data;
   return {
     title: shop.name,
+    // Private to the shop's merchant and the Texora team: never indexed.
+    robots: { index: false, follow: false },
     description: shop.tagline || shop.description.slice(0, 155) || `Shop ${shop.name} on Texora.`,
     alternates: { canonical: `/shops/${shop.slug}` },
     ...(shop.banner
@@ -86,8 +90,14 @@ async function ShopJsonLd({ slug }: { slug: string }) {
 
 async function ShopContent({ params, searchParams }: PageProps<"/shops/[slug]">) {
   const { slug } = await params;
-  const data = await getPublicShopBySlug(slug);
+  const [data, session] = await Promise.all([getPublicShopBySlug(slug), getSession()]);
   if (!data) notFound();
+  // The proxy only lets merchants and the marketplace team through; a merchant
+  // sees only their own shop, never another merchant's.
+  const isOwner = session?.role === "vendor" && session.vendorId === data.shop.vendorId;
+  const isTeam =
+    session !== null && session.role !== "vendor" && hasPermission(session.role, "shops.preview");
+  if (!isOwner && !isTeam) notFound();
   const { shop, stores } = data;
   const basePath = `/shops/${shop.slug}`;
 
@@ -163,7 +173,10 @@ async function ShopContent({ params, searchParams }: PageProps<"/shops/[slug]">)
  */
 export const instant = false;
 
-/** A merchant's shop page: banner, story, stores and products (journey §14). */
+/**
+ * A merchant's shop page: banner, story, stores and products (journey §14).
+ * Private: only the shop's own merchant and the Texora team can open it.
+ */
 export default async function Page(props: PageProps<"/shops/[slug]">) {
   if (!(await getPublicShopBySlug((await props.params).slug))) notFound();
   return (

@@ -261,7 +261,7 @@ export const MERCHANT_LANDING = {
   hero: {
     eyebrow: "For merchants",
     title: `Sell on ${brand.name}`,
-    body: "Reach shoppers across Egypt with a shop page that looks as good as your clothes.",
+    body: "Reach shoppers across Egypt. Your products sell under Texora, and we handle the storefront, delivery and returns.",
     cta: "Open your shop",
     secondary: "Already selling? Sign in",
   },
@@ -275,8 +275,8 @@ export const MERCHANT_LANDING = {
   ],
   benefits: [
     {
-      title: "A shop page that's yours",
-      body: "Your banner, logo, accent colour, story and locations, at your own address.",
+      title: "Your shop, behind the scenes",
+      body: "Set up your branding, story and locations. Your shop page is private to you and the Texora team; shoppers buy from Texora.",
     },
     {
       title: "Nationwide reach",
