@@ -1,6 +1,13 @@
 import { Section, Text } from "@react-email/components";
 import { formatMoney } from "@/lib/format/money";
-import { EMAIL_COLORS, EmailButton, EmailHeading, EmailLayout, EmailText } from "./Layout";
+import {
+  EMAIL_COLORS,
+  EMAIL_DISPLAY,
+  EmailButton,
+  EmailHeading,
+  EmailLayout,
+  EmailText,
+} from "./Layout";
 
 export interface GiftCardEmailProps {
   brandName: string;
@@ -31,7 +38,7 @@ export function GiftCardEmail(props: GiftCardEmailProps) {
           style={{
             borderLeft: `2px solid ${EMAIL_COLORS.line}`,
             color: EMAIL_COLORS.ink,
-            fontFamily: "Georgia, serif",
+            fontFamily: EMAIL_DISPLAY,
             fontSize: 17,
             fontStyle: "italic",
             lineHeight: "26px",

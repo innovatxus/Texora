@@ -34,7 +34,8 @@
     "migrate:home": "tsx scripts/migrate-home-sections.ts",
     "password-link": "tsx scripts/password-link.ts",
     "migrate:categories": "tsx scripts/migrate-categories.ts",
-    "delete-merchants": "tsx scripts/delete-merchant-accounts.ts"
+    "delete-merchants": "tsx scripts/delete-merchant-accounts.ts",
+    "email:samples": "tsx scripts/email-samples.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",

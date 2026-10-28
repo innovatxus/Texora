@@ -58,3 +58,6 @@ storage-debug.log
 
 # generated placeholder imagery (npm run placeholders)
 /public/media/placeholders
+
+# rendered email samples (npm run email:samples)
+/.email-previews/
