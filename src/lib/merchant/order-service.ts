@@ -120,7 +120,6 @@ export async function markShipped(
       template: createElement(MerchantShippedEmail, {
         brandName: brand.name,
         orderNumber: result.order.number,
-        shopName: result.shopName,
         carrier: shipment.carrier,
         trackingNumber: shipment.trackingNumber,
         link: url.toString(),

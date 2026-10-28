@@ -26,25 +26,23 @@ export function MerchantNewOrderEmail({
   );
 }
 
-/** To the customer when a merchant ships their part of an order. */
+/** To the customer when a merchant ships their part of an order (the shop's name is never shown). */
 export function MerchantShippedEmail({
   brandName,
   orderNumber,
-  shopName,
   carrier,
   trackingNumber,
   link,
 }: {
   brandName: string;
   orderNumber: string;
-  shopName: string;
   carrier: string;
   trackingNumber: string;
   link: string;
 }) {
   return (
     <EmailLayout brandName={brandName} preview={`Part of your order ${orderNumber} has shipped`}>
-      <EmailHeading>Your items from {shopName} are on the way</EmailHeading>
+      <EmailHeading>Part of your order is on the way</EmailHeading>
       <EmailText>
         Part of your order {orderNumber} has shipped with {carrier}. Tracking number:{" "}
         {trackingNumber}.
