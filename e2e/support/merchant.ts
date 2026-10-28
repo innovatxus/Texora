@@ -65,7 +65,10 @@ export async function merchantWithShop(page: Page, testInfo: { project: { name: 
   await page.getByRole("textbox", { name: "City" }).fill("Borg El Arab");
   await page.getByRole("combobox", { name: "Governorate" }).selectOption("ALX");
   await page.getByRole("button", { name: "Add location" }).click();
-  await expect(page.getByText("Location added.")).toBeVisible({ timeout: 30_000 });
+  // A location that ships moves onboarding on to review.
+  await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/review", {
+    timeout: 30_000,
+  });
   return { email, username, shopName };
 }
 
@@ -130,10 +133,11 @@ export async function onboardSubmittedShop(page: Page, testInfo: { project: { na
   await page.getByRole("textbox", { name: "City" }).fill("Zamalek");
   await page.getByRole("combobox", { name: "Governorate" }).selectOption("C");
   await page.getByRole("textbox", { name: "Postal code (optional)" }).fill("11211");
-  await page.getByRole("checkbox", { name: "Monday" }).check();
-  await page.getByRole("button", { name: "Copy Monday to all days" }).click();
   await page.getByRole("button", { name: "Add location" }).click();
-  await expect(page.getByText("Location added.")).toBeVisible({ timeout: 30_000 });
+  // A location that ships moves onboarding on to review.
+  await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/review", {
+    timeout: 30_000,
+  });
   await gotoReady(page, "/merchant/onboarding/review");
   await page.getByRole("button", { name: "Submit for review" }).click();
   await expect(page).toHaveURL((u) => u.pathname === "/merchant", { timeout: 30_000 });

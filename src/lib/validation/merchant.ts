@@ -648,13 +648,6 @@ export const locationInputSchema = z
   .superRefine((value, ctx) => {
     const [problem] = weeklyHoursProblems(value.hours);
     if (problem) ctx.addIssue({ code: "custom", path: ["hours"], message: problem });
-    if (value.types.includes("retail") && value.hours.length === 0) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["hours"],
-        message: "Add opening hours so shoppers know when to visit",
-      });
-    }
   });
 export type LocationInput = z.infer<typeof locationInputSchema>;
 

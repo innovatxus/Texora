@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { LocationsManager } from "@/components/merchant/locations/LocationsManager";
 import { getMerchantContext } from "@/lib/merchant/context";
 import { listLocations } from "@/lib/merchant/repositories/locations";
-import { requestTime } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Locations" };
 
@@ -19,16 +18,10 @@ export default async function Page() {
           Locations
         </h2>
         <p className="mt-2 text-ink-soft">
-          At least one location must ship orders. Retail stores appear on your shop page with their
-          hours.
+          Add where your orders ship from. You can add more locations later.
         </p>
       </div>
-      <LocationsManager
-        mode="onboarding"
-        shopId={shop.id}
-        locations={locations}
-        now={requestTime()}
-      />
+      <LocationsManager mode="onboarding" shopId={shop.id} locations={locations} />
     </section>
   );
 }

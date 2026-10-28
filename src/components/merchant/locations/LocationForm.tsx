@@ -8,8 +8,7 @@ import { saveLocationAction } from "@/lib/merchant/actions/shop";
 import { TIME_ZONE } from "@/config/locale";
 import { GOVERNORATE_OPTIONS } from "@/lib/merchant/geo";
 import type { LocationType } from "@/config/merchant";
-import type { MerchantLocation, SpecialHours, WeeklyHours } from "@/lib/validation/merchant";
-import { HoursEditor } from "./HoursEditor";
+import type { MerchantLocation } from "@/lib/validation/merchant";
 
 const FIELD_IDS: Record<string, string> = {
   name: "loc-name",
@@ -18,7 +17,6 @@ const FIELD_IDS: Record<string, string> = {
   "address.city": "loc-city",
   "address.region": "loc-region",
   "address.postalCode": "loc-zip",
-  hours: "loc-hours",
   phone: "loc-phone",
 };
 
@@ -35,7 +33,8 @@ export function LocationForm({
 }: {
   shopId: string;
   location?: MerchantLocation;
-  onDone: () => void;
+  /** Called after a successful save, with the location's types. */
+  onDone: (types: readonly LocationType[]) => void;
   onCancel: () => void;
 }) {
   const [name, setName] = useState(location?.name ?? "");
@@ -47,8 +46,6 @@ export function LocationForm({
     region: location?.address.region ?? "",
     postalCode: location?.address.postalCode ?? "",
   });
-  const [hours, setHours] = useState<WeeklyHours>(location?.hours ?? []);
-  const [special, setSpecial] = useState<SpecialHours[]>(location?.specialHours ?? []);
   const [phone, setPhone] = useState(location?.phone ?? "");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -70,26 +67,22 @@ export function LocationForm({
       types,
       address: { ...address, ...(address.line2.trim() ? {} : { line2: undefined }) },
       timezone: location?.timezone ?? TIME_ZONE,
-      hours,
-      specialHours: special,
+      // Opening hours are no longer collected; saving clears any old ones.
+      hours: [],
+      specialHours: [],
       phone: phone.trim(),
     });
     setPending(false);
     if (!result.ok) {
       const next: Record<string, string> = {};
       for (const [key, messages] of Object.entries(result.error.fieldErrors ?? {})) {
-        const field = key.startsWith("hours")
-          ? "hours"
-          : key.startsWith("specialHours")
-            ? "specialHours"
-            : key;
-        if (messages[0] && !next[field]) next[field] = messages[0];
+        if (messages[0] && !next[key]) next[key] = messages[0];
       }
       setErrors(next);
       setFormError(Object.keys(next).length > 0 ? null : result.error.message);
       return;
     }
-    onDone();
+    onDone(types);
   };
 
   return (
@@ -177,82 +170,6 @@ export function LocationForm({
           onChange={(e) => setAddress((a) => ({ ...a, postalCode: e.target.value }))}
           error={errors["address.postalCode"]}
         />
-      </fieldset>
-
-      <HoursEditor idPrefix="loc" value={hours} onChange={setHours} error={errors.hours} />
-
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-sm font-medium">Special hours and closures</legend>
-        {special.length === 0 && (
-          <p className="text-sm text-ink-soft">None. Add holidays or one-off hours.</p>
-        )}
-        <ul className="flex flex-col gap-3">
-          {special.map((entry, i) => {
-            const update = (patch: Partial<SpecialHours>) =>
-              setSpecial((list) => list.map((s, j) => (j === i ? { ...s, ...patch } : s)));
-            return (
-              <li key={i} className="flex flex-wrap items-end gap-3 border-b border-line pb-3">
-                <label className="flex flex-col gap-1 text-sm">
-                  Date
-                  <input
-                    type="date"
-                    value={entry.date}
-                    onChange={(e) => update({ date: e.target.value })}
-                    className="h-11 border border-ink-subtle bg-surface px-2"
-                  />
-                </label>
-                <label className="flex min-h-11 items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={entry.closed}
-                    onChange={(e) =>
-                      update(
-                        e.target.checked
-                          ? { closed: true, open: undefined, close: undefined }
-                          : { closed: false, open: "10:00", close: "16:00" },
-                      )
-                    }
-                    className="size-5 accent-ink"
-                  />
-                  Closed all day
-                </label>
-                {!entry.closed && (
-                  <>
-                    <input
-                      type="time"
-                      aria-label={`Opens on ${entry.date || "this date"}`}
-                      value={entry.open ?? ""}
-                      onChange={(e) => update({ open: e.target.value })}
-                      className="h-11 border border-ink-subtle bg-surface px-2"
-                    />
-                    <input
-                      type="time"
-                      aria-label={`Closes on ${entry.date || "this date"}`}
-                      value={entry.close ?? ""}
-                      onChange={(e) => update({ close: e.target.value })}
-                      className="h-11 border border-ink-subtle bg-surface px-2"
-                    />
-                  </>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setSpecial((list) => list.filter((_, j) => j !== i))}
-                  className="min-h-11 text-sm underline underline-offset-4"
-                >
-                  Remove<span className="sr-only"> {entry.date}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        {errors.specialHours && <p className="text-sm text-sale">{errors.specialHours}</p>}
-        <button
-          type="button"
-          onClick={() => setSpecial((list) => [...list, { date: "", closed: true }])}
-          className="min-h-11 self-start text-sm underline underline-offset-4"
-        >
-          Add a date
-        </button>
       </fieldset>
 
       <Input

@@ -71,7 +71,6 @@ test.describe("shop onboarding", () => {
     await expect(page.getByText("Avatar")).toBeVisible({ timeout: 30_000 });
     await uploadAndCrop(page, 1, await png("banner.png", 2700, 900, "#3d5a3a"), "Crop your banner");
     await expect(page.getByText("Desktop", { exact: true })).toBeVisible({ timeout: 30_000 });
-    await page.getByRole("radio", { name: "Moss" }).check();
     await page.getByRole("button", { name: "Save and continue" }).click();
     await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/contact", {
       timeout: 30_000,
@@ -94,14 +93,8 @@ test.describe("shop onboarding", () => {
     await page.getByRole("textbox", { name: "City" }).fill("Zamalek");
     await page.getByRole("combobox", { name: "Governorate" }).selectOption("C");
     await page.getByRole("textbox", { name: "Postal code (optional)" }).fill("11211");
-    await page.getByRole("checkbox", { name: "Monday" }).check();
-    await page.getByRole("button", { name: "Copy Monday to all days" }).click();
+    // A location that ships completes the step and moves straight on to review.
     await page.getByRole("button", { name: "Add location" }).click();
-    await expect(page.getByText("Location added.")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { level: 3, name: /Mercer Street studio/ }),
-    ).toBeVisible();
-    await page.getByRole("link", { name: "Continue to review" }).click();
     await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/review", {
       timeout: 30_000,
     });

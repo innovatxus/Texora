@@ -2,7 +2,6 @@ import { cityLine, COUNTRY } from "@/config/locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { OpenNow } from "@/components/merchant/shop/OpenNow";
 import { ShopHeader } from "@/components/merchant/shop/ShopHeader";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import {
@@ -19,7 +18,6 @@ import {
   listApprovedShopSlugs,
   returnSummary,
 } from "@/lib/merchant/storefront";
-import { DAY_NAMES, weeklyHours } from "@/lib/stores/hours";
 
 /** Prerenders every approved shop (Cache Components needs at least one entry). */
 export async function generateStaticParams() {
@@ -130,20 +128,6 @@ async function ShopContent({ params, searchParams }: PageProps<"/shops/[slug]">)
                     <br />
                     {cityLine(store.address)}
                   </address>
-                  <OpenNow location={store} />
-                  <details>
-                    <summary className="min-h-11 cursor-pointer content-center underline underline-offset-4">
-                      Opening hours<span className="sr-only"> for {store.name}</span>
-                    </summary>
-                    <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-ink-soft">
-                      {weeklyHours(store).map((d) => (
-                        <div key={d.day} className="contents">
-                          <dt>{DAY_NAMES[d.day]}</dt>
-                          <dd>{d.text}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </details>
                 </li>
               ))}
             </ul>
