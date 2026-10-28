@@ -5,7 +5,7 @@ import { getMerchantContext } from "@/lib/merchant/context";
 
 export const metadata: Metadata = { title: "Branding" };
 
-/** Step 2: logo and banner. */
+/** Step 2: the logo. */
 export default async function Page() {
   const { shop } = await getMerchantContext();
   if (!shop) redirect("/merchant/onboarding/basics");
@@ -16,16 +16,11 @@ export default async function Page() {
           Branding
         </h2>
         <p className="mt-2 text-ink-soft">
-          Your logo and banner are optional to continue, but you&apos;ll need both to submit.
+          Your shop page opens with a Texora-green banner showing your logo and shop name. You can
+          continue without a logo, but you&apos;ll need one to submit.
         </p>
       </div>
-      <BrandingForm
-        mode="onboarding"
-        shopId={shop.id}
-        shopName={shop.name}
-        logo={shop.logo}
-        banner={shop.banner}
-      />
+      <BrandingForm mode="onboarding" shopId={shop.id} shopName={shop.name} logo={shop.logo} />
     </section>
   );
 }

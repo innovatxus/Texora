@@ -27,19 +27,11 @@ export interface CategoryOption {
   department: "women" | "men";
 }
 
-const FIELDS = [
-  "name",
-  "slug",
-  "tagline",
-  "description",
-  "shopType",
-  "departments",
-  "categoryKeys",
-];
+const FIELDS = ["name", "slug", "description", "shopType", "departments", "categoryKeys"];
 const IDS: Record<string, string> = Object.fromEntries(FIELDS.map((f) => [f, `basics-${f}`]));
 const { shop: S } = MERCHANT_LIMITS;
 
-/** Onboarding step 1 / Shop › Profile: name, address, tagline, story, departments, categories, type. */
+/** Onboarding step 1 / Shop › Profile: name, address, story, departments, categories, type. */
 export function BasicsForm({
   mode,
   shopId,
@@ -71,16 +63,15 @@ export function BasicsForm({
     defaultValues: defaults ?? {
       name: "",
       slug: "",
-      tagline: "",
       description: "",
       shopType: "brand",
       departments: [],
       categoryKeys: [],
     },
   });
-  const [slug = "", tagline = "", description = "", departments = []] = useWatch({
+  const [slug = "", description = "", departments = []] = useWatch({
     control,
-    name: ["slug", "tagline", "description", "departments"],
+    name: ["slug", "description", "departments"],
   });
 
   const nameField = register("name");
@@ -143,14 +134,6 @@ export function BasicsForm({
           }}
         />
       </div>
-      <Input
-        id={IDS.tagline}
-        label="Tagline"
-        hint={`${tagline.length}/${S.taglineMax}`}
-        maxLength={S.taglineMax}
-        error={errors.tagline?.message}
-        {...register("tagline")}
-      />
       <Textarea
         id={IDS.description}
         label="About your shop"

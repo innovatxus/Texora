@@ -25,7 +25,6 @@ function shop(owner: string) {
     vendorId: owner,
     name: "Maison Rue",
     slug: `maison-${run}`,
-    tagline: "",
     description: "",
     shopType: "boutique",
     departments: ["women"],

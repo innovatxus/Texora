@@ -207,7 +207,6 @@ function buildMerchant(def: SeedMerchant, index: number, now: Date, takenSlugs: 
     vendorId,
     name: def.shop.name,
     slug: def.shop.slug,
-    tagline: def.shop.tagline,
     description: def.shop.description,
     shopType: def.shop.shopType,
     departments: def.shop.departments,
@@ -298,7 +297,7 @@ function buildMerchant(def: SeedMerchant, index: number, now: Date, takenSlugs: 
       });
       const data: ProductDraftData = productDraftDataSchema.parse({
         name,
-        description: `${name} from ${def.shop.name}. ${def.shop.tagline}. Cut and finished with care, and easy to wear on repeat.`,
+        description: `${name} from ${def.shop.name}. Cut and finished with care, and easy to wear on repeat.`,
         highlights: [
           `${line.materials.map((m) => m.material).join(" and ")}`,
           "Ships in its own recyclable packaging",

@@ -34,7 +34,6 @@ export default async function Page() {
         defaults={{
           name: shop.name,
           slug: shop.slug,
-          tagline: shop.tagline,
           description: shop.description,
           shopType: shop.shopType,
           departments: shop.departments,

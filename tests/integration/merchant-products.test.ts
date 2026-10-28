@@ -69,7 +69,6 @@ beforeAll(async () => {
     {
       name: "Harbour Goods",
       slug: `harbour-${run}`,
-      tagline: "",
       description: "",
       shopType: "brand",
       departments: ["women"],

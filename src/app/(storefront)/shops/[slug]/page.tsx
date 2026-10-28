@@ -35,11 +35,9 @@ export async function generateMetadata({ params }: PageProps<"/shops/[slug]">): 
     title: shop.name,
     // Private to the shop's merchant and the Texora team: never indexed.
     robots: { index: false, follow: false },
-    description: shop.tagline || shop.description.slice(0, 155) || `Shop ${shop.name} on Texora.`,
+    description: shop.description.slice(0, 155) || `Shop ${shop.name} on Texora.`,
     alternates: { canonical: `/shops/${shop.slug}` },
-    ...(shop.banner
-      ? { openGraph: { images: [{ url: shop.banner.url, alt: shop.banner.alt }] } }
-      : {}),
+    ...(shop.logo ? { openGraph: { images: [{ url: shop.logo.url, alt: shop.logo.alt }] } } : {}),
   };
 }
 
@@ -158,7 +156,7 @@ async function ShopContent({ params, searchParams }: PageProps<"/shops/[slug]">)
 export const instant = false;
 
 /**
- * A merchant's shop page: banner, story, stores and products (journey §14).
+ * A merchant's shop page: green banner with logo and name, story, stores and products (journey §14).
  * Private: only the shop's own merchant and the Texora team can open it.
  */
 export default async function Page(props: PageProps<"/shops/[slug]">) {

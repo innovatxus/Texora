@@ -415,7 +415,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         heading: "How it works",
         list: [
           "Register a merchant account with your email, a username and a password.",
-          "Build your shop: name and address, logo and banner, contact details, policies and locations.",
+          "Build your shop: name and address, logo, contact details, policies and locations.",
           "Submit your shop for review. We usually reply within 1 business day.",
           "Add products with colours, fits, sizes, prices, stock and photos. They go live once your shop is approved.",
           "Ship orders from your own location and add the carrier and tracking number in your dashboard.",
@@ -439,9 +439,8 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         heading: "What you'll need",
         list: [
           `A square logo, at least ${MERCHANT_LIMITS.logo.minWidth}×${MERCHANT_LIMITS.logo.minHeight} px (PNG, JPG, WebP or SVG, up to 5 MB).`,
-          `A 3:1 banner, at least ${MERCHANT_LIMITS.banner.minWidth}×${MERCHANT_LIMITS.banner.minHeight} px (up to 10 MB).`,
           "A public contact email, and optionally a phone number, website and social handles.",
-          "At least one ship-from location in Egypt. Retail stores can be listed too, with opening hours.",
+          "At least one ship-from location in Egypt. Retail stores can be listed too.",
         ],
       },
       {

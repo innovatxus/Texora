@@ -134,7 +134,6 @@ const shop = (extra: Record<string, unknown> = {}) => ({
   vendorId: VENDOR_ID,
   name: "Maison Rue",
   slug: "maison-rue",
-  tagline: "",
   status: "draft",
   ...extra,
 });
@@ -816,9 +815,9 @@ const CASES: Record<string, Case[]> = {
       expected: never,
     },
     {
-      name: "change own tagline",
+      name: "change own description",
       fixtures: ({ id }) => [[`shops/${id}`, shop()]],
-      attempt: ({ db, id }) => updateDoc(doc(db, "shops", id), { tagline: "New" }),
+      attempt: ({ db, id }) => updateDoc(doc(db, "shops", id), { description: "New" }),
       expected: never,
     },
     {

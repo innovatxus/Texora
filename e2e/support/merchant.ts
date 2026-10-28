@@ -105,7 +105,6 @@ export async function onboardSubmittedShop(page: Page, testInfo: { project: { na
   await gotoReady(page, "/merchant/onboarding/basics");
   await page.getByRole("textbox", { name: "Shop name" }).fill(shopName);
   await expect(page.getByText("Available", { exact: true })).toBeVisible();
-  await page.getByRole("textbox", { name: "Tagline" }).fill("Linen for warm days");
   await page.getByRole("checkbox", { name: "Women" }).check();
   await page.getByRole("checkbox", { name: "Dresses" }).check();
   await page.getByRole("button", { name: "Save and continue" }).click();
@@ -114,9 +113,8 @@ export async function onboardSubmittedShop(page: Page, testInfo: { project: { na
   });
   await page.waitForSelector("html[data-hydrated]", { state: "attached" });
   await uploadAndCrop(page, 0, await png("logo.png", 800, 800, "#1f2a44"), "Crop your logo");
-  await expect(page.getByText("Avatar")).toBeVisible({ timeout: 30_000 });
-  await uploadAndCrop(page, 1, await png("banner.png", 2700, 900, "#3d5a3a"), "Crop your banner");
-  await expect(page.getByText("Desktop", { exact: true })).toBeVisible({ timeout: 30_000 });
+  // The header preview shows the logo once processing finishes.
+  await expect(page.getByRole("figure").locator("img")).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: "Save and continue" }).click();
   await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/contact", {
     timeout: 30_000,

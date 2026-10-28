@@ -35,7 +35,6 @@ const other = { session: session(otherVendor), vendorId: otherVendor };
 const basics = (slug: string) => ({
   name: "Maison Rue",
   slug,
-  tagline: "Linen for warm days",
   description: "Small-batch linen.\nMade in Portugal.",
   shopType: "brand" as const,
   departments: ["women" as const],

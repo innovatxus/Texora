@@ -268,7 +268,6 @@ export const shopBasicsSchema = z.object({
     .min(S.nameMin, `Use ${S.nameMin} to ${S.nameMax} characters`)
     .max(S.nameMax, `Use ${S.nameMin} to ${S.nameMax} characters`),
   slug: shopSlugSchema,
-  tagline: z.string().trim().max(S.taglineMax, `Keep it to ${S.taglineMax} characters`),
   description: z.string().trim().max(S.descriptionMax, `Keep it to ${S.descriptionMax} characters`),
   shopType: shopTypeSchema,
   departments: z.array(departmentSchema).min(1, "Choose at least one department"),

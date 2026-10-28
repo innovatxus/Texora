@@ -5,7 +5,7 @@ import { getMerchantContext } from "@/lib/merchant/context";
 
 export const metadata: Metadata = { title: "Shop basics" };
 
-/** Step 1: name, address, tagline, story, departments, categories and type. */
+/** Step 1: name, address, story, departments, categories and type. */
 export default async function Page() {
   // The session read (inside the context) marks this request-time, so it goes first.
   const { shop } = await getMerchantContext();
@@ -27,7 +27,6 @@ export default async function Page() {
               defaults: {
                 name: shop.name,
                 slug: shop.slug,
-                tagline: shop.tagline,
                 description: shop.description,
                 shopType: shop.shopType,
                 departments: shop.departments,

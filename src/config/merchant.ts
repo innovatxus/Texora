@@ -18,7 +18,6 @@ export const MERCHANT_LIMITS = {
     nameMax: 60,
     slugMin: 3,
     slugMax: 40,
-    taglineMax: 80,
     descriptionMax: 1500,
     /** The data model allows more; the portal caps each merchant at this many shops. */
     maxPerMerchant: 3,
@@ -244,7 +243,7 @@ export const MERCHANT_LANDING = {
   },
   steps: [
     { title: "Register", body: "Create your merchant account in two minutes." },
-    { title: "Build your shop", body: "Add your logo, banner, locations and policies." },
+    { title: "Build your shop", body: "Add your logo, locations and policies." },
     {
       title: "List products",
       body: "Add colours, fits and sizes. We handle the storefront, search and checkout.",

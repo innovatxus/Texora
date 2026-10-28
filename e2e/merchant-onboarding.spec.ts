@@ -22,7 +22,6 @@ async function png(name: string, width: number, height: number, colour: string) 
 async function fillBasics(page: Page, shopName: string) {
   await page.getByRole("textbox", { name: "Shop name" }).fill(shopName);
   await expect(page.getByText("Available", { exact: true })).toBeVisible();
-  await page.getByRole("textbox", { name: "Tagline" }).fill("Linen for warm days");
   await page.getByRole("checkbox", { name: "Women" }).check();
   await page.getByRole("checkbox", { name: "Dresses" }).check();
   await page.getByText("Boutique", { exact: true }).click();
@@ -66,11 +65,10 @@ test.describe("shop onboarding", () => {
     await fillBasics(page, `Maison ${username}`);
     await page.waitForSelector("html[data-hydrated]", { state: "attached" });
 
-    // Step 2: logo + banner through the real upload pipeline.
+    // Step 2: the logo through the real upload pipeline.
     await uploadAndCrop(page, 0, await png("logo.png", 800, 800, "#1f2a44"), "Crop your logo");
-    await expect(page.getByText("Avatar")).toBeVisible({ timeout: 30_000 });
-    await uploadAndCrop(page, 1, await png("banner.png", 2700, 900, "#3d5a3a"), "Crop your banner");
-    await expect(page.getByText("Desktop", { exact: true })).toBeVisible({ timeout: 30_000 });
+    // The header preview shows the logo once processing finishes.
+    await expect(page.getByRole("figure").locator("img")).toBeVisible({ timeout: 30_000 });
     await page.getByRole("button", { name: "Save and continue" }).click();
     await expect(page).toHaveURL((u) => u.pathname === "/merchant/onboarding/contact", {
       timeout: 30_000,
@@ -118,12 +116,7 @@ test.describe("shop onboarding", () => {
     await fillBasics(page, `Atelier ${username}`);
     await gotoReady(page, "/merchant/onboarding/review");
     const todo = page.getByRole("region", { name: "Still to do" });
-    for (const item of [
-      "Verify your email",
-      "Add a logo",
-      "Add a banner",
-      "Add a ship-from location",
-    ]) {
+    for (const item of ["Verify your email", "Add a logo", "Add a ship-from location"]) {
       await expect(todo.getByRole("link", { name: item })).toBeVisible();
     }
     await expect(page.getByRole("button", { name: "Submit for review" })).toBeDisabled();

@@ -92,7 +92,6 @@ export default async function Page() {
         </Summary>
         <Summary title="Branding" href="/merchant/onboarding/branding">
           <p>Logo: {shop.logo ? "Added" : "Missing"}</p>
-          <p>Banner: {shop.banner ? "Added" : "Missing"}</p>
         </Summary>
         <Summary title="Contact & policies" href="/merchant/onboarding/contact">
           <p>{shop.contact.email}</p>

@@ -37,7 +37,6 @@ export interface SeedMerchant {
   shop: {
     name: string;
     slug: string;
-    tagline: string;
     description: string;
     shopType: ShopType;
     /** Logo and banner colours for the drawn placeholders. */
@@ -69,7 +68,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
     shop: {
       name: "Harbor & Pine",
       slug: "harbor-and-pine",
-      tagline: "Coastal workwear, made to last",
       description:
         "Harbor & Pine makes heavyweight shirts, knits and jackets in small runs from our Alexandria workshop. Every piece is cut for daily wear and mended for free.",
       shopType: "brand",
@@ -162,7 +160,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
     shop: {
       name: "Maison Rue",
       slug: "maison-rue",
-      tagline: "Linen and silk for long, warm days",
       description:
         "Maison Rue is a Zamalek boutique for easy dresses and tops in natural fibres, chosen by Camille from small European ateliers and our own studio.",
       shopType: "boutique",
@@ -256,7 +253,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
     shop: {
       name: "Studio Ines",
       slug: "studio-ines",
-      tagline: "Sculptural tailoring in every size",
       description:
         "Studio Ines is the Cairo label of designer Ines Duarte: precise coats, dresses and shirting cut from deadstock wool and silk, graded from XS to XXL with a plus fit.",
       shopType: "designer",
@@ -339,7 +335,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
     shop: {
       name: "Northline Supply",
       slug: "northline-supply",
-      tagline: "Pre-loved outdoor and workwear",
       description:
         "Northline Supply restores and resells quality outdoor and workwear: every piece is cleaned, repaired and graded before it ships from 6th of October.",
       shopType: "reseller",
@@ -388,7 +383,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
     shop: {
       name: "Petal & Thread",
       slug: "petal-and-thread",
-      tagline: "Florals, mostly",
       description: "Hand-printed florals from our Gamaleya studio.",
       shopType: "boutique",
       palette: { ground: "#e3c3bd", ink: "#5e1f2a" },

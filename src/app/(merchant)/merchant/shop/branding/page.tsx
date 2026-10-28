@@ -9,13 +9,5 @@ export const metadata: Metadata = { title: "Shop branding" };
 export default async function Page() {
   const { shop } = await getMerchantContext();
   if (!shop) redirect("/merchant/onboarding/basics");
-  return (
-    <BrandingForm
-      mode="settings"
-      shopId={shop.id}
-      shopName={shop.name}
-      logo={shop.logo}
-      banner={shop.banner}
-    />
-  );
+  return <BrandingForm mode="settings" shopId={shop.id} shopName={shop.name} logo={shop.logo} />;
 }

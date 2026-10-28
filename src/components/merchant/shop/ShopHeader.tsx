@@ -3,16 +3,15 @@ import type { MerchantImage } from "@/lib/validation/merchant";
 
 export interface ShopHeaderData {
   name: string;
-  tagline: string;
   description: string;
   logo?: MerchantImage | undefined;
-  banner?: (MerchantImage & { focal?: { x: number; y: number } | undefined }) | undefined;
 }
 
 /**
- * The top of a shop page as shoppers see it: focal-point-aware banner,
- * logo, name, tagline and story. Used by `/shops/[slug]` and by the
- * merchant's review-step preview, so the preview is exactly the real thing.
+ * The top of a shop page: a Texora-green banner carrying the shop's logo and
+ * name, then its story. Merchants don't upload banners, so every shop shares
+ * the same frame. Used by `/shops/[slug]` and by the merchant's review-step
+ * preview, so the preview is exactly the real thing.
  */
 export function ShopHeader({
   shop,
@@ -24,50 +23,29 @@ export function ShopHeader({
   priority?: boolean;
 }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
-  const focal = shop.banner?.focal ?? { x: 0.5, y: 0.5 };
   return (
     <header className="flex flex-col">
-      <div className="relative aspect-[375/200] overflow-hidden bg-surface-muted sm:aspect-[1440/420]">
-        {shop.banner && (
-          <Image
-            src={shop.banner.url}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: `${focal.x * 100}% ${focal.y * 100}%` }}
-            placeholder="blur"
-            blurDataURL={shop.banner.blurDataURL}
-            {...(priority ? { preload: true } : {})}
-          />
-        )}
-      </div>
-      <div className="container-page -mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end sm:gap-6">
-        <div className="relative size-20 shrink-0 overflow-hidden border-4 border-canvas bg-surface sm:size-24">
-          {shop.logo ? (
-            <Image
-              src={shop.logo.url}
-              alt={`${shop.name} logo`}
-              fill
-              sizes="96px"
-              className="object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex size-full items-center justify-center bg-brand font-display text-3xl text-surface"
-            >
-              {shop.name.slice(0, 1)}
-            </span>
+      <div className="bg-brand text-surface">
+        <div className="container-page flex min-h-48 items-center gap-5 py-10 sm:min-h-72 sm:gap-8 sm:py-14">
+          {shop.logo && (
+            <div className="relative size-20 shrink-0 overflow-hidden border-2 border-surface bg-surface sm:size-28">
+              <Image
+                src={shop.logo.url}
+                alt={`${shop.name} logo`}
+                fill
+                sizes="112px"
+                className="object-cover"
+                {...(priority ? { preload: true } : {})}
+              />
+            </div>
           )}
-        </div>
-        <div className="flex flex-col gap-1 pb-1">
-          <Heading className="font-display text-4xl">{shop.name}</Heading>
-          {shop.tagline && <p className="text-ink-soft">{shop.tagline}</p>}
+          <Heading className="min-w-0 font-display text-4xl break-words sm:text-6xl">
+            {shop.name}
+          </Heading>
         </div>
       </div>
       {shop.description && (
-        <div className="container-page mt-6 max-w-3xl whitespace-pre-line text-ink-soft">
+        <div className="container-page mt-8 max-w-3xl whitespace-pre-line text-ink-soft">
           {shop.description}
         </div>
       )}

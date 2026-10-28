@@ -98,12 +98,11 @@ describe("shopBlockers", () => {
     expect(shopBlockers(merchant(false), null, []).map((b) => b.key)).toEqual(["email", "basics"]);
     const blockers = shopBlockers(
       merchant(true),
-      shop({ logo: undefined, banner: undefined, completedSteps: ["basics"] }),
+      shop({ logo: undefined, completedSteps: ["basics"] }),
       [location(["retail"])],
     );
     expect(blockers.map((b) => b.message)).toEqual([
       "Add a logo",
-      "Add a banner",
       "Add your contact details and policies",
       "Add a ship-from location",
     ]);

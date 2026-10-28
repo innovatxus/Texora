@@ -7,7 +7,7 @@ import type { Merchant, MerchantLocation, OnboardingStep, Shop } from "@/lib/val
 import { ONBOARDING_STEPS } from "@/lib/validation/merchant";
 
 export interface Blocker {
-  key: "email" | "basics" | "logo" | "banner" | "contact" | "location";
+  key: "email" | "basics" | "logo" | "contact" | "location";
   message: string;
   /** Where to fix it. */
   href: string;
@@ -36,9 +36,6 @@ export function shopBlockers(
   }
   if (!shop.logo)
     blockers.push({ key: "logo", message: "Add a logo", href: STEP_PATH("branding") });
-  if (!shop.banner) {
-    blockers.push({ key: "banner", message: "Add a banner", href: STEP_PATH("branding") });
-  }
   if (!shop.completedSteps.includes("contact")) {
     blockers.push({
       key: "contact",
@@ -93,7 +90,7 @@ export function setupChecklist(
     { label: "Verify your email", done: merchant.emailVerified, href: "/merchant/verify-email" },
     {
       label: "Add your branding",
-      done: Boolean(shop?.logo && shop.banner),
+      done: Boolean(shop?.logo),
       href: STEP_PATH("branding"),
     },
     { label: "Add a location", done: shipFromCount(locations) > 0, href: STEP_PATH("locations") },

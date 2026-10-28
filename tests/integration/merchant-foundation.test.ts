@@ -124,7 +124,6 @@ function validShop(vendorId: string) {
     vendorId,
     name: "Maison Rue",
     slug: `maison-${run}`,
-    tagline: "",
     description: "",
     shopType: "boutique",
     departments: ["women"],

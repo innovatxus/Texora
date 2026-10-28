@@ -116,7 +116,6 @@ beforeAll(async () => {
     {
       name: "Northwind Knits",
       slug,
-      tagline: "Knitwear from Portland",
       description: "",
       shopType: "designer",
       departments: ["women"],
