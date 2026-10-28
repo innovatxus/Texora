@@ -532,3 +532,7 @@ Marketplace products sell under Texora. Shop identity is shown only to the shop'
 ## D-100 — No per-shop accent colour
 
 Merchants no longer pick an accent colour. Shop pages use the Texora palette (the brand green for the logo placeholder), so every shop looks like part of one store. The `accent` field is gone from the shop schema, the branding form and the seed; the eight `--color-shop-*` tokens and their contrast checks were removed. Existing shop documents carrying `accent` are read without it (the schema strips unknown fields).
+
+## D-101 — Returns within 14 days
+
+The returns window is two weeks from delivery (was 30 days): `RETURN_WINDOW_DAYS` and `PLATFORM_RETURN_POLICY` drive the deadline, eligibility and the shop summary, and every customer-facing line (product page, bag, help centre, order email, merchant terms) says 14 days.

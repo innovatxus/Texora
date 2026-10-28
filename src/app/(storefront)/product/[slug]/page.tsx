@@ -224,7 +224,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
                   {merchant
                     ? `Ships within ${merchant.shop.shipping.processingTime.replace("-", "–")} business days. `
                     : ""}
-                  Free returns within 30 days by courier collection.
+                  Free returns within 14 days by courier collection.
                   {product.badges.includes("final_sale") &&
                     " This item is final sale and can't be returned or exchanged."}
                 </p>

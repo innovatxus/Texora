@@ -256,7 +256,7 @@ export function ProductDetail({
           {product.finalSale ? (
             <strong className="text-sale">Final sale: not eligible for return.</strong>
           ) : (
-            "Free returns within 30 days."
+            "Free returns within 14 days."
           )}
         </p>
 

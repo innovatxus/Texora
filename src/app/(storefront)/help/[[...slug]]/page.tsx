@@ -59,7 +59,7 @@ const QUICK_LINKS = [
   {
     href: "/orders/lookup",
     title: "Start a return",
-    text: "Free within 30 days.",
+    text: "Free within 14 days.",
     icon: ReturnIcon,
   },
   { href: "/stores", title: "Find a store", text: "Hours, services, directions.", icon: StoreIcon },

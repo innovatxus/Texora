@@ -88,7 +88,7 @@ export const FAQ: readonly FaqEntry[] = [
     category: "Returns & refunds",
     question: "What is your return policy?",
     answer:
-      "You can return unworn items with their tags within 30 days of delivery, free of charge, by courier collection or in any store. Items marked final sale can't be returned.",
+      "You can return unworn items with their tags within 14 days of delivery, free of charge, by courier collection or in any store. Items marked final sale can't be returned.",
     link: { label: "Returns & exchanges", href: "/help/returns" },
   },
   {
@@ -237,13 +237,13 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   {
     slug: "returns",
     title: "Returns & exchanges",
-    summary: "Free returns within 30 days, by courier collection or in store.",
+    summary: "Free returns within 14 days, by courier collection or in store.",
     group: "help",
     sections: [
       {
         heading: "Our policy",
         paragraphs: [
-          "Return unworn, unwashed items with their tags within 30 days of delivery for a full refund of the price you paid. Returns are free by courier collection and in any of our stores. Items marked final sale can't be returned.",
+          "Return unworn, unwashed items with their tags within 14 days of delivery for a full refund of the price you paid. Returns are free by courier collection and in any of our stores. Items marked final sale can't be returned.",
         ],
       },
       {
@@ -492,7 +492,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         paragraphs: [
           "When a shopper buys your products, the order appears in your dashboard with only your items and the delivery address. Ship within the processing time you set, then add the carrier and tracking number. We email the customer for you.",
-          "Shoppers pay our standard delivery rates at checkout. Returns follow the policy shown on your products: ours (30 days) or your own.",
+          "Shoppers pay our standard delivery rates at checkout. Returns follow the policy shown on your products: Texora's (14 days).",
         ],
       },
     ],
@@ -518,7 +518,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         heading: "Orders, returns and fees",
         paragraphs: [
-          `You ship each order within your stated processing time (1–2 or 3–5 business days), and every shop follows Texora's returns policy: 30-day returns, unworn with tags. We charge a ${MERCHANT_FEES.commissionPercent}% commission on the item price of each sale, with no monthly or listing fees.`,
+          `You ship each order within your stated processing time (1–2 or 3–5 business days), and every shop follows Texora's returns policy: 14-day returns, unworn with tags. We charge a ${MERCHANT_FEES.commissionPercent}% commission on the item price of each sale, with no monthly or listing fees.`,
         ],
       },
       {

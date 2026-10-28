@@ -139,8 +139,8 @@ export type ProcessingTime = (typeof PROCESSING_TIMES)[number]["value"];
 
 /** Texora's returns policy: every shop uses it (shops can't set their own). */
 export const PLATFORM_RETURN_POLICY = {
-  windowDays: 30,
-  summary: "30-day returns, unworn with tags",
+  windowDays: 14,
+  summary: "14-day returns, unworn with tags",
 } as const;
 
 /** Types of merchant location. There is no pickup (D-071). */
@@ -287,7 +287,7 @@ export const MERCHANT_LANDING = {
     },
     {
       question: "Who handles returns?",
-      answer: `Every shop uses ${brand.name}'s returns policy: 30-day returns, unworn with tags. Shoppers see it on every product, and ${brand.name} handles return requests.`,
+      answer: `Every shop uses ${brand.name}'s returns policy: 14-day returns, unworn with tags. Shoppers see it on every product, and ${brand.name} handles return requests.`,
     },
     {
       question: "What does it cost?",

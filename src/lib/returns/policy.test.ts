@@ -38,12 +38,12 @@ const delivered = {
 };
 
 describe("returnDeadline", () => {
-  it("runs 30 days from delivery", () => {
-    expect(returnDeadline(delivered)).toEqual(day(34));
+  it("runs 14 days from delivery", () => {
+    expect(returnDeadline(delivered)).toEqual(day(18));
   });
 
   it("runs from the latest estimate before delivery is confirmed", () => {
-    expect(returnDeadline({ ...delivered, status: "shipped", statusHistory: [] })).toEqual(day(36));
+    expect(returnDeadline({ ...delivered, status: "shipped", statusHistory: [] })).toEqual(day(20));
   });
 });
 
@@ -73,7 +73,7 @@ describe("returnEligibility", () => {
   });
 
   it("closes after the window", () => {
-    expect(returnEligibility(delivered, [], day(35))).toMatchObject({
+    expect(returnEligibility(delivered, [], day(19))).toMatchObject({
       eligible: false,
       reason: "window_closed",
     });

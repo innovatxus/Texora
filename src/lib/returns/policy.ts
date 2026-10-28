@@ -2,7 +2,7 @@ import { deliveredAt } from "@/lib/orders/tracking";
 import type { Order, Return } from "@/lib/validation";
 
 /** Items can be returned within this many days of delivery. */
-export const RETURN_WINDOW_DAYS = 30;
+export const RETURN_WINDOW_DAYS = 14;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Return reasons and their labels, in the order shown on the form. */
@@ -123,7 +123,7 @@ export const INELIGIBLE_MESSAGES: Record<
 > = {
   not_shipped: "You can start a return once your order has shipped.",
   cancelled: "This order was cancelled, so there's nothing to return.",
-  window_closed: "The 30-day return window for this order has closed.",
+  window_closed: `The ${RETURN_WINDOW_DAYS}-day return window for this order has closed.`,
   nothing_returnable: "Everything in this order has been returned or is final sale.",
 };
 
