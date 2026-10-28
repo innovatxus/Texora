@@ -50,7 +50,7 @@ const address = async (page: Page) => {
   await field("First name").fill("Ada");
   await field("Last name").fill("Lovelace");
   await field("Address").fill("118 Greene Street");
-  await field("City").fill("Zamalek");
+  await page.getByRole("combobox", { name: "City or district" }).fill("Zamalek");
   await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
   await field("Postal code (optional)").fill("11211");
   await field("Phone").fill("010 1234 5678");
@@ -90,6 +90,19 @@ test("guest checkout with a promo code, paying on delivery", async ({ page }) =>
   await page.getByRole("button", { name: "Continue to delivery" }).click();
   await expect(page.getByText("Enter a first name")).toBeVisible();
   await address(page);
+  // Address check: an area from another governorate, or its postal code, is caught.
+  const city = page.getByRole("combobox", { name: "City or district" });
+  await city.fill("Smouha");
+  await page.getByRole("textbox", { name: "Postal code (optional)", exact: true }).fill("21500");
+  await page.getByRole("button", { name: "Continue to delivery" }).click();
+  await expect(
+    page.getByText("Smouha is in Alexandria, not Cairo. Check the city or choose Alexandria."),
+  ).toBeVisible();
+  await expect(
+    page.getByText("21500 is a postal code for Alexandria. Check it, or leave it empty."),
+  ).toBeVisible();
+  await city.fill("Zamalek");
+  await page.getByRole("textbox", { name: "Postal code (optional)", exact: true }).fill("11211");
   await page.getByRole("button", { name: "Continue to delivery" }).click();
 
   await expect(page).toHaveURL(/\/checkout\/delivery$/);

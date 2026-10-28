@@ -536,3 +536,7 @@ Merchants no longer pick an accent colour. Shop pages use the Texora palette (th
 ## D-101 — Returns within 14 days
 
 The returns window is two weeks from delivery (was 30 days): `RETURN_WINDOW_DAYS` and `PLATFORM_RETURN_POLICY` drive the deadline, eligibility and the shop summary, and every customer-facing line (product page, bag, help centre, order email, merchant terms) says 14 days.
+
+## D-102 — Egypt address checks
+
+Addresses are checked against Egypt before they are saved (checkout, account address book, back-office address changes, merchant locations), in `src/config/egypt-address.ts`, the same code in the browser and on the server. The city or district may not be one we know belongs to a different governorate, and a postal code (optional) must start with the governorate's Egypt Post prefix. Unknown areas pass, since villages and new compounds are not all listed. The City field suggests the chosen governorate's main areas, and a phone on a saved account address must be an Egyptian mobile.

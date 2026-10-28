@@ -2,9 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ReactNode } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
 import { Button, Input, Select } from "@/components/primitives";
+import { areaSuggestions } from "@/config/egypt-address";
 import { COUNTRY, GOVERNORATES } from "@/config/locale";
 import { checkoutAddressSchema, type CheckoutAddress } from "@/lib/orders/checkout-schema";
 
@@ -37,12 +38,14 @@ export function AddressForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<AddressInput, unknown, CheckoutAddress>({
     resolver: zodResolver(checkoutAddressSchema),
     defaultValues: { country: COUNTRY, region: "", ...defaultValues },
     mode: "onBlur",
   });
+  const region = useWatch({ control, name: "region" }) ?? "";
   const autofill = section === "account" ? "shipping" : section;
   const ac = (token: string) => `section-${section} ${autofill} ${token}`;
 
@@ -83,12 +86,18 @@ export function AddressForm({
       />
       <Input
         id={`${section}-city`}
-        label="City"
+        label="City or district"
         autoComplete={ac("address-level2")}
         required
+        list={`${section}-areas`}
         error={errors.city?.message}
         {...register("city")}
       />
+      <datalist id={`${section}-areas`}>
+        {areaSuggestions(region).map((area) => (
+          <option key={area} value={area} />
+        ))}
+      </datalist>
       <div className="grid grid-cols-2 gap-5">
         <Select
           id={`${section}-region`}

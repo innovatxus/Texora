@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { checkEgyptAddress } from "@/config/egypt-address";
 import { normalizeEgyptianMobile } from "@/config/locale";
 import { addressSchema } from "@/lib/validation/common";
 
-/** Shared by the checkout forms (client) and placeOrder (server). */
-export const checkoutAddressSchema = addressSchema.extend({
+/** A delivery address's fields, for schemas that add their own (e.g. an order id). */
+export const checkoutAddressFields = addressSchema.extend({
   /** An Egyptian mobile for the courier, stored as +20…; any common format is accepted. */
   phone: z
     .string()
@@ -14,6 +15,12 @@ export const checkoutAddressSchema = addressSchema.extend({
     .transform((value) => normalizeEgyptianMobile(value) as string),
   country: z.literal("EG", { error: "We deliver within Egypt only" }),
 });
+
+/**
+ * Shared by the checkout forms (client) and placeOrder (server): the fields
+ * plus the Egypt address check (area and postal code match the governorate).
+ */
+export const checkoutAddressSchema = checkoutAddressFields.superRefine(checkEgyptAddress);
 export type CheckoutAddress = z.infer<typeof checkoutAddressSchema>;
 
 /** Everything checkout sends to place an order; prices are recalculated on the server. */

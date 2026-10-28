@@ -6,6 +6,7 @@ import { Button, Checkbox, Input, Select } from "@/components/primitives";
 import { LOCATION_TYPES } from "@/config/merchant";
 import { saveLocationAction } from "@/lib/merchant/actions/shop";
 import { TIME_ZONE } from "@/config/locale";
+import { areaSuggestions } from "@/config/egypt-address";
 import { GOVERNORATE_OPTIONS } from "@/lib/merchant/geo";
 import type { LocationType } from "@/config/merchant";
 import type { MerchantLocation } from "@/lib/validation/merchant";
@@ -143,13 +144,19 @@ export function LocationForm({
         />
         <Input
           id="loc-city"
-          label="City"
+          label="City or district"
           autoComplete="address-level2"
           required
+          list="loc-areas"
           value={address.city}
           onChange={(e) => setAddress((a) => ({ ...a, city: e.target.value }))}
           error={errors["address.city"]}
         />
+        <datalist id="loc-areas">
+          {areaSuggestions(address.region).map((area) => (
+            <option key={area} value={area} />
+          ))}
+        </datalist>
         <Select
           id="loc-region"
           label="Governorate"

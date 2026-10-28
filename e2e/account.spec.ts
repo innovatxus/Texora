@@ -167,7 +167,7 @@ test.describe("customer accounts", () => {
     await field("First name").fill("Ada");
     await field("Last name").fill("Lovelace");
     await field("Address").fill("118 Greene Street");
-    await field("City").fill("Zamalek");
+    await page.getByRole("combobox", { name: "City or district" }).fill("Zamalek");
     await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
     await field("Postal code (optional)").fill("11211");
     await field("Phone").fill("010 1234 5678");

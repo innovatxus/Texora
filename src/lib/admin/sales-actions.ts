@@ -13,7 +13,8 @@ import {
   refundOrder,
   updateShippingAddress,
 } from "./order-service";
-import { checkoutAddressSchema } from "@/lib/orders/checkout-schema";
+import { checkEgyptAddress } from "@/config/egypt-address";
+import { checkoutAddressFields } from "@/lib/orders/checkout-schema";
 import { decideReturn, receiveReturn, refundReturn } from "./return-service";
 
 const id = z.string().min(1).max(128);
@@ -54,7 +55,7 @@ export async function cancelOrderAction(input: unknown) {
 /** Corrects the delivery address of an unshipped order (same delivery zone). */
 export async function updateShippingAddressAction(input: unknown) {
   return runAction(input, {
-    schema: checkoutAddressSchema.extend({ orderId: id }),
+    schema: checkoutAddressFields.extend({ orderId: id }).superRefine(checkEgyptAddress),
     access: { permission: "orders.write" },
     handler: async ({ orderId, ...address }, { session }) => {
       if (!session) throw new ActionError("unauthenticated", "Sign in again");

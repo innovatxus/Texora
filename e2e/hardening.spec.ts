@@ -72,7 +72,7 @@ test.describe("phase 9 flows", () => {
       await field("First name").fill("Morgan");
       await field("Last name").fill("Member");
       await field("Address").fill("12 Brazil Street");
-      await field("City").fill("Zamalek");
+      await page.getByRole("combobox", { name: "City or district" }).fill("Zamalek");
       await page.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("C");
       await field("Postal code (optional)").fill("11211");
       await field("Phone").fill("010 1234 5678");

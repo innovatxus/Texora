@@ -4,6 +4,8 @@
  * Actions, so both give the same messages.
  */
 import { z } from "zod";
+import { checkEgyptAddress } from "@/config/egypt-address";
+import { normalizeEgyptianMobile } from "@/config/locale";
 import { PASSWORD_MAX_LENGTH, passwordProblem } from "@/lib/auth/password";
 import { addressSchema, fitFamilySchema, sizeTypeSchema } from "./common";
 
@@ -108,13 +110,27 @@ export const profileDetailsSchema = z.object({
   phone: z.string().trim().max(30, "Use 30 characters or fewer").optional(),
 });
 
-/** An address as entered in the account (the server assigns the id). */
-export const addressInputSchema = addressSchema.extend({
-  id: z.string().max(128).optional(),
-  label: z.string().trim().max(40, "Use 40 characters or fewer").optional(),
-  isDefaultShipping: z.boolean().default(false),
-  isDefaultBilling: z.boolean().default(false),
-});
+/**
+ * An address as entered in the account (the server assigns the id): the
+ * Egypt address check, and a phone (optional here) must be an Egyptian mobile.
+ */
+export const addressInputSchema = addressSchema
+  .extend({
+    id: z.string().max(128).optional(),
+    label: z.string().trim().max(40, "Use 40 characters or fewer").optional(),
+    isDefaultShipping: z.boolean().default(false),
+    isDefaultBilling: z.boolean().default(false),
+  })
+  .superRefine((value, ctx) => {
+    checkEgyptAddress(value, ctx);
+    if (value.phone && normalizeEgyptianMobile(value.phone) === null) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["phone"],
+        message: "Enter an Egyptian mobile number, e.g. 010 1234 5678",
+      });
+    }
+  });
 export type AddressInput = z.input<typeof addressInputSchema>;
 
 /** Fit family and preferred sizes, used to pre-select on product pages. */

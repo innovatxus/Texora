@@ -183,7 +183,7 @@ test.describe("marketplace", () => {
     await field("First name").fill("Grace");
     await field("Last name").fill("Hopper");
     await field("Address").fill("5 Mesaha Square");
-    await field("City").fill("Dokki");
+    await shopper.getByRole("combobox", { name: "City or district" }).fill("Dokki");
     await shopper.getByRole("combobox", { name: "Governorate", exact: true }).selectOption("GZ");
     await field("Postal code (optional)").fill("12311");
     await field("Phone").fill("011 1234 5678");

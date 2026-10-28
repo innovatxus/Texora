@@ -4,6 +4,7 @@
  * and Server Actions; limits come from `src/config/merchant.ts`.
  */
 import { z } from "zod";
+import { egyptAddressProblems } from "@/config/egypt-address";
 import { COUNTRY, GOVERNORATE_CODES, POSTAL_CODE_PATTERN, toE164 } from "@/config/locale";
 import {
   isReservedName,
@@ -645,6 +646,9 @@ export const locationInputSchema = z
     phone: e164PhoneSchema.optional().or(z.literal("").transform(() => undefined)),
   })
   .superRefine((value, ctx) => {
+    for (const problem of egyptAddressProblems(value.address)) {
+      ctx.addIssue({ code: "custom", path: ["address", problem.path], message: problem.message });
+    }
     const [problem] = weeklyHoursProblems(value.hours);
     if (problem) ctx.addIssue({ code: "custom", path: ["hours"], message: problem });
   });

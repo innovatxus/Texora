@@ -88,7 +88,7 @@ test.describe("shop onboarding", () => {
     await page.getByRole("textbox", { name: "Location name" }).fill("Mercer Street studio");
     await page.getByRole("checkbox", { name: /Retail store/ }).check();
     await page.getByRole("textbox", { name: "Street address" }).fill("26 July Street");
-    await page.getByRole("textbox", { name: "City" }).fill("Zamalek");
+    await page.getByRole("combobox", { name: "City or district" }).fill("Zamalek");
     await page.getByRole("combobox", { name: "Governorate" }).selectOption("C");
     await page.getByRole("textbox", { name: "Postal code (optional)" }).fill("11211");
     // A location that ships completes the step and moves straight on to review.
