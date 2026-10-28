@@ -1,7 +1,8 @@
 /**
- * Error summary shown above a form after a failed submit. Each entry links to
- * its field; the form moves focus to the first invalid field and this
- * summary is announced as an alert. Errors are never shown as toasts alone.
+ * Error summary shown after a failed submit: a boxed alert that stays in view
+ * (floating at the side of the screen on wide screens, pinned to the top of
+ * the form on phones) while the person scrolls to fix each field. Each entry
+ * links to its field; the summary is announced as an alert.
  */
 export function ErrorSummary({
   errors,
@@ -12,8 +13,19 @@ export function ErrorSummary({
 }) {
   if (errors.length === 0) return null;
   return (
-    <div role="alert" className="border border-sale bg-surface p-4 text-sm">
-      <p className="font-medium text-sale">{title}</p>
+    <div
+      role="alert"
+      className="shadow-lg sticky top-2 z-30 border-2 border-sale bg-surface p-4 text-sm lg:fixed lg:top-24 lg:right-6 lg:w-80"
+    >
+      <p className="flex items-center gap-2 font-medium text-sale">
+        <span
+          aria-hidden="true"
+          className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sale text-xs font-bold text-surface"
+        >
+          !
+        </span>
+        {title}
+      </p>
       <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
         {errors.map((e) => (
           <li key={e.fieldId}>
