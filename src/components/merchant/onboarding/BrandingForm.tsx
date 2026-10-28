@@ -23,8 +23,8 @@ interface Props {
   accent: ShopAccent;
 }
 
-/** The logo at the three sizes shoppers see it. */
-function LogoPreviews({ logo, shopName }: { logo: MerchantImage; shopName: string }) {
+/** The logo at the sizes it appears in the shop. */
+function LogoPreviews({ logo }: { logo: MerchantImage }) {
   return (
     <div className="flex flex-wrap items-end gap-6 text-xs text-ink-soft">
       <figure className="flex flex-col items-center gap-2">
@@ -40,19 +40,6 @@ function LogoPreviews({ logo, shopName }: { logo: MerchantImage; shopName: strin
       <figure className="flex flex-col items-center gap-2">
         <Image src={logo.url} alt="" width={96} height={96} className="size-24 object-cover" />
         <figcaption>Shop header</figcaption>
-      </figure>
-      <figure className="flex flex-col items-start gap-2">
-        <span className="flex items-center gap-1.5 text-sm text-ink">
-          <Image
-            src={logo.url}
-            alt=""
-            width={20}
-            height={20}
-            className="size-5 rounded-full object-cover"
-          />
-          by {shopName}
-        </span>
-        <figcaption>Sold by line</figcaption>
       </figure>
     </div>
   );
@@ -168,7 +155,7 @@ export function BrandingForm({
         <h2 id="logo-title" className="font-display text-2xl">
           Logo
         </h2>
-        {logoImage && <LogoPreviews logo={logoImage} shopName={shopName} />}
+        {logoImage && <LogoPreviews logo={logoImage} />}
         <Uploader
           kind="logo"
           shopId={shopId}
