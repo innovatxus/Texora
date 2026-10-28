@@ -214,7 +214,6 @@ function buildMerchant(def: SeedMerchant, index: number, now: Date, takenSlugs: 
     categoryKeys,
     logo,
     ...(banner ? { banner: { ...banner, focal: { x: 0.5, y: 0.5 } } } : {}),
-    accent: def.shop.accent,
     contact: { email: `hello@${def.shop.slug}.example`, phone: def.locations[0]?.phone },
     social: { instagram: def.shop.instagram },
     returnPolicy:

@@ -2,7 +2,7 @@
 // designer), one waiting for review and one with changes requested. Shared by
 // the seed and the placeholder generator (which draws each shop's logo and banner).
 import type { FitFamily } from "@/lib/validation/common";
-import type { ShopAccent, ShopType } from "@/config/merchant";
+import type { ShopType } from "@/config/merchant";
 
 export interface SeedLocation {
   name: string;
@@ -40,7 +40,6 @@ export interface SeedMerchant {
     tagline: string;
     description: string;
     shopType: ShopType;
-    accent: ShopAccent;
     /** Logo and banner colours for the drawn placeholders. */
     palette: { ground: string; ink: string };
     monogram: string;
@@ -74,7 +73,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       description:
         "Harbor & Pine makes heavyweight shirts, knits and jackets in small runs from our Alexandria workshop. Every piece is cut for daily wear and mended for free.",
       shopType: "brand",
-      accent: "harbour",
       palette: { ground: "#1f3a4a", ink: "#f2ece0" },
       monogram: "H&P",
       departments: ["men"],
@@ -168,7 +166,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       description:
         "Maison Rue is a Zamalek boutique for easy dresses and tops in natural fibres, chosen by Camille from small European ateliers and our own studio.",
       shopType: "boutique",
-      accent: "clay",
       palette: { ground: "#b4603f", ink: "#fbfbf8" },
       monogram: "MR",
       departments: ["women"],
@@ -263,7 +260,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       description:
         "Studio Ines is the Cairo label of designer Ines Duarte: precise coats, dresses and shirting cut from deadstock wool and silk, graded from XS to XXL with a plus fit.",
       shopType: "designer",
-      accent: "plum",
       palette: { ground: "#5b3a55", ink: "#ecdca0" },
       monogram: "SI",
       departments: ["women"],
@@ -347,7 +343,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       description:
         "Northline Supply restores and resells quality outdoor and workwear: every piece is cleaned, repaired and graded before it ships from 6th of October.",
       shopType: "reseller",
-      accent: "moss",
       palette: { ground: "#2f4a3a", ink: "#ecdca0" },
       monogram: "NS",
       departments: ["men", "women"],
@@ -396,7 +391,6 @@ export const SEED_MERCHANTS: readonly SeedMerchant[] = [
       tagline: "Florals, mostly",
       description: "Hand-printed florals from our Gamaleya studio.",
       shopType: "boutique",
-      accent: "rose",
       palette: { ground: "#e3c3bd", ink: "#5e1f2a" },
       monogram: "P&T",
       departments: ["women"],

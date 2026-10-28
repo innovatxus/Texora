@@ -1,12 +1,10 @@
 import Image from "next/image";
-import { accentColor, type ShopAccent } from "@/config/merchant";
 import type { MerchantImage } from "@/lib/validation/merchant";
 
 export interface ShopHeaderData {
   name: string;
   tagline: string;
   description: string;
-  accent: ShopAccent;
   logo?: MerchantImage | undefined;
   banner?: (MerchantImage & { focal?: { x: number; y: number } | undefined }) | undefined;
 }
@@ -57,8 +55,7 @@ export function ShopHeader({
           ) : (
             <span
               aria-hidden="true"
-              className="flex size-full items-center justify-center font-display text-3xl text-surface"
-              style={{ background: accentColor(shop.accent) }}
+              className="flex size-full items-center justify-center bg-brand font-display text-3xl text-surface"
             >
               {shop.name.slice(0, 1)}
             </span>

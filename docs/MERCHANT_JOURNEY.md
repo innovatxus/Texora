@@ -166,7 +166,7 @@ Empty state for a new shop: the fields start blank, with the name field focused.
   - Drop zone text: "3:1, at least 2400×800 px, up to 10 MB."
   - Crop tool plus a focal-point picker: click, or move with the arrow keys.
   - Previews: "Desktop" (1440 crop) and "Mobile" (375 crop).
-- **Accent.** A radio group of 8 swatches, each named ("Ink", "Moss", "Clay", "Harbour", "Plum", "Saffron", "Rose", "Slate"). The selected one shows a preview button in that accent.
+- **Accent.** Removed (D-100): shops use the Texora palette; there is no per-shop colour.
 - **Upload states.** Progress is announced as "Uploading logo, 40%".
   - **Cancel** and **Retry** buttons.
   - Client errors:

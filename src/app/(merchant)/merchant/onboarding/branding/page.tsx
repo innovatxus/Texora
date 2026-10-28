@@ -5,7 +5,7 @@ import { getMerchantContext } from "@/lib/merchant/context";
 
 export const metadata: Metadata = { title: "Branding" };
 
-/** Step 2: logo, banner and accent colour. */
+/** Step 2: logo and banner. */
 export default async function Page() {
   const { shop } = await getMerchantContext();
   if (!shop) redirect("/merchant/onboarding/basics");
@@ -25,7 +25,6 @@ export default async function Page() {
         shopName={shop.name}
         logo={shop.logo}
         banner={shop.banner}
-        accent={shop.accent}
       />
     </section>
   );

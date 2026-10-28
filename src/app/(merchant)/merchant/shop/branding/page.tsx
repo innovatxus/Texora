@@ -16,7 +16,6 @@ export default async function Page() {
       shopName={shop.name}
       logo={shop.logo}
       banner={shop.banner}
-      accent={shop.accent}
     />
   );
 }

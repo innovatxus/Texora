@@ -30,7 +30,6 @@ function shop(owner: string) {
     shopType: "boutique",
     departments: ["women"],
     categoryKeys: ["women/dresses"],
-    accent: "ink",
     contact: { email: "hello@example.com" },
     social: {},
     returnPolicy: { mode: "platform" },

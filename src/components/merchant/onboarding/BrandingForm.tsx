@@ -8,9 +8,8 @@ import { savedAt, StepFooter, type FormMode } from "@/components/merchant/forms/
 import { FocalPointPicker, type FocalPoint } from "@/components/merchant/media/FocalPointPicker";
 import { Uploader } from "@/components/merchant/media/Uploader";
 import { UploadQueue } from "@/components/merchant/media/UploadQueue";
-import { accentColor, MERCHANT_LIMITS, SHOP_ACCENTS, type ShopAccent } from "@/config/merchant";
+import { MERCHANT_LIMITS } from "@/config/merchant";
 import { saveShopBrandingAction } from "@/lib/merchant/actions/shop";
-import { cn } from "@/lib/utils/cn";
 import type { MerchantImage } from "@/lib/validation/merchant";
 import { onUploadDone } from "@/stores/uploads";
 
@@ -20,7 +19,6 @@ interface Props {
   shopName: string;
   logo?: MerchantImage | undefined;
   banner?: (MerchantImage & { focal?: FocalPoint | undefined }) | undefined;
-  accent: ShopAccent;
 }
 
 /** The logo at the sizes it appears in the shop. */
@@ -82,22 +80,14 @@ function BannerPreviews({ banner, focal }: { banner: MerchantImage; focal: Focal
 
 /**
  * Onboarding step 2 / Shop › Branding: logo (square crop), banner (3:1 crop
- * plus focal point) and one of eight AA-checked accents. Uploads run in the
+ * plus focal point). Uploads run in the
  * background; the new image is kept once its processing finishes.
  */
-export function BrandingForm({
-  mode,
-  shopId,
-  shopName,
-  logo,
-  banner,
-  accent: initialAccent,
-}: Props) {
+export function BrandingForm({ mode, shopId, shopName, logo, banner }: Props) {
   const router = useRouter();
   const [logoImage, setLogoImage] = useState(logo);
   const [bannerImage, setBannerImage] = useState(banner);
   const [focal, setFocal] = useState<FocalPoint>(banner?.focal ?? { x: 0.5, y: 0.5 });
-  const [accent, setAccent] = useState<ShopAccent>(initialAccent);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedTime, setSavedTime] = useState<string | null>(null);
@@ -127,7 +117,6 @@ export function BrandingForm({
     setError(null);
     const result = await saveShopBrandingAction({
       shopId,
-      accent,
       ...(logoImage && logoImage.mediaId !== logo?.mediaId
         ? { logoMediaId: logoImage.mediaId }
         : {}),
@@ -196,46 +185,6 @@ export function BrandingForm({
         />
         <UploadQueue ownerKey={bannerKey} />
       </section>
-
-      <fieldset className="flex flex-col gap-4">
-        <legend className="mb-2 font-display text-2xl">Accent colour</legend>
-        <p className="text-sm text-ink-soft">Used for buttons and links on your shop page.</p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {SHOP_ACCENTS.map((option) => (
-            <label
-              key={option.key}
-              className={cn(
-                "flex min-h-11 cursor-pointer items-center gap-3 border border-ink-subtle bg-surface p-3",
-                "has-checked:border-ink has-checked:ring-1 has-checked:ring-ink has-focus-visible:outline-2 has-focus-visible:outline-focus",
-              )}
-            >
-              <input
-                type="radio"
-                name="accent"
-                value={option.key}
-                checked={accent === option.key}
-                onChange={() => setAccent(option.key)}
-                className="accent-ink"
-              />
-              <span
-                aria-hidden="true"
-                className="size-6"
-                style={{ background: accentColor(option.key) }}
-              />
-              <span className="text-sm">{option.label}</span>
-            </label>
-          ))}
-        </div>
-        <div>
-          <span
-            className="inline-flex min-h-11 items-center px-5 text-sm font-medium text-surface"
-            style={{ background: accentColor(accent) }}
-          >
-            Shop now
-          </span>
-          <span className="ml-3 text-sm text-ink-soft">Preview</span>
-        </div>
-      </fieldset>
 
       {error && <FormMessage>{error}</FormMessage>}
       <StepFooter

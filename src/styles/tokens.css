@@ -84,19 +84,3 @@
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-
-/*
- * Merchant shop accents (src/config/merchant.ts), AA-checked by npm run contrast.
- * "static" so every accent is always emitted as a variable: shop pages pick
- * one at runtime through an inline style, which Tailwind can't see at build.
- */
-@theme static {
-  --color-shop-ink: #1f2a44;
-  --color-shop-moss: #3d5a3a;
-  --color-shop-clay: #94472a;
-  --color-shop-harbour: #1d566a;
-  --color-shop-plum: #5e3a5c;
-  --color-shop-saffron: #7f5400;
-  --color-shop-rose: #9b3656;
-  --color-shop-slate: #45505b;
-}

@@ -528,3 +528,7 @@ Every photo slot uses the store's campaign photography (`public/media/assets/cam
 
 **Date:** 2026-10-27 · **Phase:** Live readiness
 Marketplace products sell under Texora. Shop identity is shown only to the shop's own merchant (their portal and shop page) and the Texora team (back office): product cards have no "by" line, the product page has no "Sold by" block (it says "Ships within N business days"), listings have no Shop filter and ignore `?shop=`, and search doesn't index shop names. Shop pages (`/shops/…`) need `shops.preview` (merchants and the marketplace team); everyone else, including signed-out visitors, gets a real 404 from the proxy, and a merchant can open only their own shop. Shop pages are noindex and out of the sitemap. Order records still snapshot the shop for merchants and staff.
+
+## D-100 — No per-shop accent colour
+
+Merchants no longer pick an accent colour. Shop pages use the Texora palette (the brand green for the logo placeholder), so every shop looks like part of one store. The `accent` field is gone from the shop schema, the branding form and the seed; the eight `--color-shop-*` tokens and their contrast checks were removed. Existing shop documents carrying `accent` are read without it (the schema strips unknown fields).

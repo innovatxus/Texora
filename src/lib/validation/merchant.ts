@@ -12,7 +12,6 @@ import {
   type LocationType,
   type MediaKind,
   type ProcessingTime,
-  type ShopAccent,
   type ShopType,
 } from "@/config/merchant";
 import { PASSWORD_MAX_LENGTH, passwordProblem } from "@/lib/auth/password";
@@ -186,16 +185,6 @@ export const SHOP_TYPE_VALUES = [
   "designer",
   "reseller",
 ] as const satisfies readonly ShopType[];
-export const ACCENT_VALUES = [
-  "ink",
-  "moss",
-  "clay",
-  "harbour",
-  "plum",
-  "saffron",
-  "rose",
-  "slate",
-] as const satisfies readonly ShopAccent[];
 export const PROCESSING_TIME_VALUES = ["1-2", "3-5"] as const satisfies readonly ProcessingTime[];
 
 /** Processing time; shops saved with the retired "5-10" option read as "3-5". */
@@ -209,7 +198,6 @@ export const LOCATION_TYPE_VALUES = [
 ] as const satisfies readonly LocationType[];
 
 const shopTypeSchema = z.enum(SHOP_TYPE_VALUES);
-const accentSchema = z.enum(ACCENT_VALUES);
 
 /**
  * Every shop uses Texora's returns policy (PLATFORM_RETURN_POLICY). Shops saved
@@ -294,7 +282,6 @@ export const shopSchema = shopBasicsSchema.extend({
   vendorId: idSchema,
   logo: merchantImageSchema.optional(),
   banner: merchantImageSchema.optional(),
-  accent: accentSchema,
   contact: shopContactSchema,
   social: shopSocialSchema,
   returnPolicy: returnPolicySchema,
@@ -615,7 +602,6 @@ export const shopBrandingInputSchema = z.object({
   logoMediaId: idSchema.optional(),
   bannerMediaId: idSchema.optional(),
   bannerFocal: focalSchema.optional(),
-  accent: z.enum(ACCENT_VALUES),
 });
 export type ShopBrandingInput = z.infer<typeof shopBrandingInputSchema>;
 

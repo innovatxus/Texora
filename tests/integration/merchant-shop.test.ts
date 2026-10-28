@@ -118,7 +118,6 @@ describe("shop basics", () => {
       status: "draft",
       onboardingStep: "branding",
       completedSteps: ["basics"],
-      accent: "ink",
       contact: { email: `${vendorId}@example.com` },
       returnPolicy: { mode: "platform" },
     });
@@ -168,18 +167,16 @@ describe("branding", () => {
         logoMediaId: firstLogo,
         bannerMediaId: banner,
         bannerFocal: { x: 0.3, y: 0.6 },
-        accent: "moss",
       },
       now,
     );
     let shop = await getShop(shopId);
     expect(shop?.logo?.mediaId).toBe(firstLogo);
     expect(shop?.banner).toMatchObject({ mediaId: banner, focal: { x: 0.3, y: 0.6 } });
-    expect(shop?.accent).toBe("moss");
     expect((await getMedia(firstLogo))?.status).toBe("attached");
 
     const secondLogo = await uploadImage(shopId, "logo");
-    await shops.saveShopBranding(actor, { shopId, logoMediaId: secondLogo, accent: "moss" }, now);
+    await shops.saveShopBranding(actor, { shopId, logoMediaId: secondLogo }, now);
     shop = await getShop(shopId);
     expect(shop?.logo?.mediaId).toBe(secondLogo);
     expect(shop?.banner?.mediaId).toBe(banner);
@@ -189,7 +186,7 @@ describe("branding", () => {
   it("refuses a banner used as a logo", async () => {
     const banner = await uploadImage(shopId, "banner");
     await expect(
-      shops.saveShopBranding(actor, { shopId, logoMediaId: banner, accent: "ink" }, now),
+      shops.saveShopBranding(actor, { shopId, logoMediaId: banner }, now),
     ).rejects.toMatchObject({ code: "conflict" });
   });
 });

@@ -56,22 +56,6 @@ const pairs = [
   ["focus", "surface", "Focus ring on cards (non-text)", 3],
   ["line-strong", "canvas", "Selected swatch/size outline", 3],
   ["ink-subtle", "canvas", "Input border alternative (non-text)", 3],
-  ["shop-ink", "canvas", "Shop accent (ink) as text on page", 4.5],
-  ["surface", "shop-ink", "Button label on shop accent (ink)", 4.5],
-  ["shop-moss", "canvas", "Shop accent (moss) as text on page", 4.5],
-  ["surface", "shop-moss", "Button label on shop accent (moss)", 4.5],
-  ["shop-clay", "canvas", "Shop accent (clay) as text on page", 4.5],
-  ["surface", "shop-clay", "Button label on shop accent (clay)", 4.5],
-  ["shop-harbour", "canvas", "Shop accent (harbour) as text on page", 4.5],
-  ["surface", "shop-harbour", "Button label on shop accent (harbour)", 4.5],
-  ["shop-plum", "canvas", "Shop accent (plum) as text on page", 4.5],
-  ["surface", "shop-plum", "Button label on shop accent (plum)", 4.5],
-  ["shop-saffron", "canvas", "Shop accent (saffron) as text on page", 4.5],
-  ["surface", "shop-saffron", "Button label on shop accent (saffron)", 4.5],
-  ["shop-rose", "canvas", "Shop accent (rose) as text on page", 4.5],
-  ["surface", "shop-rose", "Button label on shop accent (rose)", 4.5],
-  ["shop-slate", "canvas", "Shop accent (slate) as text on page", 4.5],
-  ["surface", "shop-slate", "Button label on shop accent (slate)", 4.5],
 ];
 
 const rows = pairs.map(([fg, bg, usage, required]) => {

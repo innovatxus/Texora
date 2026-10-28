@@ -1,15 +1,12 @@
-import { readFileSync } from "node:fs";
 import {
   isReservedName,
   LOCATION_TYPES,
   PROCESSING_TIMES,
-  SHOP_ACCENTS,
   SHOP_TYPES,
   SIZE_RUNS,
 } from "@/config/merchant";
 import { SIZE_TYPES } from "./common";
 import {
-  ACCENT_VALUES,
   e164PhoneSchema,
   LOCATION_TYPE_VALUES,
   merchantEmailSchema,
@@ -170,18 +167,12 @@ describe("hours", () => {
 describe("merchant config", () => {
   it("matches the schema enums", () => {
     expect(SHOP_TYPES.map((t) => t.value)).toEqual([...SHOP_TYPE_VALUES]);
-    expect(SHOP_ACCENTS.map((a) => a.key)).toEqual([...ACCENT_VALUES]);
     expect(PROCESSING_TIMES.map((p) => p.value)).toEqual([...PROCESSING_TIME_VALUES]);
     expect(LOCATION_TYPES.map((l) => l.value)).toEqual([...LOCATION_TYPE_VALUES]);
   });
 
   it("has no pickup location type (D-071)", () => {
     expect(LOCATION_TYPES.map((l) => l.value)).not.toContain("pickup");
-  });
-
-  it("defines a token for every shop accent", () => {
-    const css = readFileSync("src/styles/tokens.css", "utf8");
-    for (const { key } of SHOP_ACCENTS) expect(css).toContain(`--color-shop-${key}:`);
   });
 
   it("has a size run for every size type, with unique sizes", () => {

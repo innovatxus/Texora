@@ -139,7 +139,6 @@ export async function saveShopBasics(
       const shop: Omit<Shop, "id"> = {
         ...input,
         vendorId: actor.vendorId,
-        accent: "ink",
         contact: { email: merchant.email },
         social: {},
         returnPolicy: { mode: "platform" },
@@ -198,7 +197,7 @@ function toImage(media: Awaited<ReturnType<typeof requireOwnedMedia>>[number], a
   return image;
 }
 
-/** Saves logo, banner (with focal point) and accent; replaced media is released for cleanup. */
+/** Saves logo and banner (with focal point); replaced media is released for cleanup. */
 export async function saveShopBranding(
   actor: MerchantActor,
   input: ShopBrandingInput,
@@ -234,7 +233,6 @@ export async function saveShopBranding(
     tx.update(shopRef(shop.id), {
       ...(logo ? { logo } : {}),
       ...(banner ? { banner } : {}),
-      accent: input.accent,
       completedSteps: completed(shop, "branding"),
       onboardingStep: shop.status === "draft" ? nextStep("branding") : shop.onboardingStep,
       updatedAt: now,
@@ -247,7 +245,7 @@ export async function saveShopBranding(
     action: "shops.update_branding",
     target: { type: "shop", id: shop.id },
     before: { logo: shop.logo?.mediaId ?? null, banner: shop.banner?.mediaId ?? null },
-    after: { logo: logo?.mediaId ?? null, banner: banner?.mediaId ?? null, accent: input.accent },
+    after: { logo: logo?.mediaId ?? null, banner: banner?.mediaId ?? null },
   });
   const saved = (await getShop(shop.id)) as Shop;
   refreshStorefront(saved);

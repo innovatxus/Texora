@@ -1,6 +1,6 @@
 /**
  * Merchant programme configuration: limits, reserved names, size runs, shop
- * accents and the landing page copy. Shared by client forms, Server Actions,
+ * and the landing page copy. Shared by client forms, Server Actions,
  * Zod schemas and the `/merchants` page, so every rule lives in one place.
  */
 import type { SizeType } from "@/lib/validation/common";
@@ -129,29 +129,6 @@ export const SHOP_TYPES = [
 ] as const;
 
 export type ShopType = (typeof SHOP_TYPES)[number]["value"];
-
-/**
- * The curated shop accents. Each maps to a `--color-shop-*` token in
- * `src/styles/tokens.css`; `npm run contrast` checks every one for AA as text on
- * the page and as a button with white text. No free colour input.
- */
-export const SHOP_ACCENTS = [
-  { key: "ink", label: "Ink" },
-  { key: "moss", label: "Moss" },
-  { key: "clay", label: "Clay" },
-  { key: "harbour", label: "Harbour" },
-  { key: "plum", label: "Plum" },
-  { key: "saffron", label: "Saffron" },
-  { key: "rose", label: "Rose" },
-  { key: "slate", label: "Slate" },
-] as const;
-
-export type ShopAccent = (typeof SHOP_ACCENTS)[number]["key"];
-
-/** The CSS colour for an accent, for inline styles in previews and shop pages. */
-export function accentColor(accent: ShopAccent): string {
-  return `var(--color-shop-${accent})`;
-}
 
 /** How long a shop takes to send an order. */
 export const PROCESSING_TIMES = [
