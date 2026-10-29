@@ -42,7 +42,7 @@ export function Fulfilment({ terms }: { terms: DeliveryTerms | null }) {
       </h2>
       <p className="mt-1 text-sm text-ink-soft">
         {terms ? `Free standard delivery on orders over ${formatMoney(terms.freeFrom)}. ` : ""}
-        Cash on delivery available. Free returns within 14 days.
+        Cash on delivery available. Free returns within 15 days.
       </p>
       <div className="mt-3 max-w-xs">
         <Select

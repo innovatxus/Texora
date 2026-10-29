@@ -22,7 +22,7 @@ export interface PublicShop {
   shipsFrom: string | null;
 }
 
-/** "14-day returns": every shop uses Texora's policy. */
+/** "15-day returns": every shop uses Texora's policy. */
 export function returnSummary(_policy: ReturnPolicy): string {
   // Every shop uses Texora's policy.
   return `${PLATFORM_RETURN_POLICY.windowDays}-day returns`;

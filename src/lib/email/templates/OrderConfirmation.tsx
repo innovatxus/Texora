@@ -49,7 +49,7 @@ export function OrderConfirmationEmail(props: OrderConfirmationProps) {
     <EmailLayout
       brandName={brandName}
       preview={`Thank you for your order ${orderNumber}`}
-      footer="Questions? Reply to this email or visit our help centre. Free returns within 14 days (final sale items excluded)."
+      footer="Questions? Reply to this email or visit our help centre. Free returns within 15 days (final sale items excluded)."
     >
       <EmailHeading>Thank you, {firstName}</EmailHeading>
       <EmailText>

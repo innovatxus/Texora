@@ -222,7 +222,7 @@ export function BagPage() {
             <Redemptions bag={bag} />
           </div>
           <p className="text-center text-xs text-ink-subtle">
-            Free returns within 14 days. Secure checkout.
+            Free returns within 15 days. Secure checkout.
           </p>
         </aside>
       </div>

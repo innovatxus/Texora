@@ -540,3 +540,7 @@ The returns window is two weeks from delivery (was 30 days): `RETURN_WINDOW_DAYS
 ## D-102 — Egypt address checks
 
 Addresses are checked against Egypt before they are saved (checkout, account address book, back-office address changes, merchant locations), in `src/config/egypt-address.ts`, the same code in the browser and on the server. The city or district may not be one we know belongs to a different governorate, and a postal code (optional) must start with the governorate's Egypt Post prefix. Unknown areas pass, since villages and new compounds are not all listed. The City field suggests the chosen governorate's main areas, and a phone on a saved account address must be an Egyptian mobile.
+
+## D-103 — Returns within 15 days
+
+Supersedes D-101: the returns window is 15 days from delivery. `RETURN_WINDOW_DAYS` and `PLATFORM_RETURN_POLICY` drive the deadline and eligibility, and every customer-facing line says 15 days.

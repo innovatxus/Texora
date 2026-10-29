@@ -183,7 +183,7 @@ Empty state for a new shop: the fields start blank, with the name field focused.
   - Phone: country selector plus number, stored as E.164. Error: "Enter a phone number like 212 555 0123".
   - Website: "Enter a full address starting with https://".
   - Instagram / TikTok / Facebook: "Enter your handle without the @".
-- **Return policy.** Fixed: every shop uses Texora's policy ("14-day returns, unworn with tags"), shown as a statement, not a choice. Shops saved with their own policy before this rule read and save as Texora's.
+- **Return policy.** Fixed: every shop uses Texora's policy ("15-day returns, unworn with tags"), shown as a statement, not a choice. Shops saved with their own policy before this rule read and save as Texora's.
 - **Shipping.**
   - Ships from: a select of the shop's ship-from locations. With none yet: "Add a ship-from location in the next step".
   - Processing time: 1–2 / 3–5 business days (the retired 5–10 reads as 3–5).

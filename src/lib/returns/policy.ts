@@ -2,7 +2,7 @@ import { deliveredAt } from "@/lib/orders/tracking";
 import type { Order, Return } from "@/lib/validation";
 
 /** Items can be returned within this many days of delivery. */
-export const RETURN_WINDOW_DAYS = 14;
+export const RETURN_WINDOW_DAYS = 15;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Return reasons and their labels, in the order shown on the form. */

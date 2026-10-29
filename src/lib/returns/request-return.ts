@@ -84,7 +84,7 @@ export async function requestReturn(
       throw new ActionError(
         "conflict",
         eligibility.reason === "window_closed"
-          ? "The 14-day return window for this order has closed"
+          ? "The 15-day return window for this order has closed"
           : eligibility.reason === "not_shipped"
             ? "You can start a return once your order has shipped"
             : eligibility.reason === "cancelled"
